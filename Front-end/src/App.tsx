@@ -1,8 +1,14 @@
 import { useState } from "react";
-import "./App.css";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+import Photo from "./components/Photo";
 
 function App() {
-  return <></>;
+  return (
+    <div>
+      <Header name="Ronaldo Messi" />
+    </div>
+  );
 }
 
 export default App;
