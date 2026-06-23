@@ -1,6 +1,6 @@
-import type { PhotoData } from "./types/photo";
+import type { PhotoData } from "../types/photo";
 
-const mockPhotos: PhotoData[] = [
+export const mockPhotos: PhotoData[] = [
   {
     user: "Thanh Nhân",
     title: "Golden Hour at the Lake",
