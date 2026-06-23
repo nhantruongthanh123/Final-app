@@ -1,45 +1,54 @@
-import React from "react";
 import { Heart } from "lucide-react";
+import type { PhotoData } from "../types/photo";
 
-const Photo = ({ imgURL }: { imgURL: string }) => {
+const Photo = ({ photoData }: { photoData: PhotoData }) => {
   return (
-    <div className="m-2 bg-gray-100 grid grid-cols-2">
-      <div className="relative m-2">
-        <img src={imgURL} alt="Photo" className="w-full h-full object-cover" />
+    <div className="bg-white border border-gray-200 shadow-sm grid grid-cols-1 sm:grid-cols-2">
+      <div className="w-full h-64">
+        <img
+          src={photoData.imgURL}
+          alt="Photo"
+          className="w-full h-full object-cover"
+        />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col p-2">
         <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
           <div className="flex flex-row gap-4">
             <div className="h-8 w-8 rounded-full bg-indigo-800 flex items-center justify-center text-white">
-              {" "}
-              TN{" "}
+              {photoData.user
+                .split(" ")
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")}
             </div>
             <div className="text-indigo-800 flex items-center justify-center">
-              Thanh Nhân
+              {photoData.user}
             </div>
           </div>
         </div>
 
-        <div className="p-2 text-black font-bold">
-          This is a sample photo title.
+        <div className="p-2 text-black text-sm font-bold truncate">
+          {photoData.title}
         </div>
 
-        <div className="p-2 text-gray-600">
-          This is sample photo description. Lorem ipsum dolor sit amet,
-          consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-          labore et dolore magna
+        <div className="text-gray-500 text-xs leading-relaxed p-2 line-clamp-3">
+          {photoData.description}
         </div>
 
         <div className="p-2 text-gray-600 flex mt-auto justify-between">
           <div>
-            <Heart
-              className="w-6 h-6 inline-block mr-1 mb-1 text-indigo-800"
-              fill="currentColor"
-            />
-            123
+            {photoData.isLikedByCurrentUser ? (
+              <Heart
+                className="w-6 h-6 inline-block mr-1 mb-1 text-indigo-800"
+                fill="currentColor"
+              />
+            ) : (
+              <Heart className="w-6 h-6 inline-block mr-1 mb-1 text-gray-400" />
+            )}
+            {photoData.likes}
           </div>
-          <div> 4:56 pm 20/6/2026 </div>
+          <div> {photoData.timestamp} </div>
         </div>
       </div>
     </div>

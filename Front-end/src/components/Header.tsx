@@ -1,5 +1,3 @@
-import React from "react";
-
 const Header = ({ name }: { name: string }) => {
   return (
     <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold">
