@@ -5,8 +5,12 @@ import Photo from "./components/Photo";
 
 function App() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Header name="Ronaldo Messi" />
+      <div className="flex flex-row flex-1">
+        <Sidebar />
+        <div></div>
+      </div>
     </div>
   );
 }

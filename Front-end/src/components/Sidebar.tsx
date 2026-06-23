@@ -2,7 +2,7 @@ import React from "react";
 
 const Sidebar = () => {
   return (
-    <div className="flex flex-col gap-2 my-4 font-bold">
+    <div className="flex-col gap-2 py-4 font-bold w-[15%] bg-stone-300 hidden md:flex">
       <button> Feed </button>
       <button> Discover </button>
     </div>

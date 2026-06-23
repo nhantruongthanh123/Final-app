@@ -2,30 +2,30 @@ import React from "react";
 
 const Header = ({ name }: { name: string }) => {
   return (
-    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 px-8 font-bold">
-      <div className="text-white flex justify-end w-[13%] mr-[2%]">
+    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold">
+      <div className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base">
         Fotobook
       </div>
 
-      <div className="flex justify-start w-[60%]">
+      <div className="flex flex-1 justify-start w-[55%] mr-2 md:w-[60%] md:mr-0">
         <input
-          className="bg-white text-gray-700 placeholder:text-gray-400 rounded-sm px-4 py-1 w-[80%]"
+          className="bg-white text-gray-700 placeholder:text-gray-400 rounded-sm px-2 md:px-4 py-1 w-[90%] md:w-[80%] text-xs md:text-base"
           placeholder="Search photo/album..."
         />
       </div>
 
-      <div className="flex items-center gap-8 md:mr-[5%]">
+      <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
         <div className="flex flex-row items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-indigo-800">
+          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-indigo-800">
             {name
               .split(" ")
               .map((n) => n[0])
               .join("")}
           </div>
-          <div className="text-white">{name}</div>
+          <div className="text-white hidden md:block">{name}</div>
         </div>
 
-        <div className="text-white">
+        <div className="text-white pr-2 md:pr-0">
           <button>Log out</button>
         </div>
       </div>
