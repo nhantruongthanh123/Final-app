@@ -24,7 +24,7 @@ const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col justify-between items-center p-4">
-          <div className="w-full flex items-center mb-4 justify-end relative">
+          <div className="w-full flex items-center mb-4 justify-end relative shrink-0">
             <h2 className="font-bold text-lg text-black absolute left-1/2 transform -translate-x-1/2">
               {title}
             </h2>
@@ -36,7 +36,7 @@ const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
             </button>
           </div>
 
-          <div className="w-full bg-gray-100 flex justify-center max-h-[60vh] items-center px-8">
+          <div className="w-full bg-gray-100 flex justify-center max-h-[60vh] items-center px-8 select-none">
             <div
               className="cursor-pointer shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
               onClick={handlePrevImage}
@@ -47,7 +47,7 @@ const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
             <img
               src={imgURLs[currentImageIndex]}
               alt={title}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-contain max-h-[60vh]"
             />
 
             <div
@@ -58,7 +58,7 @@ const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
             </div>
           </div>
 
-          <div className="p-4 text-sm text-gray-700 leading-relaxed overflow-y-auto">
+          <div className="p-4 text-sm text-gray-700 leading-relaxed overflow-y-auto shrink-0">
             {description}
           </div>
         </div>

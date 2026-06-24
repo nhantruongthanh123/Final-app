@@ -1,4 +1,4 @@
-const Header = ({ name }: { name: string }) => {
+const Header = ({ name }: { name?: string }) => {
   return (
     <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold">
       <div className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base">
@@ -12,21 +12,27 @@ const Header = ({ name }: { name: string }) => {
         />
       </div>
 
-      <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
-        <div className="flex flex-row items-center gap-4">
-          <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-indigo-800">
-            {name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")}
+      {name === "" ? (
+        <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
+          <div className="flex flex-row items-center gap-4">
+            <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-indigo-800">
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </div>
+            <div className="text-white hidden md:block">{name}</div>
           </div>
-          <div className="text-white hidden md:block">{name}</div>
-        </div>
 
-        <div className="text-white pr-2 md:pr-0">
-          <button>Log out</button>
+          <div className="text-white pr-2 md:pr-0">
+            <button>Log out</button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="text-white pr-2 md:pr-0 md:mr-[5%]">
+          <button>Log in</button>
+        </div>
+      )}
     </div>
   );
 };
