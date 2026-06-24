@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 import Photo from "../components/Photo";
 import PhotoModal from "../components/PhotoModal";
 import TagToggle from "../components/TagToggle";
@@ -12,41 +10,43 @@ import Album from "../components/Album";
 import type { AlbumData } from "../types/album";
 import AlbumModal from "../components/AlbumModal";
 
-function Feed() {
+function VisitorDiscover() {
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoData | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<AlbumData | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div>
-        <TagToggle isPhoto={isPhotoView} setIsPhoto={setIsPhotoView} />
+      <div className="flex flex-row flex-1">
+        <div>
+          <TagToggle isPhoto={isPhotoView} setIsPhoto={setIsPhotoView} />
 
-        {isPhotoView ? (
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockPhotos.map((photo, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedPhoto(photo)}
-                className="cursor-pointer transition-transform hover:scale-[1.02]"
-              >
-                <Photo photoData={photo} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockAlbums.map((album, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedAlbum(album)}
-                className="cursor-pointer transition-transform hover:scale-[1.02]"
-              >
-                <Album albumData={album} />
-              </div>
-            ))}
-          </div>
-        )}
+          {isPhotoView ? (
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {mockPhotos.map((photo, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedPhoto(photo)}
+                  className="cursor-pointer transition-transform hover:scale-[1.02]"
+                >
+                  <Photo photoData={photo} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {mockAlbums.map((album, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedAlbum(album)}
+                  className="cursor-pointer transition-transform hover:scale-[1.02]"
+                >
+                  <Album albumData={album} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <AlbumModal
@@ -68,4 +68,4 @@ function Feed() {
   );
 }
 
-export default Feed;
+export default VisitorDiscover;

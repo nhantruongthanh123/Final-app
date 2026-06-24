@@ -1,10 +1,8 @@
-import Header from "../components/Header";
-import LoginForm from "../components/LoginForm";
+import LoginForm from "@/components/LoginForm";
 
 const Login = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       <LoginForm />
     </div>
   );

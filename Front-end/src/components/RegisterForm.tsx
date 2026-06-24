@@ -1,30 +1,26 @@
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
 import {
   Card,
   CardContent,
-  CardFooter,
+  CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
+} from "@/components/ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Button } from "./ui/button";
+import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa6";
 
-const LoginForm = () => {
-  const navigate = useNavigate();
-
-  function handleRegisterClick() {
-    navigate("/register");
-  }
-
+const RegisterForm = () => {
   return (
     <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-indigo-800">
-            PhotoBook Login
+            Create your account
           </CardTitle>
+          <CardDescription className="text-gray-600 text-sm">
+            Join PhotoBook today.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="grid gap-4">
@@ -34,8 +30,30 @@ const LoginForm = () => {
           </div>
 
           <div className="grid gap-2">
+            <Label htmlFor="username">User Name</Label>
+            <Input
+              id="username"
+              type="text"
+              placeholder="Enter your user name"
+            />
+          </div>
+
+          <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" />
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              placeholder="Confirm your password"
+            />
           </div>
 
           <div className="relative my-2">
@@ -65,24 +83,12 @@ const LoginForm = () => {
           </div>
 
           <Button className="w-full bg-indigo-800 hover:bg-indigo-700">
-            Login
+            Register
           </Button>
         </CardContent>
-
-        <CardFooter className="flex flex-col gap-2 text-sm text-center">
-          <button className="text-indigo-600 hover:underline">
-            Forgot password?
-          </button>
-          <button
-            className="text-indigo-600 hover:underline"
-            onClick={handleRegisterClick}
-          >
-            Create a new account
-          </button>
-        </CardFooter>
       </Card>
     </div>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
