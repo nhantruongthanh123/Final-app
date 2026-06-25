@@ -1,5 +1,5 @@
-import HeaderAdmin from "@/components/HeaderAdmin";
-import SidebarAdmin from "@/components/SidebarAdmin";
+import HeaderAdmin from "@/components/layout/HeaderAdmin";
+import SidebarAdmin from "@/components/layout/SidebarAdmin";
 import { Outlet } from "react-router-dom";
 
 const AdminLayout = () => {

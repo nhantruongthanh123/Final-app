@@ -11,7 +11,7 @@ import VisitorDiscover from "./pages/VisitorDiscover";
 import Users from "./pages/Admin/Users";
 import Albums from "./pages/Admin/Albums";
 import Photos from "./pages/Admin/Photos";
-import UserProfile from "./components/UserProfile";
+import UserProfile from "./components/user/UserProfile";
 
 function App() {
   return (

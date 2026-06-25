@@ -1,5 +1,5 @@
-import { Heart, MoreVertical, NotebookPen } from "lucide-react";
-import type { PhotoData } from "../types/photo";
+import { NotebookPen } from "lucide-react";
+import type { PhotoData } from "../../types/photo";
 
 const PhotoAdmin = ({ photoData }: { photoData: PhotoData }) => {
   return (

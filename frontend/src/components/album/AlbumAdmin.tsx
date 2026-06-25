@@ -1,5 +1,5 @@
 import React from "react";
-import type { AlbumData } from "../types/album";
+import type { AlbumData } from "@/types/album";
 import { NotebookPen } from "lucide-react";
 
 const AlbumAdmin = ({ albumData }: { albumData: AlbumData }) => {

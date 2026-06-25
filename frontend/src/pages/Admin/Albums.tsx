@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { mockAlbums } from "@/datas/albumData";
-import AlbumAdmin from "@/components/AlbumAdmin";
+import AlbumAdmin from "@/components/album/AlbumAdmin";
 import {
   Pagination,
   PaginationContent,

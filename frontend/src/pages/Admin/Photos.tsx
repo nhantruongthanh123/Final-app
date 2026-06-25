@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { mockPhotos } from "@/datas/photoData";
-import PhotoAdmin from "@/components/PhotoAdmin";
+import PhotoAdmin from "@/components/photo/PhotoAdmin";
 import {
   Pagination,
   PaginationContent,
