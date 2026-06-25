@@ -2,8 +2,8 @@ import userData from "@/datas/userData";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import ProfileHeader from "./ProfileHeader";
-import ProfileBody from "./ProfileBody";
+import ProfileHeader from "../../components/admin/ProfileHeader";
+import ProfileBody from "../../components/admin/ProfileBody";
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);

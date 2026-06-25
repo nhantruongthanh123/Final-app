@@ -1,4 +1,4 @@
-import UserTable from "@/components/user/UserTable";
+import UserTable from "@/components/admin/UserTable";
 import userData from "@/datas/userData";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
