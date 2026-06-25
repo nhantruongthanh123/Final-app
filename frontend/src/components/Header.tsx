@@ -12,7 +12,7 @@ const Header = ({ name }: { name?: string }) => {
         />
       </div>
 
-      {name === "" ? (
+      {name ? (
         <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
           <div className="flex flex-row items-center gap-4">
             <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-indigo-800">

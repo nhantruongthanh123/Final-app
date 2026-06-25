@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const SidebarAdmin = () => {
   return (
-    <div className="flex-col py-4 font-bold w-[15%] bg-stone-200 hidden md:flex shrink-0">
+    <div className="flex-col py-4 font-bold w-[15%] bg-stone-200 hidden md:flex shrink-0 h-full">
       <Link
         to="/admin/photos"
         className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"

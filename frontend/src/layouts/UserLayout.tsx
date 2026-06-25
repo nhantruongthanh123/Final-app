@@ -5,7 +5,7 @@ import Sidebar from "@/components/Sidebar";
 const UserLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header name="Thanh Nhan" />
       <div className="flex flex-row flex-1">
         <Sidebar />
         <Outlet />
