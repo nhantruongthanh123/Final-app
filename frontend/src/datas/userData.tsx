@@ -2,6 +2,7 @@ import type { User } from "@/types/user";
 
 const userData: User[] = [
   {
+    id: 1,
     name: "John Doe",
     email: "john.doe@example.com",
     role: "Admin",
@@ -9,6 +10,7 @@ const userData: User[] = [
     lastLogin: "2023-10-01 10:00:00",
   },
   {
+    id: 2,
     name: "Jane Smith",
     email: "jane.smith@example.com",
     role: "User",
@@ -16,6 +18,7 @@ const userData: User[] = [
     lastLogin: "2023-09-28 14:30:00",
   },
   {
+    id: 3,
     name: "Alice Johnson",
     email: "alice.johnson@example.com",
     role: "Editor",
@@ -23,6 +26,7 @@ const userData: User[] = [
     lastLogin: "2023-10-02 08:15:00",
   },
   {
+    id: 4,
     name: "Bob Williams",
     email: "bob.williams@example.com",
     role: "User",
@@ -30,6 +34,7 @@ const userData: User[] = [
     lastLogin: "2023-10-03 11:45:00",
   },
   {
+    id: 5,
     name: "Carol Davis",
     email: "carol.davis@example.com",
     role: "Moderator",
@@ -37,6 +42,7 @@ const userData: User[] = [
     lastLogin: "2023-10-01 16:20:00",
   },
   {
+    id: 6,
     name: "David Martinez",
     email: "david.martinez@example.com",
     role: "User",
@@ -44,6 +50,7 @@ const userData: User[] = [
     lastLogin: "2023-09-15 09:00:00",
   },
   {
+    id: 7,
     name: "Eva Thompson",
     email: "eva.thompson@example.com",
     role: "Editor",
@@ -51,6 +58,7 @@ const userData: User[] = [
     lastLogin: "2023-10-04 13:30:00",
   },
   {
+    id: 8,
     name: "Frank Garcia",
     email: "frank.garcia@example.com",
     role: "Admin",
@@ -58,6 +66,7 @@ const userData: User[] = [
     lastLogin: "2023-10-04 07:55:00",
   },
   {
+    id: 9,
     name: "Grace Lee",
     email: "grace.lee@example.com",
     role: "User",
@@ -65,6 +74,7 @@ const userData: User[] = [
     lastLogin: "2023-10-03 17:10:00",
   },
   {
+    id: 10,
     name: "Henry Wilson",
     email: "henry.wilson@example.com",
     role: "User",
@@ -72,6 +82,7 @@ const userData: User[] = [
     lastLogin: "2023-08-30 12:00:00",
   },
   {
+    id: 11,
     name: "Iris Brown",
     email: "iris.brown@example.com",
     role: "Moderator",
@@ -79,6 +90,7 @@ const userData: User[] = [
     lastLogin: "2023-10-02 15:45:00",
   },
   {
+    id: 12,
     name: "Jack Taylor",
     email: "jack.taylor@example.com",
     role: "User",
@@ -86,6 +98,7 @@ const userData: User[] = [
     lastLogin: "2023-10-01 10:30:00",
   },
   {
+    id: 13,
     name: "Karen Anderson",
     email: "karen.anderson@example.com",
     role: "Editor",
@@ -93,6 +106,7 @@ const userData: User[] = [
     lastLogin: "2023-09-20 11:00:00",
   },
   {
+    id: 14,
     name: "Leo Thomas",
     email: "leo.thomas@example.com",
     role: "User",
@@ -100,6 +114,7 @@ const userData: User[] = [
     lastLogin: "2023-10-04 09:25:00",
   },
   {
+    id: 15,
     name: "Mia Jackson",
     email: "mia.jackson@example.com",
     role: "User",
@@ -107,6 +122,7 @@ const userData: User[] = [
     lastLogin: "2023-10-03 14:00:00",
   },
   {
+    id: 16,
     name: "Nathan White",
     email: "nathan.white@example.com",
     role: "Admin",
@@ -114,6 +130,7 @@ const userData: User[] = [
     lastLogin: "2023-10-04 08:40:00",
   },
   {
+    id: 17,
     name: "Olivia Harris",
     email: "olivia.harris@example.com",
     role: "User",
@@ -121,6 +138,7 @@ const userData: User[] = [
     lastLogin: "2023-09-10 16:50:00",
   },
   {
+    id: 18,
     name: "Paul Clark",
     email: "paul.clark@example.com",
     role: "Moderator",
@@ -128,6 +146,7 @@ const userData: User[] = [
     lastLogin: "2023-10-02 10:15:00",
   },
   {
+    id: 19,
     name: "Quinn Lewis",
     email: "quinn.lewis@example.com",
     role: "Editor",
@@ -135,6 +154,7 @@ const userData: User[] = [
     lastLogin: "2023-10-03 12:55:00",
   },
   {
+    id: 20,
     name: "Rachel Robinson",
     email: "rachel.robinson@example.com",
     role: "User",

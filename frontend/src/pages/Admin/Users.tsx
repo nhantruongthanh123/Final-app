@@ -35,24 +35,24 @@ const Users = () => {
       {/* FILTER BAR */}
       <div className="flex gap-4 mb-6">
         <Input placeholder="Search by name or email" />
-        <Select defaultValue="all">
+        <Select defaultValue="All">
           <SelectTrigger>
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
+            <SelectItem value="All">All Roles</SelectItem>
+            <SelectItem value="Admin">Admin</SelectItem>
+            <SelectItem value="User">User</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="all">
+        <Select defaultValue="All">
           <SelectTrigger>
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="All">All Statuses</SelectItem>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
       </div>

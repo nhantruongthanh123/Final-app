@@ -7,7 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "./ui/badge";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const UserTable = ({ users }: { users: User[] }) => {
   return (
@@ -25,8 +34,8 @@ const UserTable = ({ users }: { users: User[] }) => {
         </TableHeader>
 
         <TableBody>
-          {users.map((user, index) => (
-            <TableRow key={index} className="group">
+          {users.map((user) => (
+            <TableRow key={user.id} className="group">
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
 
@@ -61,8 +70,29 @@ const UserTable = ({ users }: { users: User[] }) => {
               </TableCell>
 
               <TableCell>{user.lastLogin}</TableCell>
+
               <TableCell className="text-right">
-                <button className="text-blue-500 hover:underline">Edit</button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => navigator.clipboard.writeText(user.email)}
+                    >
+                      Copy Email
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Link to={`/admin/users/${user.id}`}>View Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                      Suspend User
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}

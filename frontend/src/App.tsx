@@ -11,6 +11,7 @@ import VisitorDiscover from "./pages/VisitorDiscover";
 import Users from "./pages/Admin/Users";
 import Albums from "./pages/Admin/Albums";
 import Photos from "./pages/Admin/Photos";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/admin/photos" element={<Photos />} />
           <Route path="/admin/albums" element={<Albums />} />
           <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/users/:id" element={<UserProfile />} />
         </Route>
       </Routes>
     </BrowserRouter>
