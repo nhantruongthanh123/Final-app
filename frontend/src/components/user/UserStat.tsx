@@ -14,7 +14,7 @@ const UserStat = ({ activeTab }: { activeTab: string }) => {
         <Link
           key={stat.id}
           to={`/${stat.id}`}
-          className={`cursor-pointer ${activeTab === stat.id ? "font-semibold text-indigo-800" : ""}`}
+          className={`cursor-pointer ${activeTab === stat.id ? "font-semibold text-indigo-800 md:m-2" : "md:m-2"}`}
         >
           {stat.count} {stat.label}
         </Link>

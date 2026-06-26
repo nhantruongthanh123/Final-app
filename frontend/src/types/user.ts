@@ -6,3 +6,19 @@ export interface User {
   status: string;
   lastLogin: string;
 }
+
+export interface FollowingUser {
+  id: number;
+  name: string;
+  avatar: string;
+  numOfPhotos: number;
+  numOfAlbums: number;
+}
+
+export interface FollowerUser {
+  id: number;
+  name: string;
+  avatar: string;
+  numOfPhotos: number;
+  numOfAlbums: number;
+}
