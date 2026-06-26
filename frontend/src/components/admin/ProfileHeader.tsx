@@ -1,6 +1,5 @@
 import type { User } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
-import React from "react";
 import { Button } from "@/components/ui/button";
 
 const ProfileHeader = ({ user }: { user: User }) => {

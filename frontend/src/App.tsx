@@ -33,7 +33,7 @@ function App() {
           <Route path="/photos" element={<Photos />} />
           <Route path="/albums" element={<Albums />} />
           <Route path="/followers" element={<Follower />} />
-          <Route path="/following" element={<Following />} />
+          <Route path="/followings" element={<Following />} />
         </Route>
 
         <Route element={<AdminLayout />}>
