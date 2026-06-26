@@ -1,5 +1,5 @@
 import { mockPhotos } from "@/datas/photoData";
-import PhotoUser from "../photo/PhotoUser";
+import PhotoUser from "@/components/photo/PhotoUser";
 
 const UserPhotos = () => {
   return (

@@ -1,5 +1,4 @@
 import type { FollowingUser } from "@/types/user";
-import React from "react";
 import { Button } from "@/components/ui/button";
 
 const UserCard = ({ user }: { user: FollowingUser }) => {

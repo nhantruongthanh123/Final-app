@@ -16,6 +16,7 @@ import Photos from "@/pages/User/Photos";
 import Albums from "@/pages/User/Albums";
 import Follower from "@/pages/User/Follower";
 import Following from "@/pages/User/Following";
+import EditPhoto from "@/components/photo/EditPhoto";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/feed" element={<Feed />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/photos" element={<Photos />} />
+          <Route path="/photos/:id" element={<EditPhoto />} />
           <Route path="/albums" element={<Albums />} />
           <Route path="/followers" element={<Follower />} />
           <Route path="/followings" element={<Following />} />
