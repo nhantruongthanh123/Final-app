@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const UserTable = ({ users }: { users: User[] }) => {
   return (
@@ -59,10 +60,18 @@ const UserTable = ({ users }: { users: User[] }) => {
               <TableCell>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`h-2 w-2 rounded-full ${user.status === "Active" ? "bg-indigo-600" : "bg-red-500"}`}
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      user.status === "Active" ? "bg-indigo-600" : "bg-red-500",
+                    )}
                   />
                   <span
-                    className={`font-medium ${user.status === "Active" ? "text-indigo-600" : "text-red-500"}`}
+                    className={cn(
+                      "font-medium",
+                      user.status === "Active"
+                        ? "text-indigo-600"
+                        : "text-red-500",
+                    )}
                   >
                     {user.status}
                   </span>

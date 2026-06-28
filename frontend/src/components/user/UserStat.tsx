@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 const UserStat = ({ activeTab }: { activeTab: string }) => {
   const stats = [
@@ -14,7 +15,12 @@ const UserStat = ({ activeTab }: { activeTab: string }) => {
         <Link
           key={stat.id}
           to={`/${stat.id}`}
-          className={`cursor-pointer ${activeTab === stat.id ? "font-semibold text-indigo-800 md:m-2" : "md:m-2"}`}
+          className={cn(
+            "cursor-pointer",
+            activeTab === stat.id
+              ? "font-semibold text-indigo-800 md:m-2"
+              : "md:m-2",
+          )}
         >
           {stat.count} {stat.label}
         </Link>

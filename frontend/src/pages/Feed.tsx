@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import Photo from "../components/photo/Photo";
 import PhotoModal from "../components/photo/PhotoModal";
-import TagToggle from "../components/TagToggle";
+import TagToggle from "../components/shared/TagToggle";
 import mockPhotos from "../datas/photoData";
 import mockAlbums from "../datas/albumData";
 import type { PhotoData } from "../types/photo";

@@ -1,4 +1,4 @@
-import { ArrowBigLeft, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { mockPhotos } from "@/datas/photoData";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import PageHeader from "@/components/shared/PageHeader";
 
 const EditPhoto = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,18 +20,7 @@ const EditPhoto = () => {
 
   return (
     <div className="flex flex-col w-full m-4 md:m-6">
-      <div className="flex flex-row justify-between w-full">
-        <h1 className="text-2xl font-bold mb-4">Edit Photo</h1>
-        <Link to="/photos">
-          <Button
-            variant="ghost"
-            className="ml-auto bg-indigo-50 hover:bg-indigo-100"
-          >
-            <ArrowBigLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </Link>
-      </div>
+      <PageHeader title="Edit Photo" backlink="/photos" />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
         <div className="flex flex-col md:flex-row gap-4 p-4">
