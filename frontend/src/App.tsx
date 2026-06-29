@@ -18,7 +18,8 @@ import Follower from "@/pages/User/Follower";
 import Following from "@/pages/User/Following";
 import EditPhoto from "@/components/photo/EditPhoto";
 import EditAlbum from "@/components/album/EditAlbum";
-import EditProfile from "./components/user/EditProfile";
+import EditProfile from "@/components/user/EditProfile";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/users/:id" element={<UserProfile />} />
         </Route>
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

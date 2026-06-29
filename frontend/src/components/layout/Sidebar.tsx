@@ -1,25 +1,45 @@
+import { cn } from "@/lib/utils";
 import { Compass, LayoutGrid } from "lucide-react";
-import { Link } from "react-router-dom";
-import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   return (
-    <div className="flex-col py-4 font-bold w-[15%] bg-stone-200 hidden md:flex shrink-0">
-      <Link
-        to="/feed"
-        className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-      >
-        <LayoutGrid className="w-5 h-5 shrink-0" />
-        <span className="text-base">Feed</span>
-      </Link>
+    <div className="flex-col py-6 w-56 bg-slate-50/50 border-r border-slate-200 hidden md:flex shrink-0 h-screen sticky top-0 z-50">
+      <div className="flex flex-col gap-1 px-3 w-full">
+        <NavLink
+          to="/feed"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all",
+              {
+                "bg-indigo-50 text-indigo-700": isActive,
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900":
+                  !isActive,
+              },
+            )
+          }
+        >
+          <LayoutGrid className="w-5 h-5 shrink-0" />
+          <span>Feed</span>
+        </NavLink>
 
-      <Link
-        to="/discover"
-        className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-      >
-        <Compass className="w-5 h-5 shrink-0" />
-        <span className="text-base">Discover</span>
-      </Link>
+        <NavLink
+          to="/discover"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all",
+              {
+                "bg-indigo-50 text-indigo-700": isActive,
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900":
+                  !isActive,
+              },
+            )
+          }
+        >
+          <Compass className="w-5 h-5 shrink-0" />
+          <span>Discover</span>
+        </NavLink>
+      </div>
     </div>
   );
 };

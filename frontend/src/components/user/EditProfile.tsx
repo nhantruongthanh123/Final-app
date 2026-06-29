@@ -1,11 +1,8 @@
-import userData from "@/datas/userData";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "../ui/input";
 import FormField from "@/components/shared/FormField";
 
 const EditProfile = () => {
-  const user = userData[0];
   return (
     <div className="flex flex-col w-full gap-4 p-4">
       <PageHeader title="Edit Profile" backlink="/photos" />

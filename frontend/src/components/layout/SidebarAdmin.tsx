@@ -1,32 +1,62 @@
-import { BookImage, Camera, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { BookImage, LayoutGrid, User } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 const SidebarAdmin = () => {
   return (
-    <div className="flex-col py-4 font-bold w-[15%] bg-stone-200 hidden md:flex shrink-0 h-full">
-      <Link
-        to="/admin/photos"
-        className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-      >
-        <Camera className="w-5 h-5 shrink-0" />
-        <span className="text-base">Manage Photos</span>
-      </Link>
+    <div className="flex-col py-6 w-56 bg-slate-50/50 border-r border-slate-200 hidden md:flex shrink-0 h-screen sticky top-0 z-50">
+      <div className="flex flex-col gap-1 px-3 w-full">
+        <NavLink
+          to="/admin/photos"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all",
+              {
+                "bg-indigo-50 text-indigo-700": isActive,
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900":
+                  !isActive,
+              },
+            )
+          }
+        >
+          <LayoutGrid className="w-5 h-5 shrink-0" />
+          <span>Manage Photos</span>
+        </NavLink>
 
-      <Link
-        to="/admin/albums"
-        className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-      >
-        <BookImage className="w-5 h-5 shrink-0" />
-        <span className="text-base">Manage Albums</span>
-      </Link>
+        <NavLink
+          to="/admin/albums"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all",
+              {
+                "bg-indigo-50 text-indigo-700": isActive,
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900":
+                  !isActive,
+              },
+            )
+          }
+        >
+          <BookImage className="w-5 h-5 shrink-0" />
+          <span>Manage Albums</span>
+        </NavLink>
 
-      <Link
-        to="/admin/users"
-        className="flex items-center w-full justify-start gap-2 px-2 md:px-4 py-2 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-300"
-      >
-        <User className="w-5 h-5 shrink-0" />
-        <span className="text-base">Manage Users</span>
-      </Link>
+        <NavLink
+          to="/admin/users"
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all",
+              {
+                "bg-indigo-50 text-indigo-700": isActive,
+                "text-slate-600 hover:bg-slate-100 hover:text-slate-900":
+                  !isActive,
+              },
+            )
+          }
+        >
+          <User className="w-5 h-5 shrink-0" />
+          <span>Manage Users</span>
+        </NavLink>
+      </div>
     </div>
   );
 };

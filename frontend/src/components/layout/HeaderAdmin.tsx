@@ -1,6 +1,6 @@
 const Header = ({ name }: { name?: string }) => {
   return (
-    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold">
+    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold sticky top-0 z-50">
       <div className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base pl-2 md:pl-0">
         Fotobook Admin
       </div>

@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const Header = ({ name }: { name?: string }) => {
   return (
-    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold">
+    <div className="bg-indigo-800 flex flex-row items-center justify-between py-2 font-bold sticky top-0 z-50">
       <div className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base">
         Fotobook
       </div>
@@ -59,14 +59,18 @@ const Header = ({ name }: { name?: string }) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="text-white pr-2 md:pr-0">
-            <button>Log out</button>
-          </div>
+          <Link to="/">
+            <div className="text-white pr-4 md:mr-8 whitespace-nowrap">
+              <button>Log out</button>
+            </div>
+          </Link>
         </div>
       ) : (
-        <div className="text-white pr-2 md:pr-0 md:mr-[5%]">
-          <button>Log in</button>
-        </div>
+        <Link to="/login">
+          <div className="text-white pr-4 md:mr-8 whitespace-nowrap">
+            <button>Log in</button>
+          </div>
+        </Link>
       )}
     </div>
   );
