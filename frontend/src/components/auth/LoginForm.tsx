@@ -23,7 +23,7 @@ const LoginForm = () => {
     <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-indigo-800">
+          <CardTitle className="text-2xl font-bold text-brand">
             PhotoBook Login
           </CardTitle>
         </CardHeader>
@@ -44,7 +44,7 @@ const LoginForm = () => {
               <span className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">
+              <span className="bg-white px-2 text-gray-500 dark:bg-background dark:text-slate-400">
                 Or continue with
               </span>
             </div>
@@ -66,7 +66,7 @@ const LoginForm = () => {
           </div>
 
           <Link to="/feed">
-            <Button className="w-full bg-indigo-800 hover:bg-indigo-700">
+            <Button className="w-full bg-brand hover:bg-indigo-700">
               Login
             </Button>
           </Link>

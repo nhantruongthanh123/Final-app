@@ -14,7 +14,7 @@ const PageHeader = ({
       <h1 className="text-2xl font-bold mb-4">{title}</h1>
       <Link to={backlink}>
         <Button
-          variant="ghost"
+          variant="outline"
           className="ml-auto bg-indigo-50 hover:bg-indigo-100"
         >
           <ArrowBigLeft className="mr-2 h-4 w-4" />

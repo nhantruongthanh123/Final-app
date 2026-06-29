@@ -18,7 +18,7 @@ const UserStat = ({ activeTab }: { activeTab: string }) => {
           className={cn(
             "cursor-pointer",
             activeTab === stat.id
-              ? "font-semibold text-indigo-800 md:m-2"
+              ? "font-semibold text-brand md:m-2"
               : "md:m-2",
           )}
         >

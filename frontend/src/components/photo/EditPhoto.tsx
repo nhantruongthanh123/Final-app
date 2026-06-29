@@ -19,7 +19,7 @@ const EditPhoto = () => {
   const photo = mockPhotos.find((photo) => String(photo.id) === id);
 
   return (
-    <div className="flex flex-col w-full m-4 md:m-6">
+    <div className="flex flex-col w-full p-4 md:p-6">
       <PageHeader title="Edit Photo" backlink="/photos" />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
@@ -38,14 +38,14 @@ const EditPhoto = () => {
 
             <div className="grid w-full items-center gap-1.5 mt-4">
               <Label className="font-bold text-slate-700">Sharing mode</Label>
-              <Select defaultValue="public">
+              <Select defaultValue="Public">
                 <SelectTrigger className="w-45">
                   <SelectValue placeholder="Select a mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="private">Private</SelectItem>
-                  <SelectItem value="friends">Friends Only</SelectItem>
+                  <SelectItem value="Public">Public</SelectItem>
+                  <SelectItem value="Private">Private</SelectItem>
+                  <SelectItem value="Friends">Friends Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -70,17 +70,17 @@ const EditPhoto = () => {
           <X className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-1 rounded-full w-8 h-8 cursor-pointer" />
         </div>
 
-        <div className="flex flex-row ">
+        <div className="flex flex-row mt-6 gap-6">
           <Button
             variant="default"
-            className=" bg-indigo-500 hover:bg-indigo-600 text-white mt-4"
+            className=" bg-indigo-500 hover:bg-indigo-600 text-white "
           >
             Save Changes
           </Button>
 
           <Button
-            variant="destructive"
-            className="ml-4 bg-red-500 hover:bg-red-600 text-white mt-4"
+            variant="ghost"
+            className=" bg-red-500 hover:bg-red-600 text-white"
           >
             Delete Photo
           </Button>

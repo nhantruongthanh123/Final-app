@@ -11,12 +11,12 @@ const UserCard = ({ user }: { user: FollowingUser }) => {
       />
       <h3 className="text-lg font-semibold mt-2">{user.name}</h3>
       <div className="flex flex-row gap-4 p-2">
-        <div className="text-indigo-800 font-bold flex flex-col items-center">
+        <div className="text-brand font-bold flex flex-col items-center">
           <div>{user.numOfPhotos}</div>
           <div>photos</div>
         </div>
 
-        <div className="text-indigo-800 font-bold flex flex-col items-center">
+        <div className="text-brand font-bold flex flex-col items-center">
           <div>{user.numOfAlbums}</div>
           <div>albums</div>
         </div>

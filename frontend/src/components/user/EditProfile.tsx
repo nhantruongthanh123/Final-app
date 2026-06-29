@@ -20,7 +20,7 @@ const EditProfile = () => {
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl mx-auto mt-4">
         {/* Left Column: Basic Information */}
         <div className="flex-1 w-full">
-          <h2 className="text-lg font-bold text-indigo-800 mb-4">
+          <h2 className="text-lg font-bold text-brand mb-4">
             Basic Information
           </h2>
           <div className="flex flex-col gap-4">
@@ -34,7 +34,7 @@ const EditProfile = () => {
 
         {/* Right Column: Password */}
         <div className="flex-1 w-full">
-          <h2 className="text-lg font-bold text-indigo-800 mb-4">Password</h2>
+          <h2 className="text-lg font-bold text-brand mb-4">Password</h2>
           <div className="flex flex-col gap-4">
             <FormField
               label="Current Password"

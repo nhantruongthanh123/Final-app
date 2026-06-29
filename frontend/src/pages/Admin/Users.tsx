@@ -23,7 +23,7 @@ const Users = () => {
   const totalPages = 4;
 
   return (
-    <div className="flex-1 h-full flex flex-col p-6 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
       {/* HEADER */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Manage Users</h1>

@@ -15,7 +15,7 @@ const RegisterForm = () => {
     <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-indigo-800">
+          <CardTitle className="text-2xl font-bold text-brand">
             Create your account
           </CardTitle>
           <CardDescription className="text-gray-600 text-sm">
@@ -82,7 +82,7 @@ const RegisterForm = () => {
             </Button>
           </div>
 
-          <Button className="w-full bg-indigo-800 hover:bg-indigo-700">
+          <Button className="w-full bg-brand hover:bg-indigo-700">
             Register
           </Button>
         </CardContent>
