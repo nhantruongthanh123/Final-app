@@ -12,3 +12,7 @@ pnpm-debug.log*
 
 # Mac system files (if you collaborate with Mac users)
 .DS_Store
+
+generated/
+
+dist/
