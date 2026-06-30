@@ -2,7 +2,6 @@ import type { AlbumData } from "../types/album";
 
 export const mockAlbums: AlbumData[] = [
   {
-    id: "1",
     user: "Thanh Nhân",
     title: "Sunset Serenity",
     description:
@@ -18,7 +17,6 @@ export const mockAlbums: AlbumData[] = [
   },
 
   {
-    id: "2",
     user: "Thanh Nhân",
     title: "Sunset Serenity",
     description:

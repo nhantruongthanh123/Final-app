@@ -1,16 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Button } from "./ui/button";
+import { Label } from "./ui/label";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "./ui/card";
 import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -65,11 +64,9 @@ const LoginForm = () => {
             </Button>
           </div>
 
-          <Link to="/feed">
-            <Button className="w-full bg-indigo-800 hover:bg-indigo-700">
-              Login
-            </Button>
-          </Link>
+          <Button className="w-full bg-indigo-800 hover:bg-indigo-700">
+            Login
+          </Button>
         </CardContent>
 
         <CardFooter className="flex flex-col gap-2 text-sm text-center">

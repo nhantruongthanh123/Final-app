@@ -2,7 +2,6 @@ import type { PhotoData } from "../types/photo";
 
 export const mockPhotos: PhotoData[] = [
   {
-    id: 1,
     user: "Thanh Nhân",
     title: "Golden Hour at the Lake",
     description:
@@ -12,10 +11,8 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "2 hours ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-001.jpg",
-    isPublic: false,
   },
   {
-    id: 2,
     user: "Junior Developer",
     title: "City Lights After Rain",
     description:
@@ -25,10 +22,8 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "5 hours ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-002.jpg",
-    isPublic: true,
   },
   {
-    id: 3,
     user: "A B C",
     title: "Mountain Trail Morning",
     description:
@@ -38,10 +33,8 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "1 day ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-003.jpg",
-    isPublic: false,
   },
   {
-    id: 4,
     user: "Thanh Nhân",
     title: "Weekend Coffee Stop",
     description:
@@ -51,10 +44,8 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "2 days ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-004.jpg",
-    isPublic: true,
   },
   {
-    id: 5,
     user: "Thanh Nhân",
     title: "Ocean Breeze Walk",
     description:
@@ -64,10 +55,8 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "3 days ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-005.jpg",
-    isPublic: true,
   },
   {
-    id: 6,
     user: "Thanh Nhân",
     title: "Bloom Season",
     description:
@@ -77,7 +66,6 @@ export const mockPhotos: PhotoData[] = [
     timestamp: "1 week ago",
     imgURL:
       "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-006.jpg",
-    isPublic: true,
   },
 ];
 

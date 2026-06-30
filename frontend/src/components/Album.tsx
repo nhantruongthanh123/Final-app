@@ -1,4 +1,4 @@
-import type { AlbumData } from "@/types/album";
+import type { AlbumData } from "../types/album";
 import { Heart } from "lucide-react";
 
 const Album = ({ albumData }: { albumData: AlbumData }) => {

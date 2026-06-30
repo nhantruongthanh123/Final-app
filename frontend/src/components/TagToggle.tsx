@@ -1,5 +1,3 @@
-import { cn } from "@/lib/utils";
-
 const TagToggle = ({
   isPhoto,
   setIsPhoto,
@@ -10,19 +8,17 @@ const TagToggle = ({
   return (
     <div className="flex justify-center items-center font-bold pt-4 pb-4">
       <button
-        className={cn(
-          "p-2 border-2 border-indigo-800",
-          isPhoto ? "bg-indigo-800 text-white" : "bg-white text-indigo-800",
-        )}
+        className={`p-2 border-2 border-indigo-800 ${
+          isPhoto ? "text-white bg-indigo-800" : "text-indigo-800 bg-white"
+        }`}
         onClick={() => setIsPhoto(true)}
       >
         PHOTO
       </button>
       <button
-        className={cn(
-          "p-2 border-2 border-indigo-800",
-          !isPhoto ? "bg-indigo-800 text-white" : "bg-white text-indigo-800",
-        )}
+        className={`p-2 border-2 border-indigo-800 ${
+          !isPhoto ? "text-white bg-indigo-800" : "text-indigo-800 bg-white"
+        }`}
         onClick={() => setIsPhoto(false)}
       >
         ALBUM

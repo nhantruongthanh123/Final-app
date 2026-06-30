@@ -1,4 +1,4 @@
-import type { PhotoModalProps } from "../../types/photo";
+import type { PhotoModalProps } from "../types/photo";
 
 const PhotoModal = ({
   title,

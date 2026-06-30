@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import type { PhotoData } from "../../types/photo";
+import type { PhotoData } from "../types/photo";
 
 const Photo = ({ photoData }: { photoData: PhotoData }) => {
   return (
