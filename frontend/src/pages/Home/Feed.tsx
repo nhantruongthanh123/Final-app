@@ -1,13 +1,13 @@
 import { useState } from "react";
 
-import Photo from "../components/photo/Photo";
-import PhotoModal from "../components/photo/PhotoModal";
-import TagToggle from "../components/shared/TagToggle";
-import mockPhotos from "../datas/photoData";
-import mockAlbums from "../datas/albumData";
-import type { PhotoData } from "../types/photo";
+import Photo from "@/components/photo/Photo";
+import PhotoModal from "@/components/photo/PhotoModal";
+import TagToggle from "@/components/shared/TagToggle";
+import mockPhotos from "@/datas/photoData";
+import mockAlbums from "@/datas/albumData";
+import type { PhotoData } from "@/types/photo";
 import Album from "@/components/album/Album";
-import type { AlbumData } from "../types/album";
+import type { AlbumData } from "@/types/album";
 import AlbumModal from "@/components/album/AlbumModal";
 
 function Feed() {

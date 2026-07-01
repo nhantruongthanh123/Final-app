@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Feed from "@/pages/Feed";
-import Discover from "@/pages/Discover";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
+import Feed from "@/pages/Home/Feed";
+import Discover from "@/pages/Home/Discover";
+import Login from "@/pages/Auth/Login";
+import Register from "@/pages/Auth/Register";
 import VisitorLayout from "@/layouts/VisitorLayout";
 import UserLayout from "@/layouts/UserLayout";
 import AdminLayout from "@/layouts/AdminLayout";
 
-import VisitorDiscover from "@/pages/VisitorDiscover";
+import VisitorDiscover from "@/pages/Home/VisitorDiscover";
 import Users from "@/pages/Admin/Users";
 import AlbumsAdmin from "@/pages/Admin/Albums";
 import PhotosAdmin from "@/pages/Admin/Photos";
@@ -16,9 +16,9 @@ import Photos from "@/pages/User/Photos";
 import Albums from "@/pages/User/Albums";
 import Follower from "@/pages/User/Follower";
 import Following from "@/pages/User/Following";
-import EditPhoto from "@/components/photo/EditPhoto";
-import EditAlbum from "@/components/album/EditAlbum";
-import EditProfile from "@/components/user/EditProfile";
+import EditPhoto from "@/pages/User/EditPhoto";
+import EditAlbum from "@/pages/User/EditAlbum";
+import EditProfile from "@/pages/User/EditProfile";
 import NotFound from "@/pages/NotFound";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
