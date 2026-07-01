@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import router from "./routes/userRoute.js";
+import userRouter from "./routes/userRoute.js";
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "PhotoBook API is running!" });
 });
 
-app.use("/api", router);
+app.use("/api", userRouter);
 
 // Start the server
 app.listen(PORT, () => {

@@ -13,14 +13,15 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(cuid())
+  id           String  @id @default(uuid()) @db.Uuid
   email        String  @unique @db.VarChar(255)
-  password     String @db.VarChar(64)
+  password     String  @db.VarChar(64)
   firstName    String? @db.VarChar(25)
   lastName     String? @db.VarChar(25)
   avatarUrl    String?
   isActive     Boolean @default(true)
   refreshToken String?
+  role         String  @default("USER") @db.VarChar(10)
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -34,8 +35,8 @@ model User {
 }
 
 model OauthAccount {
-  id                String @id @default(cuid())
-  userId            String
+  id                String @id @default(uuid()) @db.Uuid
+  userId            String @db.Uuid
   provider          String
   providerAccountId String
 
@@ -45,11 +46,11 @@ model OauthAccount {
 }
 
 model Photo {
-  id          String  @id @default(cuid())
+  id          String  @id @default(uuid()) @db.Uuid
   photoUrl    String
-  title       String @db.VarChar(140)
+  title       String  @db.VarChar(140)
   description String? @db.VarChar(300)
-  userId      String
+  userId      String  @db.Uuid
   isPublic    Boolean @default(true)
 
   createdAt  DateTime    @default(now())
@@ -59,11 +60,11 @@ model Photo {
 }
 
 model Album {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid()) @db.Uuid
   title       String   @db.VarChar(140)
   description String?  @db.VarChar(300)
-  userId      String   
-  photos      String[] 
+  userId      String   @db.Uuid
+  photos      String[]
   isPublic    Boolean  @default(true)
 
   createdAt  DateTime    @default(now())
@@ -73,9 +74,9 @@ model Album {
 }
 
 model PhotoLike {
-  id      String @id @default(cuid())
-  photoId String
-  userId  String
+  id      String @id @default(uuid()) @db.Uuid
+  photoId String @db.Uuid
+  userId  String @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,9 +87,9 @@ model PhotoLike {
 }
 
 model AlbumLike {
-  id      String @id @default(cuid())
-  albumId String
-  userId  String
+  id      String @id @default(uuid()) @db.Uuid
+  albumId String @db.Uuid
+  userId  String @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -99,9 +100,9 @@ model AlbumLike {
 }
 
 model Follow {
-  id         String @id @default(cuid())
-  followerId String
-  followingId String
+  id          String @id @default(uuid()) @db.Uuid
+  followerId  String @db.Uuid
+  followingId String @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
