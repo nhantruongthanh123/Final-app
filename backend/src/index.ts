@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import userRouter from "./routes/userRoute.js";
+import userRouter from "#/routes/userRoute.js";
+import photoRouter from "#/routes/photoRoute.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api", userRouter);
+app.use("/api", photoRouter);
 
 // Start the server
 app.listen(PORT, () => {

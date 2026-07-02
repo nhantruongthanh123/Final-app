@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.ts",
   "types": "module",
+  "import": {
+    "#*": "./src/*"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/index.ts",

@@ -1,4 +1,4 @@
-import { prisma } from "../config/db.js";
+import { prisma } from "#/config/db.js";
 import type { Request, Response } from "express";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -100,5 +100,37 @@ export const updateUser = async (
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
     console.log("Error updating user:", error);
+  }
+};
+
+export const getUserPhotos = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    const userId = req.params.id;
+
+    const userPhotos = await prisma.photo.findMany({
+      where: { userId },
+    });
+    res.status(200).json(userPhotos);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getUserAlbums = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    const userId = req.params.id;
+
+    const userAlbums = await prisma.album.findMany({
+      where: { userId },
+    });
+    res.status(200).json(userAlbums);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 };
