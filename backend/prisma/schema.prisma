@@ -40,7 +40,7 @@ model OauthAccount {
   provider          String
   providerAccountId String
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -55,7 +55,7 @@ model Photo {
 
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  user       User        @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   photoLikes PhotoLike[]
 }
 
@@ -69,7 +69,7 @@ model Album {
 
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  user       User        @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   albumLikes AlbumLike[]
 }
 
@@ -80,8 +80,8 @@ model PhotoLike {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  photo     Photo    @relation(fields: [photoId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([photoId, userId])
 }
@@ -93,8 +93,8 @@ model AlbumLike {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  album     Album    @relation(fields: [albumId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([albumId, userId])
 }
@@ -102,12 +102,12 @@ model AlbumLike {
 model Follow {
   id          String @id @default(uuid()) @db.Uuid
   followerId  String @db.Uuid
-  followingId String @db.Uuid
+  followedId String @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  follower  User     @relation("Follower", fields: [followerId], references: [id])
-  following User     @relation("Following", fields: [followingId], references: [id])
+  follower  User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User     @relation("Following", fields: [followedId], references: [id], onDelete: Cascade)
 
-  @@unique([followerId, followingId])
+  @@unique([followerId, followedId])
 }
