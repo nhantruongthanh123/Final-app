@@ -39,7 +39,7 @@ const UserTable = ({ users }: { users: User[] }) => {
             key={user.id}
             className="group dark:bg-slate-800 dark:hover:bg-slate-700"
           >
-            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell className="font-medium">{`${user.firstName} ${user.lastName}`}</TableCell>
             <TableCell>{user.email}</TableCell>
 
             <TableCell>
@@ -60,7 +60,7 @@ const UserTable = ({ users }: { users: User[] }) => {
                 <div
                   className={cn(
                     "h-2 w-2 rounded-full",
-                    user.status === "Active"
+                    user.isActive === true
                       ? "bg-indigo-600 dark:text-indigo-400"
                       : "bg-red-500 dark:bg-red-400",
                   )}
@@ -68,17 +68,17 @@ const UserTable = ({ users }: { users: User[] }) => {
                 <span
                   className={cn(
                     "font-medium",
-                    user.status === "Active"
+                    user.isActive === true
                       ? "text-indigo-600 dark:text-indigo-400"
                       : "text-red-500 dark:text-red-400",
                   )}
                 >
-                  {user.status}
+                  {user.isActive === true ? "Active" : "Inactive"}
                 </span>
               </div>
             </TableCell>
 
-            <TableCell>{user.lastLogin}</TableCell>
+            <TableCell>{user.updatedAt}</TableCell>
 
             <TableCell className="text-right">
               <DropdownMenu>

@@ -1,14 +1,35 @@
-import userData from "@/datas/userData";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ProfileHeader from "@/components/admin/ProfileHeader";
 import ProfileBody from "@/components/admin/ProfileBody";
+import { useEffect, useState } from "react";
+import { UserService } from "@/service/userService";
+import type { User } from "@/types/user";
 
 const UserProfile = () => {
-  // const [isEditing, setIsEditing] = useState(false);
-  const { id } = useParams();
-  const user = userData.find((user) => user.id === Number(id));
-  // const [editedUser, setEditedUser] = useState(user);
+  const { id } = useParams() || "";
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await UserService.getUserById(id);
+        setUser(user);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
+
+  if (!id || !user) {
+    return (
+      <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
+        <p className="text-slate-500 text-sm mt-1"> User not found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 p-4">

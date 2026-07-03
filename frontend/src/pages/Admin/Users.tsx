@@ -1,6 +1,5 @@
 import UserTable from "@/components/admin/UserTable";
-import userData from "@/datas/userData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,10 +16,35 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { UserService } from "@/service/userService";
+import type { User } from "@/types/user";
 
 const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 4;
+
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const users = await UserService.getAllUsers();
+        setUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  if (!users) {
+    return (
+      <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
+        <p className="text-slate-500 text-sm mt-1">Loading users...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
@@ -59,7 +83,7 @@ const Users = () => {
 
       {/* THE TABLE */}
       <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
-        <UserTable users={userData} />
+        <UserTable users={users} />
       </div>
 
       {/* PAGINATION FOOTER */}

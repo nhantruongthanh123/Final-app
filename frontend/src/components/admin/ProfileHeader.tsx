@@ -10,7 +10,8 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
         <div className="relative">
           <img
             src={
-              "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-001.jpg"
+              user?.avatarUrl ||
+              "https://aui.atlassian.com/assets/aui/9.3/docs/images/avatar-person.svg"
             }
             alt="User Avatar"
             className="w-20 h-20 rounded-full object-cover border-2 border-slate-50"
@@ -20,7 +21,7 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
 
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-            {user?.name}
+            {`${user?.firstName} ${user?.lastName}`}
           </h2>
           <div>
             <Badge variant={user?.role === "Admin" ? "default" : "secondary"}>

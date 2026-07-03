@@ -25,6 +25,8 @@ export const getUserById = async (
         lastName: true,
         firstName: true,
         avatarUrl: true,
+        isActive: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
       },
