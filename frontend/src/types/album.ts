@@ -1,12 +1,12 @@
-export interface AlbumData {
+export interface Album {
   id: string;
-  user: string;
   title: string;
   description: string;
-  likes: number;
-  isLikedByCurrentUser: boolean;
-  timestamp: string;
-  imgURLs: string[];
+  userId: string;
+  isPublic: boolean;
+  photos: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AlbumModalProps {

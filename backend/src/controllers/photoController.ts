@@ -3,8 +3,20 @@ import type { Request, Response } from "express";
 
 export const getAllPhotos = async (req: Request, res: Response) => {
   try {
-    const photos = await prisma.photo.findMany();
-    res.status(200).json(photos);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const offset = (page - 1) * limit;
+
+    const [photos, totalPhotos] = await Promise.all([
+      prisma.photo.findMany({
+        skip: offset,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.photo.count(),
+    ]);
+
+    res.status(200).json({ photos, totalPhotos });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

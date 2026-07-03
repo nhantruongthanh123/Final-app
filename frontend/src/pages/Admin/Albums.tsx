@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { mockAlbums } from "@/datas/albumData";
+import { useState, useEffect } from "react";
+import { AlbumService } from "@/service/albumService";
+import type { Album } from "@/types/album";
 import AlbumAdmin from "@/components/album/AlbumAdmin";
 import {
   Pagination,
@@ -9,16 +10,36 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 const Albums = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 4;
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const albumsPerPage = 12;
+
+  useEffect(() => {
+    const loadAlbums = async () => {
+      try {
+        const { albums, totalAlbums } = await AlbumService.getAllAlbums(
+          currentPage,
+          albumsPerPage,
+        );
+        setAlbums(albums);
+        setTotalPages(Math.ceil(totalAlbums / albumsPerPage));
+      } catch (error) {
+        console.error("Error fetching albums:", error);
+      }
+    };
+
+    loadAlbums();
+  }, [currentPage]);
 
   return (
     <div className="mx-2 flex flex-col h-full flex-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-        {mockAlbums.map((album, index) => (
-          <AlbumAdmin key={index} albumData={album} />
+        {albums.map((album) => (
+          <AlbumAdmin key={album.id} album={album} />
         ))}
       </div>
 
@@ -34,11 +55,11 @@ const Albums = () => {
                   if (currentPage > 1) setCurrentPage(currentPage - 1);
                 }}
                 // Visually disable the button if we are on page 1
-                className={
+                className={cn(
                   currentPage === 1
                     ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
+                    : "cursor-pointer",
+                )}
               />
             </PaginationItem>
 

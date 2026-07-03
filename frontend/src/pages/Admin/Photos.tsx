@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { mockPhotos } from "@/datas/photoData";
+import { useState, useEffect } from "react";
 import PhotoAdmin from "@/components/photo/PhotoAdmin";
 import {
   Pagination,
@@ -9,16 +8,37 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import type { Photo } from "@/types/photo";
+import { PhotoService } from "@/service/photoService";
 
 const Photos = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 4;
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const photosPerPage = 12;
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const data = await PhotoService.getAllPhotos(
+          currentPage,
+          photosPerPage,
+        );
+        setPhotos(data.photos);
+        setTotalPages(Math.ceil(data.totalPhotos / photosPerPage));
+      } catch (error) {
+        console.error("Error fetching photos:", error);
+      }
+    };
+
+    fetchPhotos();
+  }, [currentPage, photosPerPage]);
 
   return (
     <div className="flex flex-col h-full flex-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-        {mockPhotos.map((photo, index) => (
-          <PhotoAdmin key={index} photoData={photo} />
+        {photos.map((photo) => (
+          <PhotoAdmin key={photo.id} photo={photo} />
         ))}
       </div>
 

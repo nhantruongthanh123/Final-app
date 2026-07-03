@@ -21,22 +21,26 @@ import type { User } from "@/types/user";
 
 const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 4;
-
   const [users, setUsers] = useState<User[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const usersPerPage = 12;
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const users = await UserService.getAllUsers();
+        const { users, totalUsers } = await UserService.getAllUsers(
+          currentPage,
+          usersPerPage,
+        );
         setUsers(users);
+        setTotalPages(Math.ceil(totalUsers / usersPerPage));
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
     loadUsers();
-  }, []);
+  }, [currentPage, usersPerPage]);
 
   if (!users) {
     return (

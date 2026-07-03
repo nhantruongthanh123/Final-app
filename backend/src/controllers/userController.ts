@@ -3,8 +3,20 @@ import type { Request, Response } from "express";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const offset = (page - 1) * limit;
+
+    const [users, totalUsers] = await Promise.all([
+      prisma.user.findMany({
+        skip: offset,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.user.count(),
+    ]);
+
+    res.status(200).json({ users, totalUsers });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

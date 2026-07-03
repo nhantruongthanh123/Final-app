@@ -1,19 +1,18 @@
-export interface PhotoData {
+export interface Photo {
   id: number;
-  user: string;
+  photoUrl: string;
   title: string;
   description: string;
-  likes: number;
-  isLikedByCurrentUser: boolean;
-  timestamp: string;
-  imgURL: string;
-  isPublic?: boolean;
+  userId: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PhotoModalProps {
   title: string;
   description: string;
-  imgURL: string;
+  photoUrl: string;
   isOpen: boolean;
   onClose: () => void;
 }
