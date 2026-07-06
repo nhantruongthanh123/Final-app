@@ -11,6 +11,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 const Albums = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,7 +40,9 @@ const Albums = () => {
     <div className="mx-2 flex flex-col h-full flex-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {albums.map((album) => (
-          <AlbumAdmin key={album.id} album={album} />
+          <Link key={album.id} to={`${album.id}`}>
+            <AlbumAdmin key={album.id} album={album} />
+          </Link>
         ))}
       </div>
 

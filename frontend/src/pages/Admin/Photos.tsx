@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/pagination";
 import type { Photo } from "@/types/photo";
 import { PhotoService } from "@/service/photoService";
+import { Link } from "react-router-dom";
 
 const Photos = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,7 +39,9 @@ const Photos = () => {
     <div className="flex flex-col h-full flex-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {photos.map((photo) => (
-          <PhotoAdmin key={photo.id} photo={photo} />
+          <Link key={photo.id} to={`${photo.id}`}>
+            <PhotoAdmin key={photo.id} photo={photo} />
+          </Link>
         ))}
       </div>
 
