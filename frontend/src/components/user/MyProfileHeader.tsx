@@ -21,7 +21,9 @@ const MyProfileHeader = ({ user }: { user: User }) => {
         </div>
 
         <div className="flex flex-col ml-4">
-          <h2 className="text-lg font-semibold">{user.name}</h2>
+          <h2 className="text-lg font-semibold">
+            {user.firstName + " " + user.lastName}
+          </h2>
           <Button variant="outline" className="mt-2">
             Edit Profile
           </Button>

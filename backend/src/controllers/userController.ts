@@ -148,3 +148,43 @@ export const getUserAlbums = async (
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getUserFollowings = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    const userId = req.params.id;
+
+    const followings = await prisma.follow.findMany({
+      where: { followerId: userId },
+      include: {
+        following: true,
+      },
+    });
+
+    res.status(200).json(followings.map((f) => f.following));
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getUserFollowers = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    const userId = req.params.id;
+
+    const followers = await prisma.follow.findMany({
+      where: { followedId: userId },
+      include: {
+        follower: true,
+      },
+    });
+
+    res.status(200).json(followers.map((f) => f.follower));
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

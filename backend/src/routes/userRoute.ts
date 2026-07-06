@@ -5,6 +5,8 @@ import {
   getAllUsers,
   getUserAlbums,
   getUserById,
+  getUserFollowers,
+  getUserFollowings,
   getUserPhotos,
   updateUser,
 } from "#/controllers/userController.js";
@@ -29,6 +31,8 @@ userRouter.get("/users/:id/albums", getUserAlbums);
 // Follow User
 userRouter.post("/users/:id/follow", followUser);
 userRouter.delete("/users/:id/follow", unfollowUser);
+userRouter.get("/users/:id/followers", getUserFollowers);
+userRouter.get("/users/:id/followings", getUserFollowings);
 
 // Like User
 userRouter.post("/users/:id/likePhoto", userLikePhoto);
