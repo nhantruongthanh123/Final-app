@@ -5,12 +5,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { LogOut, Moon, Settings, Sun, PersonStanding } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAuthStore } from "@/store/authStore";
+import { AuthService } from "@/services/authService";
+import { useNavigate } from "react-router-dom";
 
-const Header = ({ name }: { name?: string }) => {
+const Header = () => {
   const { theme, toggleTheme } = useTheme();
+  const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await AuthService.logout();
+    await useAuthStore.getState().clearAuth();
+    navigate("/feed");
+  };
 
   return (
     <div className="bg-brand flex flex-row items-center justify-between py-2 font-bold sticky top-0 z-50">
@@ -25,33 +35,35 @@ const Header = ({ name }: { name?: string }) => {
         />
       </div>
 
-      {name ? (
+      {user ? (
         <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex flex-row items-center gap-4 hover:opacity-80 transition-opacity outline-none">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-brand">
-                {name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                {user.firstName[0]}
+                {user.lastName[0]}
               </div>
-              <div className="text-white hidden md:block">{name}</div>
+              <div className="text-white hidden md:block">
+                {user.firstName} {user.lastName}
+              </div>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-44 mt-2">
-              <Link to="/photos">
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>My Profile</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/photos")}
+              >
+                <PersonStanding className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </DropdownMenuItem>
 
-              <Link to="/profile">
-                <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Account Settings</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/profile")}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Account Settings</span>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
@@ -67,25 +79,27 @@ const Header = ({ name }: { name?: string }) => {
                 <span>Toggle Theme</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50">
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Link to="/">
-            <div className="text-white pr-4 md:mr-8 whitespace-nowrap">
-              <button>Log out</button>
-            </div>
-          </Link>
+          <div className="text-white pr-4 md:mr-8 whitespace-nowrap">
+            <button onClick={handleLogout}>Log out</button>
+          </div>
         </div>
       ) : (
-        <Link to="/login">
-          <div className="text-white pr-4 md:mr-8 whitespace-nowrap">
-            <button>Log in</button>
-          </div>
-        </Link>
+        <div
+          className="text-white pr-4 md:mr-8 whitespace-nowrap"
+          onClick={() => navigate("/login")}
+        >
+          <button>Log in</button>
+        </div>
       )}
     </div>
   );

@@ -1,26 +1,56 @@
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { AuthService } from "@/services/authService";
 
 const LoginForm = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await AuthService.login(email, password);
+
+      setAuth(response.accessToken, response.user);
+      navigate("/feed");
+    } catch (error: any) {
+      setError(error.response?.data?.message || "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function handleRegisterClick() {
     navigate("/register");
   }
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
+    <form
+      onSubmit={handleLogin}
+      className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8"
+    >
+      {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
+
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-brand">
@@ -31,12 +61,23 @@ const LoginForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="name@example.com" />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" />
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
           <div className="relative my-2">
@@ -65,11 +106,13 @@ const LoginForm = () => {
             </Button>
           </div>
 
-          <Link to="/feed">
-            <Button className="w-full bg-brand hover:bg-indigo-700">
-              Login
-            </Button>
-          </Link>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-brand hover:bg-indigo-700"
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </Button>
         </CardContent>
 
         <CardFooter className="flex flex-col gap-2 text-sm text-center">
@@ -84,7 +127,7 @@ const LoginForm = () => {
           </button>
         </CardFooter>
       </Card>
-    </div>
+    </form>
   );
 };
 

@@ -16,7 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 import type { User } from "@/types/user";
 
 const Users = () => {

@@ -1,7 +1,7 @@
 import type { User } from "@/types/user";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 
 const UserFollowing = ({ user }: { user: User }) => {
   const [followings, setFollowings] = useState<User[]>([]);

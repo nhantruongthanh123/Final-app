@@ -20,7 +20,6 @@ model User {
   lastName     String? @db.VarChar(25)
   avatarUrl    String?
   isActive     Boolean @default(true)
-  refreshToken String?
   role         String  @default("USER") @db.VarChar(10)
 
   createdAt     DateTime       @default(now())
@@ -32,6 +31,18 @@ model User {
   albumLikes    AlbumLike[]
   followers     Follow[]       @relation("Following")
   following     Follow[]       @relation("Follower")
+  sessions      Session[]      
+}
+
+model Session {
+  id                String @id @default(uuid()) @db.Uuid
+  userId            String @db.Uuid
+  refreshToken      String   @unique
+  expiresAt         DateTime
+
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OauthAccount {

@@ -1,4 +1,4 @@
-import { api } from "@/service/config";
+import { api } from "@/services/axiosClient";
 import type { Album } from "@/types/album";
 
 export const AlbumService = {

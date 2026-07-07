@@ -1,6 +1,6 @@
 import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 import { useEffect, useState } from "react";
 
 const UserCard = ({ user }: { user: User }) => {

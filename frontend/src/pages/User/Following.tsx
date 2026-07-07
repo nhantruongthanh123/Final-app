@@ -2,7 +2,7 @@ import MyProfileHeader from "@/components/user/MyProfileHeader";
 import type { User } from "@/types/user";
 import UserFollowing from "@/components/user/UserFollowing";
 import { useEffect, useState } from "react";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 
 const Following = () => {
   const [user, setUser] = useState<User | null>(null);

@@ -1,5 +1,5 @@
 import UserCard from "@/components/user/UserCard";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 import type { User } from "@/types/user";
 import { useEffect, useState } from "react";
 

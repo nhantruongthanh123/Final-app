@@ -1,4 +1,4 @@
-import { api } from "@/service/config";
+import { api } from "@/services/axiosClient";
 import type { User } from "@/types/user";
 import type { Photo } from "@/types/photo";
 import type { Album } from "@/types/album";

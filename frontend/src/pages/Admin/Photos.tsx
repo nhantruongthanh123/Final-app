@@ -9,7 +9,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { Photo } from "@/types/photo";
-import { PhotoService } from "@/service/photoService";
+import { PhotoService } from "@/services/photoService";
 import { Link } from "react-router-dom";
 
 const Photos = () => {

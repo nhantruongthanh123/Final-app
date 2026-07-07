@@ -24,8 +24,44 @@ import NotFound from "@/pages/NotFound";
 import EditAlbumAdmin from "@/pages/Admin/EditAlbum";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { useAuthStore } from "./store/authStore";
+import { useEffect, useRef } from "react";
+import { AuthService } from "@/services/authService";
 
 function App() {
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+  const setCheckingAuth = useAuthStore((state) => state.setCheckingAuth);
+
+  const hasCheckedAuth = useRef(false);
+
+  useEffect(() => {
+    if (hasCheckedAuth.current) return;
+    hasCheckedAuth.current = true;
+
+    const checkAuth = async () => {
+      try {
+        const response = await AuthService.refreshToken();
+        setAuth(response.accessToken, response.user);
+      } catch (error) {
+        clearAuth();
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white">
+        Loading PhotoBook...
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <ThemeProvider>

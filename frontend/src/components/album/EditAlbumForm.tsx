@@ -12,7 +12,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import RemoveablePhoto from "@/components/photo/RemovablePhoto";
 import { useState, useEffect } from "react";
-import { AlbumService } from "@/service/albumService";
+import { AlbumService } from "@/services/albumService";
 import type { Album } from "@/types/album";
 import PageHeader from "../shared/PageHeader";
 

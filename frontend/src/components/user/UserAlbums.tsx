@@ -1,7 +1,7 @@
 import AlbumUser from "@/components/album/AlbumUser";
 import type { User } from "@/types/user";
 import { useEffect, useState } from "react";
-import { UserService } from "@/service/userService";
+import { UserService } from "@/services/userService";
 import type { Album } from "@/types/album";
 
 const UserAlbums = ({ user }: { user: User }) => {

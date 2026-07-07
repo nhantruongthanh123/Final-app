@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlbumService } from "@/service/albumService";
+import { AlbumService } from "@/services/albumService";
 import type { Album } from "@/types/album";
 import AlbumAdmin from "@/components/album/AlbumAdmin";
 import {

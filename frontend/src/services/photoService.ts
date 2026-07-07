@@ -1,4 +1,4 @@
-import { api } from "@/service/config";
+import { api } from "@/services/axiosClient";
 import type { Photo } from "@/types/photo";
 
 export const PhotoService = {

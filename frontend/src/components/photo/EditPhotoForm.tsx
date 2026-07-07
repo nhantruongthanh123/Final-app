@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import PageHeader from "@/components/shared/PageHeader";
-import { PhotoService } from "@/service/photoService";
+import { PhotoService } from "@/services/photoService";
 import { useState, useEffect } from "react";
 import type { Photo } from "@/types/photo";
 
