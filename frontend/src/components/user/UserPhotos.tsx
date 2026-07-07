@@ -1,13 +1,15 @@
 import PhotoUser from "@/components/photo/PhotoUser";
 import { UserService } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
 import type { Photo } from "@/types/photo";
-import type { User } from "@/types/user";
 import { useState, useEffect } from "react";
 
-const UserPhotos = ({ user }: { user: User }) => {
+const UserPhotos = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
+    if (!user) return;
     const fetchPhotos = async () => {
       try {
         const fetchedPhotos = await UserService.getAllUserPhotos(user.id);
@@ -18,7 +20,7 @@ const UserPhotos = ({ user }: { user: User }) => {
     };
 
     fetchPhotos();
-  }, [user.id]);
+  }, [user]);
 
   if (photos.length === 0) {
     return <div>No photos available.</div>;

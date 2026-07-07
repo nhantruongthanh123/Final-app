@@ -2,11 +2,14 @@ import type { User } from "@/types/user";
 import UserCard from "./UserCard";
 import { useEffect, useState } from "react";
 import { UserService } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
 
-const UserFollowing = ({ user }: { user: User }) => {
+const UserFollowing = () => {
   const [followings, setFollowings] = useState<User[]>([]);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
+    if (!user) return;
     const fetchFollowings = async () => {
       try {
         const res = await UserService.getAllUserFollowings(user.id);
@@ -17,7 +20,7 @@ const UserFollowing = ({ user }: { user: User }) => {
     };
 
     fetchFollowings();
-  }, [user.id]);
+  }, [user]);
 
   if (!followings) {
     return <div>Loading...</div>;

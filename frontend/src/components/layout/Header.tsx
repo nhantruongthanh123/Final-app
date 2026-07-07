@@ -12,7 +12,7 @@ import { AuthService } from "@/services/authService";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
   const user = useAuthStore.getState().user;
   const navigate = useNavigate();
 

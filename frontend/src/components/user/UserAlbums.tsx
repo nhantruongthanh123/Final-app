@@ -1,13 +1,15 @@
 import AlbumUser from "@/components/album/AlbumUser";
-import type { User } from "@/types/user";
 import { useEffect, useState } from "react";
 import { UserService } from "@/services/userService";
 import type { Album } from "@/types/album";
+import { useAuthStore } from "@/store/authStore";
 
-const UserAlbums = ({ user }: { user: User }) => {
+const UserAlbums = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
+    if (!user) return;
     const fetchAlbums = async () => {
       try {
         const fetchedAlbums = await UserService.getAllUserAlbums(user.id);
@@ -18,7 +20,7 @@ const UserAlbums = ({ user }: { user: User }) => {
     };
 
     fetchAlbums();
-  }, [user.id]);
+  }, [user]);
 
   if (albums.length === 0) {
     return <div>No albums available.</div>;

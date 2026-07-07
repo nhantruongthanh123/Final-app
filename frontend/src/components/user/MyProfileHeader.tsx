@@ -2,10 +2,48 @@ import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
 import UserStat from "./UserStat";
 import { useLocation } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import type { UserStatType } from "@/types/user";
+import { UserService } from "@/services/userService";
+import { useState, useEffect } from "react";
 
-const MyProfileHeader = ({ user }: { user: User }) => {
+const MyProfileHeader = () => {
   const location = useLocation();
   const activeTab = location.pathname.split("/")[1] || "photos";
+  const user = useAuthStore((state) => state.user) as User;
+  const [numUserPhotos, setNumUserPhotos] = useState<number>(0);
+  const [numUserAlbums, setNumUserAlbums] = useState<number>(0);
+  const [numUserFollowings, setNumUserFollowings] = useState<number>(0);
+  const [numUserFollowers, setNumUserFollowers] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const photos = await UserService.getAllUserPhotos(user.id);
+        setNumUserPhotos(photos.length);
+
+        const albums = await UserService.getAllUserAlbums(user.id);
+        setNumUserAlbums(albums.length);
+
+        const followings = await UserService.getAllUserFollowings(user.id);
+        setNumUserFollowings(followings.length);
+
+        const followers = await UserService.getAllUserFollowers(user.id);
+        setNumUserFollowers(followers.length);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [user.id]);
+
+  const stats: UserStatType[] = [
+    { id: "photos", count: numUserPhotos, label: "PHOTOS" },
+    { id: "albums", count: numUserAlbums, label: "ALBUMS" },
+    { id: "followings", count: numUserFollowings, label: "FOLLOWINGS" },
+    { id: "followers", count: numUserFollowers, label: "FOLLOWERS" },
+  ];
 
   return (
     <div className="flex flex-col md:flex-row items-center border border-slate-200 rounded-lg shadow-sm p-4 m-4">
@@ -13,7 +51,7 @@ const MyProfileHeader = ({ user }: { user: User }) => {
       <div className="flex flex-row items-center w-full ">
         <div className="relative">
           <img
-            src="https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-015.jpg"
+            src={user.avatarUrl}
             alt="User Avatar"
             className="w-20 h-20 rounded-full object-cover border-2 border-slate-50"
           />
@@ -32,7 +70,7 @@ const MyProfileHeader = ({ user }: { user: User }) => {
 
       {/* Row 2 on mobile: UserStat */}
       <div className="w-full mt-4 md:mt-0 md:ml-4 justify-end flex flex-col items-center md:flex-row gap-2">
-        <UserStat activeTab={activeTab} />
+        <UserStat activeTab={activeTab} stats={stats} />
         {(() => {
           switch (activeTab) {
             case "photos":

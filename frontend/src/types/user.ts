@@ -10,6 +10,12 @@ export interface User {
   updatedAt: string;
 }
 
+export interface UserStatType {
+  id: string;
+  count: number;
+  label: string;
+}
+
 export interface FollowingUser {
   id: string;
   firstName: string;

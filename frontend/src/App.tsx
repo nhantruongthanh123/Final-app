@@ -45,6 +45,7 @@ function App() {
         const response = await AuthService.refreshToken();
         setAuth(response.accessToken, response.user);
       } catch (error) {
+        console.error("Failed to refresh token:", error);
         clearAuth();
       } finally {
         setCheckingAuth(false);
@@ -52,7 +53,7 @@ function App() {
     };
 
     checkAuth();
-  }, []);
+  }, [setAuth, clearAuth, setCheckingAuth]);
 
   if (isCheckingAuth) {
     return (

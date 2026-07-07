@@ -13,6 +13,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       accessToken,
       user,
       isAuthenticated: true,
+      isCheckingAuth: false,
     });
   },
 
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       accessToken: null,
       user: null,
       isAuthenticated: false,
+      isCheckingAuth: false,
     });
   },
 

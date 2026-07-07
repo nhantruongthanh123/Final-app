@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import type { UserStatType } from "@/types/user";
 
-const UserStat = ({ activeTab }: { activeTab: string }) => {
-  const stats = [
-    { id: "photos", count: 108, label: "PHOTOS" },
-    { id: "albums", count: 43, label: "ALBUMS" },
-    { id: "followings", count: 22, label: "FOLLOWINGS" },
-    { id: "followers", count: 13, label: "FOLLOWERS" },
-  ];
-
+const UserStat = ({
+  activeTab,
+  stats,
+}: {
+  activeTab: string;
+  stats: UserStatType[];
+}) => {
   return (
     <div className="flex flex-row gap-2 text-sm text-slate-500">
       {stats.map((stat) => (
