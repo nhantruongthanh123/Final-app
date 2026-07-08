@@ -25,10 +25,10 @@ const MyProfileHeader = () => {
         const albums = await UserService.getAllUserAlbums(user.id);
         setNumUserAlbums(albums.length);
 
-        const followings = await UserService.getAllUserFollowings(user.id);
+        const followings = await UserService.getAllUserFollowings();
         setNumUserFollowings(followings.length);
 
-        const followers = await UserService.getAllUserFollowers(user.id);
+        const followers = await UserService.getAllUserFollowers();
         setNumUserFollowers(followers.length);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -36,7 +36,7 @@ const MyProfileHeader = () => {
     };
 
     fetchUserData();
-  }, [user.id]);
+  }, [user]);
 
   const stats: UserStatType[] = [
     { id: "photos", count: numUserPhotos, label: "PHOTOS" },

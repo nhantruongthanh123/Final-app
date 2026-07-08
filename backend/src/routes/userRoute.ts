@@ -3,6 +3,8 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
+  getTargetUserFollowers,
+  getTargetUserFollowings,
   getUserAlbums,
   getUserById,
   getUserFollowers,
@@ -17,22 +19,28 @@ import {
   userUnlikeAlbum,
   userUnlikePhoto,
 } from "#controllers/likeController.js";
+import { requireAuth } from "#middlewares/requireAuth.js";
 
 const userRouter = express.Router();
 
+// Follow User
+userRouter.post("/users/:id/follow", requireAuth, followUser);
+userRouter.delete("/users/:id/unfollow", requireAuth, unfollowUser);
+userRouter.get("/users/followings", requireAuth, getUserFollowings);
+userRouter.get("/users/followers", requireAuth, getUserFollowers);
+userRouter.get("/users/:id/followings", requireAuth, getTargetUserFollowings);
+userRouter.get("/users/:id/followers", requireAuth, getTargetUserFollowers);
+
+// User
+
 userRouter.get("/users", getAllUsers);
 userRouter.get("/users/:id", getUserById);
-userRouter.post("/users", createUser);
-userRouter.delete("/users/:id", deleteUser);
-userRouter.patch("/users/:id", updateUser);
 userRouter.get("/users/:id/photos", getUserPhotos);
 userRouter.get("/users/:id/albums", getUserAlbums);
 
-// Follow User
-userRouter.post("/users/:id/follow", followUser);
-userRouter.delete("/users/:id/follow", unfollowUser);
-userRouter.get("/users/:id/followers", getUserFollowers);
-userRouter.get("/users/:id/followings", getUserFollowings);
+userRouter.post("/users", createUser);
+userRouter.delete("/users/:id", deleteUser);
+userRouter.patch("/users/:id", updateUser);
 
 // Like User
 userRouter.post("/users/:id/likePhoto", userLikePhoto);

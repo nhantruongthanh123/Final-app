@@ -1,11 +1,13 @@
-import type { User } from "@/types/user";
+import type { UserWithFollowStatus } from "@/types/user";
 import { Button } from "@/components/ui/button";
 import { UserService } from "@/services/userService";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-const UserCard = ({ user }: { user: User }) => {
+const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
   const [numOfPhotos, setNumOfPhotos] = useState<number>(0);
   const [numOfAlbums, setNumOfAlbums] = useState<number>(0);
+  const [isFollowing, setIsFollowing] = useState(user.isFollowing);
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -21,6 +23,22 @@ const UserCard = ({ user }: { user: User }) => {
 
     fetchUserStats();
   }, [user.id]);
+
+  const handleFollowToggle = async () => {
+    const previousState = isFollowing;
+    setIsFollowing(!previousState);
+
+    try {
+      if (previousState) {
+        await UserService.unfollowUser(user.id);
+      } else {
+        await UserService.followUser(user.id);
+      }
+    } catch (error) {
+      console.error("Error toggling follow status:", error);
+      setIsFollowing(previousState);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center rounded-lg border-2 border-gray-300 bg-gray-50 shadow-md p-4 hover:shadow-lg transition-shadow duration-300">
@@ -47,11 +65,23 @@ const UserCard = ({ user }: { user: User }) => {
       <div className="inline-flex rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
         <Button
           variant="ghost"
-          className="h-8 px-6 bg-white rounded-full hover:bg-slate-50 w-full"
+          className={cn(
+            "h-8 px-6 rounded-full w-full transition-colors",
+            isFollowing
+              ? "bg-white hover:bg-slate-50"
+              : "bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90",
+          )}
+          onClick={handleFollowToggle}
         >
-          <span className="bg-linear-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent font-bold text-sm lowercase tracking-wide">
-            Unfollow
-          </span>
+          {isFollowing ? (
+            <span className="bg-linear-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent font-bold text-sm lowercase tracking-wide">
+              Unfollow
+            </span>
+          ) : (
+            <span className="text-white font-bold text-sm lowercase tracking-wide">
+              Follow
+            </span>
+          )}
         </Button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { api } from "@/services/axiosClient";
-import type { User } from "@/types/user";
+import type { User, UserWithFollowStatus } from "@/types/user";
 import type { Photo } from "@/types/photo";
 import type { Album } from "@/types/album";
 
@@ -31,13 +31,21 @@ export const UserService = {
     return res.data;
   },
 
-  getAllUserFollowings: async (userId: string): Promise<User[]> => {
-    const res = await api.get<User[]>(`/users/${userId}/followings`);
+  getAllUserFollowings: async (): Promise<UserWithFollowStatus[]> => {
+    const res = await api.get<UserWithFollowStatus[]>(`/users/followings`);
     return res.data;
   },
 
-  getAllUserFollowers: async (userId: string): Promise<User[]> => {
-    const res = await api.get<User[]>(`/users/${userId}/followers`);
+  getAllUserFollowers: async (): Promise<UserWithFollowStatus[]> => {
+    const res = await api.get<UserWithFollowStatus[]>(`/users/followers`);
     return res.data;
+  },
+
+  followUser: async (userId: string): Promise<void> => {
+    await api.post(`/users/${userId}/follow`);
+  },
+
+  unfollowUser: async (userId: string): Promise<void> => {
+    await api.delete(`/users/${userId}/unfollow`);
   },
 };

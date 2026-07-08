@@ -6,8 +6,12 @@ export const followUser = async (
   res: Response,
 ) => {
   try {
-    const followerId = req.params.id;
-    const { followedId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const followerId = req.user.userId;
+    const followedId = req.params.id;
 
     if (followerId === followedId) {
       return res.status(400).json({ error: "You cannot follow yourself." });
@@ -46,8 +50,12 @@ export const unfollowUser = async (
   res: Response,
 ) => {
   try {
-    const followerId = req.params.id;
-    const { followedId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const followerId = req.user.userId;
+    const followedId = req.params.id;
 
     const existingFollow = await prisma.follow.findUnique({
       where: {

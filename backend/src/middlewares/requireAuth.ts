@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-interface AuthRequest extends Request {
-  user?: any;
-}
-
 export const requireAuth = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
@@ -22,7 +18,7 @@ export const requireAuth = (
       process.env.ACCESS_TOKEN_SECRET as string,
     );
 
-    req.user = decoded;
+    req.user = decoded as { id: string; role: string };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -30,7 +26,7 @@ export const requireAuth = (
 };
 
 export const requireAdmin = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {

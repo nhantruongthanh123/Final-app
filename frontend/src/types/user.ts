@@ -16,20 +16,6 @@ export interface UserStatType {
   label: string;
 }
 
-export interface FollowingUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-  numOfPhotos: number;
-  numOfAlbums: number;
-}
-
-export interface FollowerUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-  numOfPhotos: number;
-  numOfAlbums: number;
+export interface UserWithFollowStatus extends User {
+  isFollowing: boolean;
 }

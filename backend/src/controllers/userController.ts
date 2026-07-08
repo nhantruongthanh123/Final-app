@@ -1,4 +1,5 @@
 import { prisma } from "#/config/db.js";
+import { attachFollowStatus } from "#utils/userUtils.js";
 import type { Request, Response } from "express";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -149,41 +150,143 @@ export const getUserAlbums = async (
   }
 };
 
-export const getUserFollowings = async (
-  req: Request<{ id: string }>,
-  res: Response,
-) => {
+export const getUserFollowings = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.id;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const userId = req.user?.userId;
 
     const followings = await prisma.follow.findMany({
       where: { followerId: userId },
-      include: {
-        following: true,
+      select: {
+        following: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     });
 
-    res.status(200).json(followings.map((f) => f.following));
+    res
+      .status(200)
+      .json(followings.map((f) => ({ ...f.following, isFollowing: true })));
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getUserFollowers = async (
+export const getUserFollowers = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const userId = req.user?.userId;
+
+    const followers = await prisma.follow.findMany({
+      where: { followedId: userId },
+      select: {
+        follower: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    const rawFollowers = followers.map((f) => f.follower);
+
+    const formattedFollowers = await attachFollowStatus(rawFollowers, userId);
+
+    res.status(200).json(formattedFollowers);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getTargetUserFollowings = async (
   req: Request<{ id: string }>,
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
 
-    const followers = await prisma.follow.findMany({
-      where: { followedId: userId },
-      include: {
-        follower: true,
+    const userId = req.user?.userId;
+    const targetUserId = req.params.id;
+
+    const followingsData = await prisma.follow.findMany({
+      where: { followerId: targetUserId },
+      select: {
+        following: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    const rawFollowings = followingsData.map((f) => f.following);
+
+    const formattedFollowings = await attachFollowStatus(rawFollowings, userId);
+
+    res.status(200).json(formattedFollowings);
+  } catch (error) {}
+};
+
+export const getTargetUserFollowers = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const currentUserId = req.user?.userId;
+    const targetUserId = req.params.id;
+
+    const followersData = await prisma.follow.findMany({
+      where: { followedId: targetUserId },
+      select: {
+        follower: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     });
 
-    res.status(200).json(followers.map((f) => f.follower));
+    const rawFollowers = followersData.map((f) => f.follower);
+
+    // res.status(200).json(rawFollowers);
+
+    const formattedFollowers = await attachFollowStatus(
+      rawFollowers,
+      currentUserId,
+    );
+
+    // res.status(200).json(rawFollowers);
+
+    res.status(200).json(formattedFollowers);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

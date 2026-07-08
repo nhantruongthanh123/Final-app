@@ -60,7 +60,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "15m" },
+      { expiresIn: "60m" },
     );
 
     const refreshToken = jwt.sign(
@@ -170,14 +170,6 @@ export const refreshUserToken = async (req: Request, res: Response) => {
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
-
-    // await prisma.session.update({
-    //   where: { refreshToken: oldRefreshToken },
-    //   data: {
-    //     refreshToken: newRefreshToken,
-    //     expiresAt,
-    //   },
-    // });
 
     const existingSession = await prisma.session.findUnique({
       where: { refreshToken: oldRefreshToken },
