@@ -17,12 +17,18 @@ import type { Photo } from "@/types/photo";
 
 const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [isPublic, setIsPublic] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchPhoto = async () => {
       try {
         const data = await PhotoService.getPhotoById(id);
         setPhoto(data);
+        setTitle(data.title);
+        setDescription(data.description);
+        setIsPublic(data.isPublic);
         console.log("Fetched photo:", data);
       } catch (error) {
         console.error("Error fetching photo:", error);
@@ -47,12 +53,18 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
                 type="text"
                 id="title"
                 placeholder="Lorem ipsum dolor sit amet..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
             <div className="grid w-full items-center gap-1.5 mt-4">
               <Label className="font-bold text-slate-700">Sharing mode</Label>
-              <Select defaultValue="Public">
+              <Select
+                defaultValue="Public"
+                value={isPublic ? "Public" : "Private"}
+                onValueChange={(value) => setIsPublic(value === "Public")}
+              >
                 <SelectTrigger className="w-45">
                   <SelectValue placeholder="Select a mode" />
                 </SelectTrigger>
@@ -72,6 +84,8 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
               id="description"
               placeholder="Lorem ipsum dolor sit amet..."
               className="h-27 resize-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>

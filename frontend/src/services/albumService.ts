@@ -1,5 +1,5 @@
 import { api } from "@/services/axiosClient";
-import type { Album } from "@/types/album";
+import type { Album, AlbumFeed } from "@/types/album";
 
 export const AlbumService = {
   getAllAlbums: async (
@@ -21,6 +21,13 @@ export const AlbumService = {
   getAlbumById: async (id: string): Promise<Album> => {
     const res = await api.get<Album>(`/albums/${id}`);
 
+    return res.data;
+  },
+
+  getFeedPhotos: async () => {
+    const res = await api.get<{ feed: AlbumFeed[]; total: number }>(
+      "/albums/feed",
+    );
     return res.data;
   },
 };

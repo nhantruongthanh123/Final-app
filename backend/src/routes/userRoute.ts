@@ -32,11 +32,10 @@ userRouter.get("/users/:id/followings", requireAuth, getTargetUserFollowings);
 userRouter.get("/users/:id/followers", requireAuth, getTargetUserFollowers);
 
 // User
-
 userRouter.get("/users", getAllUsers);
 userRouter.get("/users/:id", getUserById);
-userRouter.get("/users/:id/photos", getUserPhotos);
-userRouter.get("/users/:id/albums", getUserAlbums);
+userRouter.get("/users/:id/photos", requireAuth, getUserPhotos);
+userRouter.get("/users/:id/albums", requireAuth, getUserAlbums);
 
 userRouter.post("/users", createUser);
 userRouter.delete("/users/:id", deleteUser);

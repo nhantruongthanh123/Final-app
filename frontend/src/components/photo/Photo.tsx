@@ -1,12 +1,12 @@
 import { Heart } from "lucide-react";
-import type { PhotoData } from "../../types/photo";
+import type { PhotoFeed } from "../../types/photo";
 
-const Photo = ({ photoData }: { photoData: PhotoData }) => {
+const Photo = ({ photo }: { photo: PhotoFeed }) => {
   return (
     <div className="bg-white border border-gray-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 dark:bg-card dark:border-border">
       <div className="w-full h-64">
         <img
-          src={photoData.imgURL}
+          src={photo.photoUrl}
           alt="Photo"
           className="w-full h-full object-cover border border-gray-200 dark:border-border"
         />
@@ -16,29 +16,25 @@ const Photo = ({ photoData }: { photoData: PhotoData }) => {
         <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
           <div className="flex flex-row gap-4">
             <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white">
-              {photoData.user
-                .split(" ")
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join("")}
+              {photo.user.firstName.charAt(0) + photo.user.lastName.charAt(0)}
             </div>
             <div className="text-brand flex items-center justify-center">
-              {photoData.user}
+              {photo.user.firstName} {photo.user.lastName}
             </div>
           </div>
         </div>
 
         <div className="p-2 text-black text-sm font-bold truncate dark:text-slate-50">
-          {photoData.title}
+          {photo.title}
         </div>
 
         <div className="text-gray-500 text-xs leading-relaxed p-2 line-clamp-3 dark:text-slate-400">
-          {photoData.description}
+          {photo.description}
         </div>
 
         <div className="p-2 text-gray-600 flex mt-auto justify-between">
           <div>
-            {photoData.isLikedByCurrentUser ? (
+            {photo.isLiked ? (
               <Heart
                 className="w-6 h-6 inline-block mr-1 mb-1 text-brand"
                 fill="currentColor"
@@ -46,11 +42,11 @@ const Photo = ({ photoData }: { photoData: PhotoData }) => {
             ) : (
               <Heart className="w-6 h-6 inline-block mr-1 mb-1 text-gray-400" />
             )}
-            {photoData.likes}
+            {photo.numLikes}
           </div>
           <div className="text-gray-500 divt-xs dark:text-slate-400">
             {" "}
-            {photoData.timestamp}{" "}
+            {photo.createdAt}{" "}
           </div>
         </div>
       </div>

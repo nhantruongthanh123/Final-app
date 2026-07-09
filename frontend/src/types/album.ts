@@ -9,10 +9,20 @@ export interface Album {
   updatedAt: string;
 }
 
+export interface AlbumFeed extends Album {
+  user: {
+    firstName: string;
+    lastName: string;
+    avatarUrl: string;
+  };
+  numLikes: number;
+  isLiked: boolean;
+}
+
 export interface AlbumModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   description: string;
-  imgURLs: string[];
+  photos: string[];
 }

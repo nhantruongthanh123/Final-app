@@ -9,6 +9,16 @@ export interface Photo {
   updatedAt: string;
 }
 
+export interface PhotoFeed extends Photo {
+  user: {
+    firstName: string;
+    lastName: string;
+    avatarUrl: string;
+  };
+  numLikes: number;
+  isLiked: boolean;
+}
+
 export interface PhotoModalProps {
   title: string;
   description: string;

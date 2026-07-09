@@ -18,7 +18,7 @@ export const requireAuth = (
       process.env.ACCESS_TOKEN_SECRET as string,
     );
 
-    req.user = decoded as { id: string; role: string };
+    req.user = decoded as { userId: string; role: string };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });

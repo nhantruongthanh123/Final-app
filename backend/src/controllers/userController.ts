@@ -123,11 +123,26 @@ export const getUserPhotos = async (
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const currentUserId = req.user?.userId;
+    const currentUserRole = req.user?.role;
+    const targetUserId = req.params.id;
+
+    const isOwner = currentUserId === targetUserId;
+    const isAdmin = currentUserRole === "admin";
+    const canViewPrivate = isOwner || isAdmin;
 
     const userPhotos = await prisma.photo.findMany({
-      where: { userId },
+      where: {
+        userId: targetUserId,
+        ...(canViewPrivate ? {} : { isPublic: true }),
+      },
+      orderBy: { createdAt: "desc" },
     });
+
     res.status(200).json(userPhotos);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

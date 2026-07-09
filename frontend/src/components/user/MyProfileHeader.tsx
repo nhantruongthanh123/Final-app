@@ -6,9 +6,11 @@ import { useAuthStore } from "@/store/authStore";
 import type { UserStatType } from "@/types/user";
 import { UserService } from "@/services/userService";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MyProfileHeader = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const activeTab = location.pathname.split("/")[1] || "photos";
   const user = useAuthStore((state) => state.user) as User;
   const [numUserPhotos, setNumUserPhotos] = useState<number>(0);
@@ -62,7 +64,11 @@ const MyProfileHeader = () => {
           <h2 className="text-lg font-semibold">
             {user.firstName + " " + user.lastName}
           </h2>
-          <Button variant="outline" className="mt-2">
+          <Button
+            variant="outline"
+            className="mt-2"
+            onClick={() => navigate("/profile")}
+          >
             Edit Profile
           </Button>
         </div>

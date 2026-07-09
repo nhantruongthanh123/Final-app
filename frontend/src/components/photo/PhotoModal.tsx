@@ -3,7 +3,7 @@ import type { PhotoModalProps } from "../../types/photo";
 const PhotoModal = ({
   title,
   description,
-  imgURL,
+  photoUrl,
   isOpen,
   onClose,
 }: PhotoModalProps) => {
@@ -33,7 +33,7 @@ const PhotoModal = ({
 
           <div className="w-full bg-gray-100 flex justify-center max-h-[60vh]">
             <img
-              src={imgURL}
+              src={photoUrl}
               alt={title}
               className="w-full h-auto object-cover"
             />

@@ -5,14 +5,18 @@ import {
   createAlbum,
   deleteAlbum,
   updateAlbum,
+  getAllAlbumsFeed,
 } from "#/controllers/albumController.js";
+import { optionalAuth } from "#middlewares/optionalAuth.js";
+import { requireAuth } from "#middlewares/requireAuth.js";
 
 const albumRouter = express.Router();
 
-albumRouter.get("/albums", getAllAlbums);
-albumRouter.get("/albums/:id", getAlbumById);
-albumRouter.post("/albums", createAlbum);
-albumRouter.delete("/albums/:id", deleteAlbum);
-albumRouter.patch("/albums/:id", updateAlbum);
+albumRouter.get("/albums", optionalAuth, getAllAlbums);
+albumRouter.get("/albums/feed", requireAuth, getAllAlbumsFeed);
+albumRouter.get("/albums/:id", optionalAuth, getAlbumById);
+albumRouter.post("/albums", requireAuth, createAlbum);
+albumRouter.delete("/albums/:id", requireAuth, deleteAlbum);
+albumRouter.patch("/albums/:id", requireAuth, updateAlbum);
 
 export default albumRouter;
