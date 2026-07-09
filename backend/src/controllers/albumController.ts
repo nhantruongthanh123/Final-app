@@ -1,4 +1,5 @@
 import { prisma } from "#/config/db.js";
+import { formatFeedAlbums } from "#utils/albumUtil.js";
 import type { Request, Response } from "express";
 
 export const getAllAlbums = async (req: Request, res: Response) => {
@@ -184,8 +185,6 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
 
   const followingIds = followings.map((f) => f.followedId);
 
-  // followingIds.push(currentUserId);
-
   if (followingIds.length === 0) {
     return res.status(200).json({ feed: [], total: 0 });
   }
@@ -208,11 +207,74 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
             avatarUrl: true,
           },
         },
+        _count: {
+          select: { albumLikes: true },
+        },
+        albumLikes: {
+          where: { userId: currentUserId },
+          select: { id: true },
+        },
       },
     }),
     prisma.album.count({
       where: { userId: { in: followingIds }, isPublic: true },
     }),
   ]);
-  res.status(200).json({ feed: feedAlbums, total: totalAlbums });
+
+  const formattedFeedAlbums = feedAlbums.map((album) => {
+    return formatFeedAlbums(album);
+  });
+
+  res.status(200).json({ feed: formattedFeedAlbums, total: totalAlbums });
+};
+
+export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const offset = (page - 1) * limit;
+
+    const currentUserId = req.user?.userId;
+
+    const [discoverAlbums, totalAlbums] = await Promise.all([
+      prisma.album.findMany({
+        where: { isPublic: true },
+        orderBy: { createdAt: "desc" },
+        skip: offset,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: { albumLikes: true },
+          },
+          ...(currentUserId
+            ? {
+                albumLikes: {
+                  where: { userId: currentUserId },
+                  select: { id: true },
+                },
+              }
+            : {}),
+        },
+      }),
+      prisma.album.count({
+        where: { isPublic: true },
+      }),
+    ]);
+
+    const formattedDiscoverAlbums = discoverAlbums.map(formatFeedAlbums);
+
+    res
+      .status(200)
+      .json({ discover: formattedDiscoverAlbums, total: totalAlbums });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 };

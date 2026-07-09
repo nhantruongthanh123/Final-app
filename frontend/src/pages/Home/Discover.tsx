@@ -1,19 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import TagToggle from "@/components/shared/TagToggle";
-import mockPhotos from "@/datas/photoData";
-import mockAlbums from "@/datas/albumData";
-import type { PhotoData } from "@/types/photo";
+import type { PhotoFeed } from "@/types/photo";
 import Album from "@/components/album/Album";
-import type { AlbumData } from "@/types/album";
+import type { AlbumFeed } from "@/types/album";
 import AlbumModal from "@/components/album/AlbumModal";
+import { PhotoService } from "@/services/photoService";
+import { AlbumService } from "@/services/albumService";
 
 function Discover() {
-  const [selectedPhoto, setSelectedPhoto] = useState<PhotoData | null>(null);
-  const [selectedAlbum, setSelectedAlbum] = useState<AlbumData | null>(null);
+  const [discoverPhotos, setDiscoverPhotos] = useState<PhotoFeed[]>([]);
+  const [discoverAlbums, setDiscoverAlbums] = useState<AlbumFeed[]>([]);
+  const [selectedPhoto, setSelectedPhoto] = useState<PhotoFeed | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const photosData = await PhotoService.getDiscoverPhotos();
+        const albumsData = await AlbumService.getDiscoverAlbums();
+        setDiscoverPhotos(photosData.discover);
+        setDiscoverAlbums(albumsData.discover);
+      } catch (error) {
+        console.error("Error fetching feed data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -22,25 +39,25 @@ function Discover() {
 
         {isPhotoView ? (
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockPhotos.toReversed().map((photo, index) => (
+            {discoverPhotos.toReversed().map((photo) => (
               <div
-                key={index}
+                key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Photo photoData={photo} />
+                <Photo photo={photo} />
               </div>
             ))}
           </div>
         ) : (
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockAlbums.toReversed().map((album, index) => (
+            {discoverAlbums.toReversed().map((album) => (
               <div
-                key={index}
+                key={album.id}
                 onClick={() => setSelectedAlbum(album)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Album albumData={album} />
+                <Album album={album} />
               </div>
             ))}
           </div>
@@ -52,7 +69,7 @@ function Discover() {
         onClose={() => setSelectedAlbum(null)}
         title={selectedAlbum?.title || ""}
         description={selectedAlbum?.description || ""}
-        imgURLs={selectedAlbum?.imgURLs || []}
+        photos={selectedAlbum?.photos || []}
       />
 
       <PhotoModal
@@ -60,7 +77,7 @@ function Discover() {
         onClose={() => setSelectedPhoto(null)}
         title={selectedPhoto?.title || ""}
         description={selectedPhoto?.description || ""}
-        imgURL={selectedPhoto?.imgURL || ""}
+        photoUrl={selectedPhoto?.photoUrl || ""}
       />
     </div>
   );

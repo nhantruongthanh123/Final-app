@@ -30,4 +30,11 @@ export const AlbumService = {
     );
     return res.data;
   },
+
+  getDiscoverAlbums: async () => {
+    const res = await api.get<{ discover: AlbumFeed[]; total: number }>(
+      "/albums/discover",
+    );
+    return res.data;
+  },
 };

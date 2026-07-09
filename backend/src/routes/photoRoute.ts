@@ -5,6 +5,7 @@ import {
   getAllPhotos,
   getPhotoById,
   getAllPhotosFeed,
+  getAllPhotosDiscover,
   updatePhoto,
 } from "#/controllers/photoController.js";
 import { requireAuth } from "#middlewares/requireAuth.js";
@@ -14,6 +15,7 @@ const photoRouter = express.Router();
 
 photoRouter.get("/photos", optionalAuth, getAllPhotos);
 photoRouter.get("/photos/feed", requireAuth, getAllPhotosFeed);
+photoRouter.get("/photos/discover", optionalAuth, getAllPhotosDiscover);
 photoRouter.get("/photos/:id", optionalAuth, getPhotoById);
 photoRouter.post("/photos", requireAuth, createPhoto);
 photoRouter.delete("/photos/:id", requireAuth, deletePhoto);

@@ -228,3 +228,54 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
 
   res.status(200).json({ feed: formattedFeedPhotos, total: totalPhotos });
 };
+
+export const getAllPhotosDiscover = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const offset = (page - 1) * limit;
+
+    const currentUserId = req.user?.userId;
+
+    const [discoverPhotos, totalPhotos] = await Promise.all([
+      prisma.photo.findMany({
+        where: { isPublic: true },
+        orderBy: { createdAt: "desc" },
+        skip: offset,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: { photoLikes: true },
+          },
+          ...(currentUserId
+            ? {
+                photoLikes: {
+                  where: { userId: currentUserId },
+                  select: { id: true },
+                },
+              }
+            : {}),
+        },
+      }),
+      prisma.photo.count({
+        where: { isPublic: true },
+      }),
+    ]);
+
+    const formattedDiscoverPhotos = discoverPhotos.map(formatFeedPhotos);
+
+    res
+      .status(200)
+      .json({ discover: formattedDiscoverPhotos, total: totalPhotos });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

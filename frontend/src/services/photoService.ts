@@ -49,4 +49,11 @@ export const PhotoService = {
     );
     return res.data;
   },
+
+  getDiscoverPhotos: async () => {
+    const res = await api.get<{ discover: PhotoFeed[]; total: number }>(
+      "/photos/discover",
+    );
+    return res.data;
+  },
 };
