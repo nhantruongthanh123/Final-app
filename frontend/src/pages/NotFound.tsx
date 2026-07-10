@@ -16,7 +16,7 @@ const NotFound = () => {
         removed.
       </p>
 
-      <Link to="/feed">
+      <Link to="/">
         <Button
           size="lg"
           className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"

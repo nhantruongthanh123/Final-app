@@ -1,13 +1,19 @@
+import { Input } from "@base-ui/react";
 import React from "react";
 import { Label } from "../ui/label";
-import { Input } from "@base-ui/react";
 
 const FormField = ({
   label,
   placeholder,
+  value,
+  onChange,
+  type = "text",
 }: {
   label: string;
   placeholder: string;
+  value: string;
+  type?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
   const safeId = label.toLowerCase().replace(/\s+/g, "-");
 
@@ -20,7 +26,13 @@ const FormField = ({
         {label}
       </Label>
       <div className="md:w-2/3">
-        <Input id={safeId} placeholder={placeholder} />
+        <Input
+          id={safeId}
+          placeholder={placeholder}
+          value={value}
+          type={type}
+          onChange={onChange}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,6 @@ export function formatFeedPhotos(photo: any) {
   return {
     ...rest,
     numLikes: _count.photoLikes,
-    isLiked: photoLikes.length > 0,
+    isLiked: photoLikes?.length > 0,
   };
 }

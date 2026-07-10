@@ -1,4 +1,3 @@
-import express from "express";
 import {
   createUser,
   deleteUser,
@@ -11,6 +10,8 @@ import {
   getUserFollowings,
   getUserPhotos,
   updateUser,
+  updateUserAdmin,
+  updateUserPassword,
 } from "#/controllers/userController.js";
 import { followUser, unfollowUser } from "#controllers/followController.js";
 import {
@@ -19,7 +20,8 @@ import {
   userUnlikeAlbum,
   userUnlikePhoto,
 } from "#controllers/likeController.js";
-import { requireAuth } from "#middlewares/requireAuth.js";
+import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
+import express from "express";
 
 const userRouter = express.Router();
 
@@ -38,8 +40,10 @@ userRouter.get("/users/:id/photos", requireAuth, getUserPhotos);
 userRouter.get("/users/:id/albums", requireAuth, getUserAlbums);
 
 userRouter.post("/users", createUser);
+userRouter.patch("/users/me", requireAuth, updateUser);
+userRouter.patch("/users/me/password", requireAuth, updateUserPassword);
+userRouter.patch("/users/:id", requireAdmin, updateUserAdmin);
 userRouter.delete("/users/:id", deleteUser);
-userRouter.patch("/users/:id", updateUser);
 
 // Like User
 userRouter.post("/users/:id/likePhoto", userLikePhoto);

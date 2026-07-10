@@ -4,6 +4,6 @@ export function formatFeedAlbums(album: any) {
   return {
     ...rest,
     numLikes: _count.albumLikes,
-    isLiked: albumLikes.length > 0,
+    isLiked: albumLikes?.length > 0,
   };
 }

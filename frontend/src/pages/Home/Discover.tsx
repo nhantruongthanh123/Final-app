@@ -20,8 +20,10 @@ function Discover() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const photosData = await PhotoService.getDiscoverPhotos();
-        const albumsData = await AlbumService.getDiscoverAlbums();
+        const [photosData, albumsData] = await Promise.all([
+          PhotoService.getDiscoverPhotos(),
+          AlbumService.getDiscoverAlbums(),
+        ]);
         setDiscoverPhotos(photosData.discover);
         setDiscoverAlbums(albumsData.discover);
       } catch (error) {

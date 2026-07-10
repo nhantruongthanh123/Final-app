@@ -1,7 +1,11 @@
 import { api } from "@/services/axiosClient";
-import type { User, UserWithFollowStatus } from "@/types/user";
-import type { Photo } from "@/types/photo";
 import type { Album } from "@/types/album";
+import type { Photo } from "@/types/photo";
+import type {
+  UpdateUserProfileData,
+  User,
+  UserWithFollowStatus,
+} from "@/types/user";
 
 export const UserService = {
   getAllUsers: async (
@@ -47,5 +51,19 @@ export const UserService = {
 
   unfollowUser: async (userId: string): Promise<void> => {
     await api.delete(`/users/${userId}/unfollow`);
+  },
+
+  updateUserProfile: async (data: UpdateUserProfileData): Promise<User> => {
+    const res = await api.patch<User>(`/users/me`, data);
+    console.log(data);
+    return res.data;
+  },
+
+  updateUserPassword: async (data: {
+    password: string;
+    newPassword: string;
+  }): Promise<User> => {
+    const res = await api.patch<User>(`/users/me/password`, data);
+    return res.data;
   },
 };

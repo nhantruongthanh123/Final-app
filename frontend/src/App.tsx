@@ -1,32 +1,33 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Feed from "@/pages/Home/Feed";
-import Discover from "@/pages/Home/Discover";
+import AdminLayout from "@/layouts/AdminLayout";
+import UserLayout from "@/layouts/UserLayout";
+import VisitorLayout from "@/layouts/VisitorLayout";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
-import VisitorLayout from "@/layouts/VisitorLayout";
-import UserLayout from "@/layouts/UserLayout";
-import AdminLayout from "@/layouts/AdminLayout";
+import Discover from "@/pages/Home/Discover";
+import Feed from "@/pages/Home/Feed";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import VisitorDiscover from "@/pages/Home/VisitorDiscover";
-import Users from "@/pages/Admin/Users";
 import AlbumsAdmin from "@/pages/Admin/Albums";
+import EditAlbumAdmin from "@/pages/Admin/EditAlbum";
+import EditPhotoAdmin from "@/pages/Admin/EditPhoto";
 import PhotosAdmin from "@/pages/Admin/Photos";
 import UserProfile from "@/pages/Admin/UserProfile";
-import Photos from "@/pages/User/Photos";
+import Users from "@/pages/Admin/Users";
+import NotFound from "@/pages/NotFound";
 import Albums from "@/pages/User/Albums";
+import EditAlbumUser from "@/pages/User/EditAlbum";
+import EditPhotoUser from "@/pages/User/EditPhoto";
+import EditProfile from "@/pages/User/EditProfile";
 import Follower from "@/pages/User/Follower";
 import Following from "@/pages/User/Following";
-import EditPhotoUser from "@/pages/User/EditPhoto";
-import EditPhotoAdmin from "@/pages/Admin/EditPhoto";
-import EditAlbumUser from "@/pages/User/EditAlbum";
-import EditProfile from "@/pages/User/EditProfile";
-import NotFound from "@/pages/NotFound";
-import EditAlbumAdmin from "@/pages/Admin/EditAlbum";
+import Photos from "@/pages/User/Photos";
 
+import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { useAuthStore } from "./store/authStore";
-import { useEffect, useRef } from "react";
+import PublicProfile from "@/pages/User/PublicProfile";
 import { AuthService } from "@/services/authService";
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "./store/authStore";
 
 function App() {
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -70,7 +71,7 @@ function App() {
           <Route element={<VisitorLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<VisitorDiscover />} />
+            <Route path="/" element={<Discover />} />
           </Route>
 
           <Route element={<UserLayout />}>
@@ -83,6 +84,7 @@ function App() {
             <Route path="/followers" element={<Follower />} />
             <Route path="/followings" element={<Following />} />
             <Route path="/profile" element={<EditProfile />} />
+            <Route path="/users/:id" element={<PublicProfile />} />
           </Route>
 
           <Route element={<AdminLayout />}>
@@ -96,6 +98,7 @@ function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Toaster richColors position="top-center" />
       </ThemeProvider>
     </BrowserRouter>
   );

@@ -1,7 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -9,10 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
-import { useState } from "react";
-import { useAuthStore } from "@/store/authStore";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AuthService } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
+import { useState } from "react";
+import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -32,7 +32,12 @@ const LoginForm = () => {
       const response = await AuthService.login(email, password);
 
       setAuth(response.accessToken, response.user);
-      navigate("/feed");
+      if (response.user.role === "ADMIN") {
+        await navigate("/admin/photos");
+        console.log("Admin user logged in, navigating to /admin/photos");
+      } else {
+        await navigate("/feed");
+      }
     } catch (error: any) {
       setError(error.response?.data?.message || "An error occurred");
     } finally {

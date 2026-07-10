@@ -1,5 +1,6 @@
 import { prisma } from "#/config/db.js";
 import { attachFollowStatus } from "#utils/userUtils.js";
+import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -90,12 +91,81 @@ export const deleteUser = async (
   }
 };
 
-export const updateUser = async (
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    console.log("Request body:", req.body);
+
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const userId = req.user?.userId;
+
+    const { email, firstName, lastName, avatarUrl } = req.body;
+
+    console.log(email, firstName, lastName, avatarUrl);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(email && { email }),
+        ...(firstName && { firstName }),
+        ...(lastName && { lastName }),
+        ...(avatarUrl && { avatarUrl }),
+      },
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+    console.log("Error updating user:", error);
+  }
+};
+
+export const updateUserPassword = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    const userId = req.user?.userId;
+    const { password, newPassword } = req.body;
+
+    const oldPassword = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { password: true },
+    });
+
+    if (!bcrypt.compareSync(password, oldPassword?.password || "")) {
+      return res.status(400).json({ error: "Incorrect current password" });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { password: bcrypt.hashSync(newPassword, 10) },
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+    console.log("Error updating user password:", error);
+  }
+};
+
+export const updateUserAdmin = async (
   req: Request<{ id: string }>,
   res: Response,
 ) => {
   try {
+    {
+    }
     const userId = req.params.id;
+
+    if (!userId) {
+      res.status(400).json({ error: "User ID is required" });
+      return;
+    }
+
     const { email, firstName, lastName, password, avatarUrl } = req.body;
 
     console.log(email);
@@ -132,7 +202,7 @@ export const getUserPhotos = async (
     const targetUserId = req.params.id;
 
     const isOwner = currentUserId === targetUserId;
-    const isAdmin = currentUserRole === "admin";
+    const isAdmin = currentUserRole === "ADMIN";
     const canViewPrivate = isOwner || isAdmin;
 
     const userPhotos = await prisma.photo.findMany({

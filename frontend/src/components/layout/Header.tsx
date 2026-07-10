@@ -5,10 +5,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Moon, Settings, Sun, PersonStanding } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useAuthStore } from "@/store/authStore";
 import { AuthService } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
+import { LogOut, Moon, PersonStanding, Settings, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -19,7 +19,7 @@ const Header = () => {
   const handleLogout = async () => {
     await AuthService.logout();
     await useAuthStore.getState().clearAuth();
-    navigate("/feed");
+    navigate("/");
   };
 
   return (

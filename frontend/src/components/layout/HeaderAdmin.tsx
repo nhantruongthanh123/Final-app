@@ -1,4 +1,8 @@
 import { useTheme } from "@/contexts/ThemeContext";
+import { AuthService } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
+import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,11 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { Link } from "react-router-dom";
 
-const Header = ({ name }: { name?: string }) => {
-  const { theme, toggleTheme } = useTheme();
+const Header = () => {
+  const { toggleTheme } = useTheme();
+  const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await AuthService.logout();
+    await useAuthStore.getState().clearAuth();
+    navigate("/");
+  };
 
   return (
     <div className="bg-brand flex flex-row items-center justify-between py-2 font-bold sticky top-0 z-50">
@@ -25,17 +35,17 @@ const Header = ({ name }: { name?: string }) => {
         />
       </div>
 
-      {name ? (
+      {user ? (
         <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex flex-row items-center gap-4 hover:opacity-80 transition-opacity outline-none">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-brand">
-                {name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                {user.firstName[0]}
+                {user.lastName[0]}
               </div>
-              <div className="text-white hidden md:block">{name}</div>
+              <div className="text-white hidden md:block">
+                {user.firstName} {user.lastName}
+              </div>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-44 mt-2">
@@ -75,7 +85,7 @@ const Header = ({ name }: { name?: string }) => {
           </DropdownMenu>
 
           <div className="text-white pr-2 md:pr-0">
-            <button>Log out</button>
+            <button onClick={handleLogout}>Log out</button>
           </div>
         </div>
       ) : (

@@ -16,6 +16,13 @@ export interface UserStatType {
   label: string;
 }
 
+export interface UpdateUserProfileData {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+}
+
 export interface UserWithFollowStatus extends User {
   isFollowing: boolean;
 }
