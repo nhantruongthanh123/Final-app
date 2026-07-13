@@ -11,6 +11,7 @@ import {
   getUserPhotos,
   updateUser,
   updateUserAdmin,
+  updateUserAvatar,
   updateUserPassword,
 } from "#/controllers/userController.js";
 import { followUser, unfollowUser } from "#controllers/followController.js";
@@ -21,6 +22,7 @@ import {
   userUnlikePhoto,
 } from "#controllers/likeController.js";
 import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
+import { upload } from "#middlewares/upload.js";
 import express from "express";
 
 const userRouter = express.Router();
@@ -41,6 +43,12 @@ userRouter.get("/users/:id/albums", requireAuth, getUserAlbums);
 
 userRouter.post("/users", createUser);
 userRouter.patch("/users/me", requireAuth, updateUser);
+userRouter.patch(
+  "/users/me/avatar",
+  requireAuth,
+  upload.single("avatar"),
+  updateUserAvatar,
+);
 userRouter.patch("/users/me/password", requireAuth, updateUserPassword);
 userRouter.patch("/users/:id", requireAdmin, updateUserAdmin);
 userRouter.delete("/users/:id", deleteUser);

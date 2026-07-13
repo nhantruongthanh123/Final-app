@@ -46,7 +46,7 @@ const Photo = ({ photo }: { photo: PhotoFeed }) => {
           </div>
           <div className="text-gray-500 divt-xs dark:text-slate-400">
             {" "}
-            {photo.createdAt}{" "}
+            {photo.updatedAt}{" "}
           </div>
         </div>
       </div>

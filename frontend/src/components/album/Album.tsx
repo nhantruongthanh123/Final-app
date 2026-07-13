@@ -56,7 +56,7 @@ const Album = ({ album }: { album: AlbumFeed }) => {
             )}
             {album.numLikes}
           </div>
-          <div> {album.createdAt} </div>
+          <div> {album.updatedAt} </div>
         </div>
       </div>
     </div>

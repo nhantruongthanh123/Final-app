@@ -26,7 +26,7 @@ export const getAllPhotos = async (req: Request, res: Response) => {
       prisma.photo.findMany({
         skip: offset,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         where: visibilityFilter,
       }),
       prisma.photo.count({ where: visibilityFilter }),
@@ -88,14 +88,14 @@ export const createPhoto = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Only image files are allowed!" });
     }
 
-    const { photoUrl, publicId } = await uploadToCloudinary(
+    const { url, publicId } = await uploadToCloudinary(
       req.file.buffer,
       "fotobook/photos",
     );
 
     const newPhoto = await prisma.photo.create({
       data: {
-        photoUrl,
+        photoUrl: url,
         title: req.body.title,
         description: req.body.description,
         userId: req.user.userId,
@@ -179,12 +179,12 @@ export const updatePhoto = async (
     let cloudinaryPublicId = existingPhoto.cloudinaryPublicId;
 
     if (req.file) {
-      const { photoUrl, publicId } = await uploadToCloudinary(
+      const { url, publicId } = await uploadToCloudinary(
         req.file.buffer,
         "fotobook/photos",
       );
 
-      newPhotoUrl = photoUrl;
+      newPhotoUrl = url;
       cloudinaryPublicId = publicId;
 
       if (existingPhoto.cloudinaryPublicId) {
@@ -244,7 +244,7 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
         userId: { in: followingIds },
         isPublic: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
       skip: offset,
       take: limit,
       include: {
@@ -286,7 +286,7 @@ export const getAllPhotosDiscover = async (req: Request, res: Response) => {
     const [discoverPhotos, totalPhotos] = await Promise.all([
       prisma.photo.findMany({
         where: { isPublic: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         skip: offset,
         take: limit,
         include: {

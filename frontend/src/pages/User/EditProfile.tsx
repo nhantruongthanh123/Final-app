@@ -3,8 +3,7 @@ import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
-import type { UpdateUserProfileData } from "@/types/user";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 const EditProfile = () => {
@@ -16,17 +15,65 @@ const EditProfile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAvatarChange = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      toast.promise(UserService.updateUserAvatar(file), {
+        loading: "Updating user information...",
+        success: () => {
+          return "Update user information successfully!";
+        },
+        error: "Failed to update user information",
+      });
+
+      await UserService.updateUserAvatar(file);
+      toast.success("Profile picture updated successfully!", {
+        duration: 4000,
+      });
+    } catch (error) {
+      console.error("Error updating user avatar:", error);
+      toast.error("Failed to update profile picture.");
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      window.location.reload();
+    }
+  };
+
   const handleSaveChanges = async () => {
     try {
-      await UserService.updateUserProfile({
-        email,
-        firstName,
-        lastName,
-      } as UpdateUserProfileData);
-      toast.success("Profile updated successfully!", { duration: 4000 });
+      toast.promise(
+        UserService.updateUserProfile({
+          email,
+          firstName,
+          lastName,
+        }),
+        {
+          loading: "Updating user information...",
+          success: () => {
+            return "Update user information successfully!";
+          },
+          error: "Failed to update user information",
+        },
+      );
+
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating user profile:", error);
-      toast.error("Failed to update profile.", { duration: 4000 });
+      toast.error("Failed to update profile.");
+    } finally {
+      window.location.reload();
     }
   };
 
@@ -35,6 +82,7 @@ const EditProfile = () => {
       toast.error("Confirmation password does not match the new password.", {
         duration: 4000,
       });
+
       return;
     }
 
@@ -43,28 +91,44 @@ const EditProfile = () => {
         password,
         newPassword,
       });
-      toast.success("Password changed successfully!", { duration: 4000 });
+      toast.success("Password changed successfully!");
       setPassword("");
       setNewPassword("");
       setPasswordConfirmation("");
     } catch (error) {
       console.error("Error changing password:", error);
-      toast.error("Failed to change password.", { duration: 4000 });
+      toast.error("Failed to change password.");
+    } finally {
+      window.location.reload();
     }
   };
+
+  useEffect(() => {}, [user]);
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">
       <PageHeader title="Edit Profile" backlink="/photos" />
       <div className="flex flex-col items-center justify-center w-full">
         <img
-          src={user?.avatarUrl || "/default-avatar.png"}
+          src={user?.avatarUrl}
           alt="Profile"
           className="w-32 h-32 rounded-full object-cover"
         />
-        <Button className="mt-4" variant="outline" size="sm">
+        <Button
+          className="mt-4"
+          variant="outline"
+          size="sm"
+          onClick={handleAvatarChange}
+        >
           Change Profile Picture
         </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl mx-auto mt-4">

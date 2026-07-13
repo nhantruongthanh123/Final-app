@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
+import Album from "@/components/album/Album";
+import AlbumModal from "@/components/album/AlbumModal";
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import TagToggle from "@/components/shared/TagToggle";
-import type { PhotoFeed } from "@/types/photo";
-import Album from "@/components/album/Album";
-import type { AlbumFeed } from "@/types/album";
-import AlbumModal from "@/components/album/AlbumModal";
-import { PhotoService } from "@/services/photoService";
 import { AlbumService } from "@/services/albumService";
+import { PhotoService } from "@/services/photoService";
+import type { AlbumFeed } from "@/types/album";
+import type { PhotoFeed } from "@/types/photo";
 
 function Discover() {
   const [discoverPhotos, setDiscoverPhotos] = useState<PhotoFeed[]>([]);
@@ -41,7 +41,7 @@ function Discover() {
 
         {isPhotoView ? (
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {discoverPhotos.toReversed().map((photo) => (
+            {discoverPhotos.map((photo) => (
               <div
                 key={photo.id}
                 onClick={() => setSelectedPhoto(photo)}
@@ -53,7 +53,7 @@ function Discover() {
           </div>
         ) : (
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {discoverAlbums.toReversed().map((album) => (
+            {discoverAlbums.map((album) => (
               <div
                 key={album.id}
                 onClick={() => setSelectedAlbum(album)}

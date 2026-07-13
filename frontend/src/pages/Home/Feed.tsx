@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
+import Album from "@/components/album/Album";
+import AlbumModal from "@/components/album/AlbumModal";
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import TagToggle from "@/components/shared/TagToggle";
-import type { PhotoFeed } from "@/types/photo";
-import Album from "@/components/album/Album";
-import type { AlbumFeed } from "@/types/album";
-import AlbumModal from "@/components/album/AlbumModal";
-import { PhotoService } from "@/services/photoService";
 import { AlbumService } from "@/services/albumService";
+import { PhotoService } from "@/services/photoService";
+import type { AlbumFeed } from "@/types/album";
+import type { PhotoFeed } from "@/types/photo";
 
 function Feed() {
   const [feedPhotos, setFeedPhotos] = useState<PhotoFeed[]>([]);

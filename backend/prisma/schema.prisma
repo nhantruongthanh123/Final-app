@@ -13,14 +13,15 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(uuid()) @db.Uuid
-  email        String  @unique @db.VarChar(255)
-  password     String  @db.VarChar(64)
-  firstName    String? @db.VarChar(25)
-  lastName     String? @db.VarChar(25)
-  avatarUrl    String?
-  isActive     Boolean @default(true)
-  role         String  @default("USER") @db.VarChar(10)
+  id                 String  @id @default(uuid()) @db.Uuid
+  email              String  @unique @db.VarChar(255)
+  password           String  @db.VarChar(64)
+  firstName          String? @db.VarChar(25)
+  lastName           String? @db.VarChar(25)
+  avatarUrl          String?
+  avatarCloudinaryId String?
+  isActive           Boolean @default(true)
+  role               String  @default("USER") @db.VarChar(10)
 
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -31,16 +32,16 @@ model User {
   albumLikes    AlbumLike[]
   followers     Follow[]       @relation("Following")
   following     Follow[]       @relation("Follower")
-  sessions      Session[]      
+  sessions      Session[]
 }
 
 model Session {
-  id                String @id @default(uuid()) @db.Uuid
-  userId            String @db.Uuid
-  refreshToken      String   @unique
-  expiresAt         DateTime
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  refreshToken String   @unique
+  expiresAt    DateTime
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -57,12 +58,12 @@ model OauthAccount {
 }
 
 model Photo {
-  id          String  @id @default(uuid()) @db.Uuid
-  photoUrl    String
-  title       String  @db.VarChar(140)
-  description String? @db.VarChar(300)
-  userId      String  @db.Uuid
-  isPublic    Boolean @default(true)
+  id                 String  @id @default(uuid()) @db.Uuid
+  photoUrl           String
+  title              String  @db.VarChar(140)
+  description        String? @db.VarChar(300)
+  userId             String  @db.Uuid
+  isPublic           Boolean @default(true)
   cloudinaryPublicId String?
 
   createdAt  DateTime    @default(now())
@@ -112,8 +113,8 @@ model AlbumLike {
 }
 
 model Follow {
-  id          String @id @default(uuid()) @db.Uuid
-  followerId  String @db.Uuid
+  id         String @id @default(uuid()) @db.Uuid
+  followerId String @db.Uuid
   followedId String @db.Uuid
 
   createdAt DateTime @default(now())

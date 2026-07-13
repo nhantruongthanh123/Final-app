@@ -55,7 +55,6 @@ export const UserService = {
 
   updateUserProfile: async (data: UpdateUserProfileData): Promise<User> => {
     const res = await api.patch<User>(`/users/me`, data);
-    console.log(data);
     return res.data;
   },
 
@@ -64,6 +63,20 @@ export const UserService = {
     newPassword: string;
   }): Promise<User> => {
     const res = await api.patch<User>(`/users/me/password`, data);
+    return res.data;
+  },
+
+  updateUserAvatar: async (file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const res = await api.patch<User>(`/users/me/avatar`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+
     return res.data;
   },
 };

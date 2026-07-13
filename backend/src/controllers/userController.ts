@@ -1,4 +1,6 @@
 import { prisma } from "#/config/db.js";
+import cloudinary from "#config/cloudinary.js";
+import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 import { attachFollowStatus } from "#utils/userUtils.js";
 import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
@@ -13,7 +15,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
       prisma.user.findMany({
         skip: offset,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
       }),
       prisma.user.count(),
     ]);
@@ -41,8 +43,8 @@ export const getUserById = async (
         avatarUrl: true,
         isActive: true,
         role: true,
-        createdAt: true,
         updatedAt: true,
+        createdAt: true,
       },
     });
 
@@ -152,6 +154,58 @@ export const updateUserPassword = async (req: Request, res: Response) => {
   }
 };
 
+export const updateUserAvatar = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const userId = req.user?.userId;
+
+    // Upload the new avatar to Cloudinary
+    const { url, publicId } = await uploadToCloudinary(
+      req.file.buffer,
+      "fotobook/avatars",
+    );
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarCloudinaryId: true },
+    });
+
+    // Delete the old avatar from Cloudinary if it exists
+    if (existingUser?.avatarCloudinaryId) {
+      try {
+        await cloudinary.uploader.destroy(existingUser.avatarCloudinaryId);
+      } catch (error) {
+        console.error(
+          "Error occurred while deleting old avatar from Cloudinary:",
+          error,
+        );
+      }
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatarUrl: url,
+        avatarCloudinaryId: publicId,
+      },
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
+    console.log("Error updating user avatar:", error);
+  }
+};
+
 export const updateUserAdmin = async (
   req: Request<{ id: string }>,
   res: Response,
@@ -210,7 +264,7 @@ export const getUserPhotos = async (
         userId: targetUserId,
         ...(canViewPrivate ? {} : { isPublic: true }),
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
     });
 
     res.status(200).json(userPhotos);
