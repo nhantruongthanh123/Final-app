@@ -1,12 +1,10 @@
-import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button";
-import UserStat from "./UserStat";
-import { useLocation } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
-import type { UserStatType } from "@/types/user";
 import { UserService } from "@/services/userService";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import type { User, UserStatType } from "@/types/user";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import UserStat from "./UserStat";
 
 const MyProfileHeader = () => {
   const location = useLocation();
@@ -17,6 +15,10 @@ const MyProfileHeader = () => {
   const [numUserAlbums, setNumUserAlbums] = useState<number>(0);
   const [numUserFollowings, setNumUserFollowings] = useState<number>(0);
   const [numUserFollowers, setNumUserFollowers] = useState<number>(0);
+
+  const handleAddPhotos = () => {
+    navigate("/photos/add");
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -84,6 +86,7 @@ const MyProfileHeader = () => {
                 <Button
                   variant="outline"
                   className="justify-center text-white bg-green-500 hover:bg-green-600"
+                  onClick={handleAddPhotos}
                 >
                   Add Photos
                 </Button>

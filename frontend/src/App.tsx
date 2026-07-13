@@ -27,6 +27,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import PublicProfile from "@/pages/User/PublicProfile";
 import { AuthService } from "@/services/authService";
 import { useEffect, useRef } from "react";
+import AddPhoto from "./pages/User/AddPhoto";
 import { useAuthStore } from "./store/authStore";
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
             <Route path="/feed" element={<Feed />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/photos" element={<Photos />} />
+            <Route path="/photos/add" element={<AddPhoto />} />
             <Route path="/photos/:id" element={<EditPhotoUser />} />
             <Route path="/albums" element={<Albums />} />
             <Route path="/albums/:id" element={<EditAlbumUser />} />

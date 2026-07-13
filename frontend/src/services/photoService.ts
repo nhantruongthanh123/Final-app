@@ -24,10 +24,25 @@ export const PhotoService = {
     return res.data;
   },
 
-  createPhoto: async (
-    photo: Pick<Photo, "photoUrl" | "title" | "description" | "isPublic">,
-  ) => {
-    const res = await api.post<Photo>("/photos", photo);
+  createPhoto: async (data: {
+    file?: File;
+    title: string;
+    description: string;
+    isPublic: boolean;
+  }) => {
+    const formData = new FormData();
+    if (data.file) {
+      formData.append("photo", data.file);
+    }
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("isPublic", String(data.isPublic));
+    const res = await api.post<Photo>("/photos", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
     return res.data;
   },
 

@@ -1,30 +1,28 @@
 import PageHeader from "@/components/shared/PageHeader";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhotoService } from "@/services/photoService";
+import { X } from "lucide-react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { PhotoService } from "@/services/photoService";
-import type { Photo } from "@/types/photo";
-import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
-const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
-  const [photo, setPhoto] = useState<Photo | null>(null);
+const AddPhotoForm = ({ backlink }: { backlink: string }) => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -52,76 +50,34 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
       return;
     }
 
-    if (!photo) {
-      toast.error("Photo not found.");
-      setIsSaving(false);
-      return;
-    }
-
     try {
       toast.promise(
-        PhotoService.updatePhoto(photo.id, {
+        PhotoService.createPhoto({
           file: selectedFile ?? undefined,
           title,
           description,
           isPublic,
         }),
         {
-          loading: "Updating photo...",
-          success: (updatedPhoto) => {
-            setPreviewPhotoUrl(updatedPhoto.photoUrl);
-            setSelectedFile(null);
-            return "Update photo successfully!";
+          loading: "Saving photo...",
+          success: () => {
+            window.location.href = backlink;
+            return "Photo saved successfully!";
           },
-          error: "Failed to update photo",
+          error: "Failed to save photo.",
         },
       );
     } catch (error) {
-      console.error("Error updating photo:", error);
-      toast.error("Failed to update photo");
+      console.error("Error saving photo:", error);
+      toast.error("Failed to save photo.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDeletePhoto = async () => {
-    try {
-      toast.promise(PhotoService.deletePhoto(photo!.id), {
-        loading: "Deleting photo...",
-        success: () => {
-          window.location.href = backlink;
-          return "Delete photo successfully!";
-        },
-        error: "Failed to delete photo",
-      });
-    } catch (error) {
-      console.error("Error deleting photo:", error);
-      toast.error("Failed to delete photo");
-    }
-  };
-
-  useEffect(() => {
-    const fetchPhoto = async () => {
-      try {
-        const data = await PhotoService.getPhotoById(id);
-        setPhoto(data);
-        setTitle(data.title);
-        setDescription(data.description);
-        setIsPublic(data.isPublic);
-        setPreviewPhotoUrl(data.photoUrl);
-        console.log("Fetched photo:", data);
-      } catch (error) {
-        console.error("Error fetching photo:", error);
-        toast.error("Failed to fetch photo");
-      }
-    };
-
-    fetchPhoto();
-  }, [id]);
-
   return (
     <div className="flex flex-col w-full p-4 md:p-6">
-      <PageHeader title="Edit Photo" backlink={backlink} />
+      <PageHeader title="Add Photo" backlink={backlink} />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
         <div className="flex flex-col md:flex-row gap-4 p-4">
@@ -133,7 +89,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
               <Input
                 type="text"
                 id="title"
-                placeholder="Lorem ipsum dolor sit amet..."
+                placeholder="Place your photo title here..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -163,7 +119,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
             </Label>
             <Textarea
               id="description"
-              placeholder="Lorem ipsum dolor sit amet..."
+              placeholder="Place your photo description here..."
               className="h-27 resize-none"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -177,7 +133,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           <div className="relative w-full md:w-lg h-auto mt-4 rounded-xl object-cover block">
             <img
               src={previewPhotoUrl}
-              alt={photo?.title}
+              alt={title}
               className="rounded-xl w-full h-auto object-cover"
             />
             <X
@@ -209,19 +165,10 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
-
-          <Button
-            variant="ghost"
-            className=" bg-red-500 hover:bg-red-600 text-white"
-            onClick={handleDeletePhoto}
-            disabled={isSaving}
-          >
-            Delete Photo
-          </Button>
         </div>
       </div>
     </div>
   );
 };
 
-export default EditPhotoForm;
+export default AddPhotoForm;
