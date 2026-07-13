@@ -24,7 +24,7 @@ export const AlbumService = {
     return res.data;
   },
 
-  getFeedPhotos: async () => {
+  getFeedAlbums: async () => {
     const res = await api.get<{ feed: AlbumFeed[]; total: number }>(
       "/albums/feed",
     );

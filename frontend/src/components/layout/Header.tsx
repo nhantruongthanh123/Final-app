@@ -40,8 +40,18 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex flex-row items-center gap-4 hover:opacity-80 transition-opacity outline-none">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-brand">
-                {user.firstName[0]}
-                {user.lastName[0]}
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.firstName}
+                    className="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-brand">
+                    {user.firstName[0]}
+                    {user.lastName[0]}
+                  </div>
+                )}
               </div>
               <div className="text-white hidden md:block">
                 {user.firstName} {user.lastName}

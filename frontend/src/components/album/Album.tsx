@@ -1,11 +1,45 @@
+import { UserService } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
 import type { AlbumFeed } from "@/types/album";
+import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
+import { useState } from "react";
+import PublicUserInfo from "../shared/PublicUserInfo";
 
-const Album = ({ album }: { album: AlbumFeed }) => {
+const Album = ({
+  album,
+  handleClickAlbum,
+  // handleLikeAlbum,
+}: {
+  album: AlbumFeed;
+  handleClickAlbum: () => void;
+  // handleLikeAlbum: (albumId: string, newIsLiked: boolean) => void;
+}) => {
+  const [isLiked, setIsLiked] = useState(album.isLiked);
+  const [numLikes, setNumLikes] = useState(album.numLikes);
+  const user = useAuthStore.getState().user;
+
+  const handleLike = async () => {
+    if (!user) return;
+
+    try {
+      if (isLiked) {
+        await UserService.unlikeAlbum(album.id);
+      } else {
+        await UserService.likeAlbum(album.id);
+      }
+      setIsLiked(!isLiked);
+      setNumLikes((prev) => (isLiked ? prev - 1 : prev + 1));
+      // handleLikeAlbum(album.id, !isLiked);
+    } catch (error) {
+      console.error("Error liking/unliking album:", error);
+    }
+  };
+
   return (
     <div className="bg-white border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-2 dark:bg-card dark:border-border">
       <div className="flex items-center justify-center p-6">
-        <div className="w-full h-64 relative">
+        <div className="w-full h-64 relative" onClick={handleClickAlbum}>
           <img
             src={album.photos[2] || album.photos[0]} // Fallback just in case you don't have 3 images yet
             alt="Album bottom"
@@ -26,14 +60,11 @@ const Album = ({ album }: { album: AlbumFeed }) => {
 
       <div className="flex flex-col p-2">
         <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
-          <div className="flex flex-row gap-4">
-            <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white">
-              {album.user.firstName.charAt(0) + album.user.lastName.charAt(0)}
-            </div>
-            <div className="text-brand flex items-center justify-center">
-              {album.user.firstName} {album.user.lastName}
-            </div>
-          </div>
+          <PublicUserInfo
+            firstName={album.user.firstName}
+            lastName={album.user.lastName}
+            avatarUrl={album.user.avatarUrl}
+          />
         </div>
 
         <div className="p-2 text-black text-sm font-bold truncate">
@@ -45,8 +76,8 @@ const Album = ({ album }: { album: AlbumFeed }) => {
         </div>
 
         <div className="p-2 text-gray-600 flex mt-auto justify-between">
-          <div>
-            {album.isLiked ? (
+          <div className="cursor-pointer" onClick={handleLike}>
+            {isLiked ? (
               <Heart
                 className="w-6 h-6 inline-block mr-1 mb-1 text-brand"
                 fill="currentColor"
@@ -54,9 +85,9 @@ const Album = ({ album }: { album: AlbumFeed }) => {
             ) : (
               <Heart className="w-6 h-6 inline-block mr-1 mb-1 text-gray-400" />
             )}
-            {album.numLikes}
+            {numLikes}
           </div>
-          <div> {album.updatedAt} </div>
+          <div> {formatDateTime(album.updatedAt)} </div>
         </div>
       </div>
     </div>

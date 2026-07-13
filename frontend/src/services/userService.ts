@@ -79,4 +79,20 @@ export const UserService = {
 
     return res.data;
   },
+
+  likePhoto: async (photoId: string): Promise<void> => {
+    await api.post(`/users/${photoId}/likePhoto`);
+  },
+
+  unlikePhoto: async (photoId: string): Promise<void> => {
+    await api.delete(`/users/${photoId}/likePhoto`);
+  },
+
+  likeAlbum: async (albumId: string): Promise<void> => {
+    await api.post(`/users/${albumId}/likeAlbum`);
+  },
+
+  unlikeAlbum: async (albumId: string): Promise<void> => {
+    await api.delete(`/users/${albumId}/likeAlbum`);
+  },
 };

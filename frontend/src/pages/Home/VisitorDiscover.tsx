@@ -1,18 +1,18 @@
 import { useState } from "react";
 
+import Album from "@/components/album/Album";
+import AlbumModal from "@/components/album/AlbumModal";
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import TagToggle from "@/components/shared/TagToggle";
-import mockPhotos from "@/datas/photoData";
 import mockAlbums from "@/datas/albumData";
-import type { PhotoData } from "@/types/photo";
-import Album from "@/components/album/Album";
-import type { AlbumData } from "@/types/album";
-import AlbumModal from "@/components/album/AlbumModal";
+import mockPhotos from "@/datas/photoData";
+import type { AlbumFeed } from "@/types/album";
+import type { PhotoFeed } from "@/types/photo";
 
 function VisitorDiscover() {
-  const [selectedPhoto, setSelectedPhoto] = useState<PhotoData | null>(null);
-  const [selectedAlbum, setSelectedAlbum] = useState<AlbumData | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<PhotoFeed | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
 
   return (
@@ -29,7 +29,11 @@ function VisitorDiscover() {
                   onClick={() => setSelectedPhoto(photo)}
                   className="cursor-pointer transition-transform hover:scale-[1.02]"
                 >
-                  <Photo photoData={photo} />
+                  <Photo
+                    photo={photo}
+                    handleClickPhoto={() => setSelectedPhoto(photo)}
+                    handleLikePhoto={() => {}}
+                  />
                 </div>
               ))}
             </div>
@@ -41,7 +45,11 @@ function VisitorDiscover() {
                   onClick={() => setSelectedAlbum(album)}
                   className="cursor-pointer transition-transform hover:scale-[1.02]"
                 >
-                  <Album albumData={album} />
+                  <Album
+                    album={album}
+                    handleClickAlbum={() => setSelectedAlbum(album)}
+                    handleLikeAlbum={() => {}}
+                  />
                 </div>
               ))}
             </div>
@@ -54,7 +62,7 @@ function VisitorDiscover() {
         onClose={() => setSelectedAlbum(null)}
         title={selectedAlbum?.title || ""}
         description={selectedAlbum?.description || ""}
-        imgURLs={selectedAlbum?.imgURLs || []}
+        photos={selectedAlbum?.photos || []}
       />
 
       <PhotoModal
@@ -62,7 +70,7 @@ function VisitorDiscover() {
         onClose={() => setSelectedPhoto(null)}
         title={selectedPhoto?.title || ""}
         description={selectedPhoto?.description || ""}
-        imgURL={selectedPhoto?.imgURL || ""}
+        photoUrl={selectedPhoto?.photoUrl || ""}
       />
     </div>
   );

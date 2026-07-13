@@ -17,11 +17,39 @@ function Feed() {
   const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
 
+  // const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
+  //   setFeedPhotos((prevPhotos) =>
+  //     prevPhotos.map((photo) =>
+  //       photo.id === photoId
+  //         ? {
+  //             ...photo,
+  //             isLiked: newIsLiked,
+  //             numLikes: newIsLiked ? photo.numLikes + 1 : photo.numLikes - 1,
+  //           }
+  //         : photo,
+  //     ),
+  //   );
+  // };
+
+  // const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
+  //   setFeedAlbums((prevAlbums) =>
+  //     prevAlbums.map((album) =>
+  //       album.id === albumId
+  //         ? {
+  //             ...album,
+  //             isLiked: newIsLiked,
+  //             numLikes: newIsLiked ? album.numLikes + 1 : album.numLikes - 1,
+  //           }
+  //         : album,
+  //     ),
+  //   );
+  // };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const photosData = await PhotoService.getFeedPhotos();
-        const albumsData = await AlbumService.getFeedPhotos();
+        const albumsData = await AlbumService.getFeedAlbums();
         setFeedPhotos(photosData.feed);
         setFeedAlbums(albumsData.feed);
       } catch (error) {
@@ -50,10 +78,13 @@ function Feed() {
             {feedPhotos.map((photo) => (
               <div
                 key={photo.id}
-                onClick={() => setSelectedPhoto(photo)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Photo photo={photo} />
+                <Photo
+                  photo={photo}
+                  handleClickPhoto={() => setSelectedPhoto(photo)}
+                  // handleLikePhoto={() => {}}
+                />
               </div>
             ))}
           </div>
@@ -62,10 +93,13 @@ function Feed() {
             {feedAlbums.map((album) => (
               <div
                 key={album.id}
-                onClick={() => setSelectedAlbum(album)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Album album={album} />
+                <Album
+                  album={album}
+                  handleClickAlbum={() => setSelectedAlbum(album)}
+                  // handleLikeAlbum={() => {}}
+                />
               </div>
             ))}
           </div>

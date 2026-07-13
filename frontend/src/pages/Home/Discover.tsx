@@ -44,10 +44,13 @@ function Discover() {
             {discoverPhotos.map((photo) => (
               <div
                 key={photo.id}
-                onClick={() => setSelectedPhoto(photo)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Photo photo={photo} />
+                <Photo
+                  photo={photo}
+                  handleClickPhoto={() => setSelectedPhoto(photo)}
+                  // handleLikePhoto={() => {}}
+                />
               </div>
             ))}
           </div>
@@ -56,10 +59,13 @@ function Discover() {
             {discoverAlbums.map((album) => (
               <div
                 key={album.id}
-                onClick={() => setSelectedAlbum(album)}
                 className="cursor-pointer transition-transform hover:scale-[1.02]"
               >
-                <Album album={album} />
+                <Album
+                  album={album}
+                  handleClickAlbum={() => setSelectedAlbum(album)}
+                  // handleLikeAlbum={() => {}}
+                />
               </div>
             ))}
           </div>

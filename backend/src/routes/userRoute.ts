@@ -54,9 +54,9 @@ userRouter.patch("/users/:id", requireAdmin, updateUserAdmin);
 userRouter.delete("/users/:id", deleteUser);
 
 // Like User
-userRouter.post("/users/:id/likePhoto", userLikePhoto);
-userRouter.delete("/users/:id/likePhoto", userUnlikePhoto);
-userRouter.post("/users/:id/likeAlbum", userLikeAlbum);
-userRouter.delete("/users/:id/likeAlbum", userUnlikeAlbum);
+userRouter.post("/users/:id/likePhoto", requireAuth, userLikePhoto);
+userRouter.delete("/users/:id/likePhoto", requireAuth, userUnlikePhoto);
+userRouter.post("/users/:id/likeAlbum", requireAuth, userLikeAlbum);
+userRouter.delete("/users/:id/likeAlbum", requireAuth, userUnlikeAlbum);
 
 export default userRouter;

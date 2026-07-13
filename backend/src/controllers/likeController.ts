@@ -6,8 +6,12 @@ export const userLikePhoto = async (
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
-    const { photoId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = req.user?.userId;
+    const photoId = req.params.id;
 
     // Check if the user has already liked the photo
     const existingLike = await prisma.photoLike.findUnique({
@@ -35,7 +39,9 @@ export const userLikePhoto = async (
 
     res.status(201).json(newLike);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 };
 
@@ -44,8 +50,12 @@ export const userUnlikePhoto = async (
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
-    const { photoId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = req.user?.userId;
+    const photoId = req.params.id;
 
     // Check if the like exists
     const existingLike = await prisma.photoLike.findUnique({
@@ -82,8 +92,12 @@ export const userLikeAlbum = async (
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
-    const { albumId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = req.user?.userId;
+    const albumId = req.params.id;
 
     // Check if the user has already liked the album
     const existingLike = await prisma.albumLike.findUnique({
@@ -120,8 +134,12 @@ export const userUnlikeAlbum = async (
   res: Response,
 ) => {
   try {
-    const userId = req.params.id;
-    const { albumId } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const userId = req.user?.userId;
+    const albumId = req.params.id;
 
     // Check if the like exists
     const existingLike = await prisma.albumLike.findUnique({
