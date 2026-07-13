@@ -1,6 +1,9 @@
+import cloudinary from "#/config/cloudinary.js";
 import { prisma } from "#/config/db.js";
-import type { Request, Response } from "express";
 import { formatFeedPhotos } from "#utils/photoUtils.js";
+import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
+import type { Request, Response } from "express";
+import { fileTypeFromBuffer } from "file-type";
 
 export const getAllPhotos = async (req: Request, res: Response) => {
   try {
@@ -76,17 +79,28 @@ export const createPhoto = async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Unauthorized: No user found" });
     }
 
-    const userId = req.user.userId;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-    const { photoUrl, title, description, isPublic } = req.body;
+    const type = await fileTypeFromBuffer(req.file.buffer);
+    if (!type || !type.mime.startsWith("image/")) {
+      return res.status(400).json({ error: "Only image files are allowed!" });
+    }
+
+    const { photoUrl, publicId } = await uploadToCloudinary(
+      req.file.buffer,
+      "fotobook/photos",
+    );
 
     const newPhoto = await prisma.photo.create({
       data: {
         photoUrl,
-        title,
-        description,
-        userId,
-        isPublic,
+        title: req.body.title,
+        description: req.body.description,
+        userId: req.user.userId,
+        isPublic: req.body.isPublic === "true",
+        cloudinaryPublicId: publicId,
       },
     });
 
@@ -118,6 +132,17 @@ export const deletePhoto = async (
         .json({ error: "You are not authorized to delete this photo" });
     }
 
+    if (existingPhoto.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(existingPhoto.cloudinaryPublicId);
+      } catch (error) {
+        console.error(
+          "Error occurred while deleting image from Cloudinary:",
+          error,
+        );
+      }
+    }
+
     const deletedPhoto = await prisma.photo.delete({
       where: { id: photoId },
     });
@@ -135,7 +160,6 @@ export const updatePhoto = async (
   try {
     const photoId = req.params.id;
     const currentUserId = req.user!.userId;
-    const { photoUrl, title, description, isPublic } = req.body;
 
     const existingPhoto = await prisma.photo.findUnique({
       where: { id: photoId },
@@ -151,18 +175,40 @@ export const updatePhoto = async (
         .json({ error: "You are not authorized to update this photo" });
     }
 
+    let newPhotoUrl = existingPhoto.photoUrl;
+    let cloudinaryPublicId = existingPhoto.cloudinaryPublicId;
+
+    if (req.file) {
+      const { photoUrl, publicId } = await uploadToCloudinary(
+        req.file.buffer,
+        "fotobook/photos",
+      );
+
+      newPhotoUrl = photoUrl;
+      cloudinaryPublicId = publicId;
+
+      if (existingPhoto.cloudinaryPublicId) {
+        try {
+          await cloudinary.uploader.destroy(existingPhoto.cloudinaryPublicId);
+        } catch (error) {
+          console.error(
+            "Error occurred while deleting old image from Cloudinary:",
+            error,
+          );
+        }
+      }
+    }
+
     const updatedPhoto = await prisma.photo.update({
-      where: { id: photoId },
+      where: { id: existingPhoto.id },
       data: {
-        ...(photoUrl && { photoUrl }),
-        ...(title && { title }),
-        ...(description && { description }),
-        ...(isPublic !== undefined && {
-          isPublic: isPublic === "true" || isPublic === true,
-        }),
+        photoUrl: newPhotoUrl,
+        cloudinaryPublicId: cloudinaryPublicId,
+        title: req.body.title,
+        description: req.body.description,
+        isPublic: req.body.isPublic === "true",
       },
     });
-
     res.status(200).json(updatedPhoto);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

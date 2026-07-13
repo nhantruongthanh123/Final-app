@@ -63,6 +63,7 @@ model Photo {
   description String? @db.VarChar(300)
   userId      String  @db.Uuid
   isPublic    Boolean @default(true)
+  cloudinaryPublicId String?
 
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt

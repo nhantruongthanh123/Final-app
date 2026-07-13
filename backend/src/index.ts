@@ -1,11 +1,12 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
-import userRouter from "#/routes/userRoute.js";
-import photoRouter from "#/routes/photoRoute.js";
 import albumRouter from "#/routes/albumRoute.js";
 import authRouter from "#/routes/authRoute.js";
+import photoRouter from "#/routes/photoRoute.js";
+import userRouter from "#/routes/userRoute.js";
+import { errorHandler } from "#middlewares/errorHandler.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express from "express";
 
 dotenv.config();
 
@@ -24,6 +25,8 @@ app.use("/api", userRouter);
 app.use("/api", photoRouter);
 app.use("/api", albumRouter);
 app.use("/api", authRouter);
+
+app.use(errorHandler);
 
 // Start the server
 app.listen(PORT, () => {

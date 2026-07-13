@@ -37,9 +37,28 @@ export const PhotoService = {
 
   updatePhoto: async (
     id: string,
-    photo: Pick<Photo, "photoUrl" | "title" | "description" | "isPublic">,
+    data: {
+      file?: File;
+      title: string;
+      description: string;
+      isPublic: boolean;
+    },
   ) => {
-    const res = await api.patch<Photo>(`/photos/${id}`, photo);
+    const formData = new FormData();
+    if (data.file) {
+      formData.append("photo", data.file);
+    }
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("isPublic", String(data.isPublic));
+
+    const res = await api.patch<Photo>(`/photos/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+
     return res.data;
   },
 
