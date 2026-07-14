@@ -1,13 +1,36 @@
-import MyProfileHeader from "@/components/user/MyProfileHeader";
-import UserFollowing from "@/components/user/UserFollowing";
+import UserCard from "@/components/user/UserCard";
+import { UserService } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
+import type { UserWithFollowStatus } from "@/types/user";
+import { useEffect, useState } from "react";
 
 const Following = () => {
+  const [followers, setFollowers] = useState<UserWithFollowStatus[]>([]);
+  const user = useAuthStore((state) => state.user);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchFollowers = async () => {
+      try {
+        const res = await UserService.getAllUserFollowings();
+        setFollowers(res);
+      } catch (error) {
+        console.error("Error fetching following:", error);
+      }
+    };
+
+    fetchFollowers();
+  }, [user]);
+
+  if (!followers) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="flex flex-col w-full h-full">
-      <div>
-        <MyProfileHeader />
-        <UserFollowing />
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 p-2 m-2">
+      {followers.map((user) => (
+        <UserCard key={user.id} user={user} />
+      ))}
     </div>
   );
 };

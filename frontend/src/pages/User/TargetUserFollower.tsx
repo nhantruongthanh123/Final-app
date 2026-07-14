@@ -3,16 +3,18 @@ import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const UserFollower = () => {
+const TargetUserFollower = () => {
   const [followers, setFollowers] = useState<UserWithFollowStatus[]>([]);
+  const { id: publicUserId } = useParams<{ id: string }>();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (!user) return;
     const fetchFollowers = async () => {
       try {
-        const res = await UserService.getAllUserFollowers();
+        const res = await UserService.getTargetUserFollowers(publicUserId);
         setFollowers(res);
       } catch (error) {
         console.error("Error fetching followers:", error);
@@ -20,7 +22,7 @@ const UserFollower = () => {
     };
 
     fetchFollowers();
-  }, [user]);
+  }, [user, publicUserId]);
 
   if (!followers) {
     return <div>Loading...</div>;
@@ -35,4 +37,4 @@ const UserFollower = () => {
   );
 };
 
-export default UserFollower;
+export default TargetUserFollower;

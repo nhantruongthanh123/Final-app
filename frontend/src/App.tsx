@@ -24,10 +24,16 @@ import Photos from "@/pages/User/Photos";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import PublicProfile from "@/pages/User/PublicProfile";
 import { AuthService } from "@/services/authService";
 import { useEffect, useRef } from "react";
+import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
+import UserProfileLayout from "./layouts/UserProfileLayout";
+import VisitorDiscover from "./pages/Home/VisitorDiscover";
 import AddPhoto from "./pages/User/AddPhoto";
+import TargetUserAlbums from "./pages/User/TargetUserAlbums";
+import TargetUserFollower from "./pages/User/TargetUserFollower";
+import TargetUserFollowing from "./pages/User/TargetUserFollowing";
+import TargetUserPhotos from "./pages/User/TargetUserPhotos";
 import { useAuthStore } from "./store/authStore";
 
 function App() {
@@ -72,21 +78,30 @@ function App() {
           <Route element={<VisitorLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Discover />} />
+            <Route path="/" element={<VisitorDiscover />} />
           </Route>
 
           <Route element={<UserLayout />}>
             <Route path="/feed" element={<Feed />} />
             <Route path="/discover" element={<Discover />} />
-            <Route path="/photos" element={<Photos />} />
             <Route path="/photos/add" element={<AddPhoto />} />
             <Route path="/photos/:id" element={<EditPhotoUser />} />
-            <Route path="/albums" element={<Albums />} />
             <Route path="/albums/:id" element={<EditAlbumUser />} />
-            <Route path="/followers" element={<Follower />} />
-            <Route path="/followings" element={<Following />} />
             <Route path="/profile" element={<EditProfile />} />
-            <Route path="/users/:id" element={<PublicProfile />} />
+
+            <Route element={<UserProfileLayout />}>
+              <Route path="/photos" element={<Photos />} />
+              <Route path="/albums" element={<Albums />} />
+              <Route path="/followers" element={<Follower />} />
+              <Route path="/followings" element={<Following />} />
+            </Route>
+
+            <Route path="users/:id" element={<TargetUserProfileLayout />}>
+              <Route path="photos" element={<TargetUserPhotos />} />
+              <Route path="albums" element={<TargetUserAlbums />} />
+              <Route path="followers" element={<TargetUserFollower />} />
+              <Route path="followings" element={<TargetUserFollowing />} />
+            </Route>
           </Route>
 
           <Route element={<AdminLayout />}>

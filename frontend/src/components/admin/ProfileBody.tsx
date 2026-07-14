@@ -1,6 +1,8 @@
-import type { User } from "@/types/user";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import type { User } from "@/types/user";
+import { formatDateTime } from "@/utils/formatDateTime";
 import {
   Activity,
   Calendar,
@@ -9,9 +11,16 @@ import {
   Shield,
   UserCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const ProfileBody = ({ user }: { user: User | undefined }) => {
+  if (!user) {
+    return (
+      <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
+        <p className="text-slate-500 text-sm mt-1"> User not found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card title="User Information" className="shadow-sm border-slate-100">
@@ -46,7 +55,7 @@ const ProfileBody = ({ user }: { user: User | undefined }) => {
               <Calendar className="w-4 h-4" /> Member Since
             </span>
             <span className="font-medium text-slate-900 dark:text-white">
-              {user?.createdAt}
+              {formatDateTime(user?.createdAt)}
             </span>{" "}
           </div>
         </CardContent>
@@ -82,7 +91,7 @@ const ProfileBody = ({ user }: { user: User | undefined }) => {
               <Clock className="w-4 h-4" /> Last Login
             </span>
             <span className="font-medium text-slate-900 dark:text-white">
-              {user?.updatedAt}
+              {formatDateTime(user?.updatedAt)}
             </span>
           </div>
 

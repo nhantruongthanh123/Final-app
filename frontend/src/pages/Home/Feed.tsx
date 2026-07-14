@@ -17,56 +17,51 @@ function Feed() {
   const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
 
-  // const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
-  //   setFeedPhotos((prevPhotos) =>
-  //     prevPhotos.map((photo) =>
-  //       photo.id === photoId
-  //         ? {
-  //             ...photo,
-  //             isLiked: newIsLiked,
-  //             numLikes: newIsLiked ? photo.numLikes + 1 : photo.numLikes - 1,
-  //           }
-  //         : photo,
-  //     ),
-  //   );
-  // };
+  const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
+    setFeedPhotos((prevPhotos) =>
+      prevPhotos.map((photo) =>
+        photo.id === photoId
+          ? {
+              ...photo,
+              isLiked: newIsLiked,
+              numLikes: newIsLiked ? photo.numLikes + 1 : photo.numLikes - 1,
+            }
+          : photo,
+      ),
+    );
+  };
 
-  // const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
-  //   setFeedAlbums((prevAlbums) =>
-  //     prevAlbums.map((album) =>
-  //       album.id === albumId
-  //         ? {
-  //             ...album,
-  //             isLiked: newIsLiked,
-  //             numLikes: newIsLiked ? album.numLikes + 1 : album.numLikes - 1,
-  //           }
-  //         : album,
-  //     ),
-  //   );
-  // };
+  const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
+    setFeedAlbums((prevAlbums) =>
+      prevAlbums.map((album) =>
+        album.id === albumId
+          ? {
+              ...album,
+              isLiked: newIsLiked,
+              numLikes: newIsLiked ? album.numLikes + 1 : album.numLikes - 1,
+            }
+          : album,
+      ),
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const photosData = await PhotoService.getFeedPhotos();
-        const albumsData = await AlbumService.getFeedAlbums();
-        setFeedPhotos(photosData.feed);
-        setFeedAlbums(albumsData.feed);
+        if (isPhotoView) {
+          const photosData = await PhotoService.getFeedPhotos();
+          setFeedPhotos(photosData.feed);
+        } else {
+          const albumsData = await AlbumService.getFeedAlbums();
+          setFeedAlbums(albumsData.feed);
+        }
       } catch (error) {
         console.error("Error fetching feed data:", error);
       }
     };
 
     fetchData();
-  }, []);
-
-  if (!feedPhotos || !feedAlbums) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white">
-        Loading feed data...
-      </div>
-    );
-  }
+  }, [isPhotoView]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -83,7 +78,7 @@ function Feed() {
                 <Photo
                   photo={photo}
                   handleClickPhoto={() => setSelectedPhoto(photo)}
-                  // handleLikePhoto={() => {}}
+                  handleLikePhoto={handlePhotoLike}
                 />
               </div>
             ))}
@@ -98,7 +93,7 @@ function Feed() {
                 <Album
                   album={album}
                   handleClickAlbum={() => setSelectedAlbum(album)}
-                  // handleLikeAlbum={() => {}}
+                  handleLikeAlbum={handleAlbumLike}
                 />
               </div>
             ))}

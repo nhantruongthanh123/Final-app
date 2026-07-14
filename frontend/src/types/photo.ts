@@ -11,6 +11,7 @@ export interface Photo {
 
 export interface PhotoFeed extends Photo {
   user: {
+    id: string;
     firstName: string;
     lastName: string;
     avatarUrl: string;

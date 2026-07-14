@@ -1,7 +1,7 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { prisma } from "#/config/db.js";
+import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -60,7 +60,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "240m" },
+      { expiresIn: "540m" },
     );
 
     const refreshToken = jwt.sign(
@@ -159,7 +159,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
     const newAccessToken = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "15m" },
+      { expiresIn: "540m" },
     );
 
     const newRefreshToken = jwt.sign(

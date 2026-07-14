@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import type { Album } from "@/types/album";
+import { Link } from "react-router-dom";
 
 const AlbumUser = ({ album }: { album: Album }) => {
   return (

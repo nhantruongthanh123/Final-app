@@ -2,38 +2,40 @@ import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { memo } from "react";
+import { useNavigate } from "react-router-dom";
 import type { PhotoFeed } from "../../types/photo";
 import PublicUserInfo from "../shared/PublicUserInfo";
 
 const Photo = ({
   photo,
   handleClickPhoto,
-  // handleLikePhoto,
+  handleLikePhoto,
 }: {
   photo: PhotoFeed;
   handleClickPhoto: () => void;
-  // handleLikePhoto: (photoId: string, newIsLiked: boolean) => void;
+  handleLikePhoto: (photoId: string, newIsLiked: boolean) => void;
 }) => {
-  const [isLiked, setIsLiked] = useState(photo.isLiked);
-  const [numLikes, setNumLikes] = useState(photo.numLikes);
   const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
 
   const handleLike = async () => {
     if (!user) return;
 
     try {
-      if (isLiked) {
+      if (photo.isLiked) {
         await UserService.unlikePhoto(photo.id);
       } else {
         await UserService.likePhoto(photo.id);
       }
-      setIsLiked(!isLiked);
-      setNumLikes((prev) => (isLiked ? prev - 1 : prev + 1));
-      // handleLikePhoto(photo.id, !isLiked);
+      handleLikePhoto(photo.id, !photo.isLiked);
     } catch (error) {
       console.error("Error liking/unliking photo:", error);
     }
+  };
+
+  const handleClickUser = () => {
+    navigate(`/users/${photo.user.id}/photos`);
   };
 
   return (
@@ -48,7 +50,10 @@ const Photo = ({
       </div>
 
       <div className="flex flex-col p-2 ">
-        <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
+        <div
+          className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between"
+          onClick={handleClickUser}
+        >
           <PublicUserInfo
             firstName={photo.user.firstName}
             lastName={photo.user.lastName}
@@ -66,7 +71,7 @@ const Photo = ({
 
         <div className="p-2 text-gray-600 flex mt-auto justify-between">
           <div className="cursor-pointer" onClick={handleLike}>
-            {isLiked ? (
+            {photo.isLiked ? (
               <Heart
                 className="w-6 h-6 inline-block mr-1 mb-1 text-brand"
                 fill="currentColor"
@@ -74,7 +79,7 @@ const Photo = ({
             ) : (
               <Heart className="w-6 h-6 inline-block mr-1 mb-1 text-gray-400" />
             )}
-            {numLikes}
+            {photo.numLikes}
           </div>
           <div className="text-gray-500 divt-xs dark:text-slate-400">
             {formatDateTime(photo.updatedAt)}
@@ -85,4 +90,4 @@ const Photo = ({
   );
 };
 
-export default Photo;
+export default memo(Photo);

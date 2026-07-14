@@ -1,10 +1,10 @@
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import ProfileHeader from "@/components/admin/ProfileHeader";
 import ProfileBody from "@/components/admin/ProfileBody";
-import { useEffect, useState } from "react";
+import ProfileHeader from "@/components/admin/ProfileHeader";
 import { UserService } from "@/services/userService";
 import type { User } from "@/types/user";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
 const UserProfile = () => {
   const { id } = useParams() || "";

@@ -32,6 +32,22 @@ export const getUserById = async (
 ) => {
   try {
     const userId = req.params.id;
+    const currentUserId = req.user?.userId;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: "Unauthorized: No user found" });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const isFollowing = await prisma.follow.findFirst({
+      where: {
+        followerId: currentUserId,
+        followedId: userId,
+      },
+    });
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -52,7 +68,7 @@ export const getUserById = async (
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json(user);
+    res.status(200).json({ ...user, isFollowing: !!isFollowing });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

@@ -11,6 +11,7 @@ export interface Album {
 
 export interface AlbumFeed extends Album {
   user: {
+    id: string;
     firstName: string;
     lastName: string;
     avatarUrl: string;

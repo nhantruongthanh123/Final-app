@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { AlbumModalProps } from "@/types/album";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 const AlbumModal = ({
   isOpen,

@@ -17,22 +17,51 @@ function Discover() {
   const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
   const [isPhotoView, setIsPhotoView] = useState(true);
 
+  const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
+    setDiscoverPhotos((prevPhotos) =>
+      prevPhotos.map((photo) =>
+        photo.id === photoId
+          ? {
+              ...photo,
+              isLiked: newIsLiked,
+              numLikes: newIsLiked ? photo.numLikes + 1 : photo.numLikes - 1,
+            }
+          : photo,
+      ),
+    );
+  };
+
+  const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
+    setDiscoverAlbums((prevAlbums) =>
+      prevAlbums.map((album) =>
+        album.id === albumId
+          ? {
+              ...album,
+              isLiked: newIsLiked,
+              numLikes: newIsLiked ? album.numLikes + 1 : album.numLikes - 1,
+            }
+          : album,
+      ),
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [photosData, albumsData] = await Promise.all([
-          PhotoService.getDiscoverPhotos(),
-          AlbumService.getDiscoverAlbums(),
-        ]);
-        setDiscoverPhotos(photosData.discover);
-        setDiscoverAlbums(albumsData.discover);
+        if (isPhotoView) {
+          const photosData = await PhotoService.getDiscoverPhotos();
+          setDiscoverPhotos(photosData.discover);
+        } else {
+          const albumsData = await AlbumService.getDiscoverAlbums();
+          setDiscoverAlbums(albumsData.discover);
+        }
       } catch (error) {
         console.error("Error fetching feed data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [isPhotoView]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -49,7 +78,7 @@ function Discover() {
                 <Photo
                   photo={photo}
                   handleClickPhoto={() => setSelectedPhoto(photo)}
-                  // handleLikePhoto={() => {}}
+                  handleLikePhoto={handlePhotoLike}
                 />
               </div>
             ))}
@@ -64,7 +93,7 @@ function Discover() {
                 <Album
                   album={album}
                   handleClickAlbum={() => setSelectedAlbum(album)}
-                  // handleLikeAlbum={() => {}}
+                  handleLikeAlbum={handleAlbumLike}
                 />
               </div>
             ))}

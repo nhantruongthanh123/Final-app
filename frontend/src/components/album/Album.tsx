@@ -3,37 +3,39 @@ import { useAuthStore } from "@/store/authStore";
 import type { AlbumFeed } from "@/types/album";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { memo } from "react";
+import { useNavigate } from "react-router-dom";
 import PublicUserInfo from "../shared/PublicUserInfo";
 
 const Album = ({
   album,
   handleClickAlbum,
-  // handleLikeAlbum,
+  handleLikeAlbum,
 }: {
   album: AlbumFeed;
   handleClickAlbum: () => void;
-  // handleLikeAlbum: (albumId: string, newIsLiked: boolean) => void;
+  handleLikeAlbum: (albumId: string, newIsLiked: boolean) => void;
 }) => {
-  const [isLiked, setIsLiked] = useState(album.isLiked);
-  const [numLikes, setNumLikes] = useState(album.numLikes);
   const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
 
   const handleLike = async () => {
     if (!user) return;
 
     try {
-      if (isLiked) {
+      if (album.isLiked) {
         await UserService.unlikeAlbum(album.id);
       } else {
         await UserService.likeAlbum(album.id);
       }
-      setIsLiked(!isLiked);
-      setNumLikes((prev) => (isLiked ? prev - 1 : prev + 1));
-      // handleLikeAlbum(album.id, !isLiked);
+      handleLikeAlbum(album.id, !album.isLiked);
     } catch (error) {
       console.error("Error liking/unliking album:", error);
     }
+  };
+
+  const handleClickUser = () => {
+    navigate(`/users/${album.user.id}/photos`);
   };
 
   return (
@@ -59,7 +61,10 @@ const Album = ({
       </div>
 
       <div className="flex flex-col p-2">
-        <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
+        <div
+          className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between"
+          onClick={handleClickUser}
+        >
           <PublicUserInfo
             firstName={album.user.firstName}
             lastName={album.user.lastName}
@@ -77,7 +82,7 @@ const Album = ({
 
         <div className="p-2 text-gray-600 flex mt-auto justify-between">
           <div className="cursor-pointer" onClick={handleLike}>
-            {isLiked ? (
+            {album.isLiked ? (
               <Heart
                 className="w-6 h-6 inline-block mr-1 mb-1 text-brand"
                 fill="currentColor"
@@ -85,7 +90,7 @@ const Album = ({
             ) : (
               <Heart className="w-6 h-6 inline-block mr-1 mb-1 text-gray-400" />
             )}
-            {numLikes}
+            {album.numLikes}
           </div>
           <div> {formatDateTime(album.updatedAt)} </div>
         </div>
@@ -94,4 +99,4 @@ const Album = ({
   );
 };
 
-export default Album;
+export default memo(Album);

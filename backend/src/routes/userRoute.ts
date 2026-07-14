@@ -37,7 +37,7 @@ userRouter.get("/users/:id/followers", requireAuth, getTargetUserFollowers);
 
 // User
 userRouter.get("/users", getAllUsers);
-userRouter.get("/users/:id", getUserById);
+userRouter.get("/users/:id", requireAuth, getUserById);
 userRouter.get("/users/:id/photos", requireAuth, getUserPhotos);
 userRouter.get("/users/:id/albums", requireAuth, getUserAlbums);
 
