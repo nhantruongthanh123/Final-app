@@ -1,5 +1,5 @@
+import { prisma } from "#controllers/config/db.js";
 import { faker } from "@faker-js/faker";
-import { prisma } from "#/config/db.js";
 
 async function main() {
   const users = await prisma.user.findMany({ select: { id: true } });

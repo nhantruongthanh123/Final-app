@@ -1,34 +1,50 @@
+import EmptyState from "@/components/shared/EmptyState";
 import UserCard from "@/components/user/UserCard";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
+import { UserX } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Following = () => {
-  const [followers, setFollowers] = useState<UserWithFollowStatus[]>([]);
+  const [followings, setFollowings] = useState<UserWithFollowStatus[]>([]);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-    const fetchFollowers = async () => {
+    const fetchFollowings = async () => {
       try {
         const res = await UserService.getAllUserFollowings();
-        setFollowers(res);
+        setFollowings(res);
       } catch (error) {
         console.error("Error fetching following:", error);
       }
     };
 
-    fetchFollowers();
+    fetchFollowings();
   }, [user]);
 
-  if (!followers) {
-    return <div>Loading...</div>;
+  if (!followings || followings.length === 0) {
+    return (
+      <EmptyState
+        icon={<UserX className="w-10 h-10 text-orange-400" />}
+        title={"You haven't followed anyone yet."}
+        description={
+          "Discover and start following other users to see their photos and updates here."
+        }
+        actionLabel={"Discover"}
+        onAction={() => {
+          navigate("/discover");
+        }}
+      />
+    );
   }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 p-2 m-2">
-      {followers.map((user) => (
+      {followings.map((user) => (
         <UserCard key={user.id} user={user} />
       ))}
     </div>

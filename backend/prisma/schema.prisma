@@ -23,6 +23,9 @@ model User {
   isActive           Boolean @default(true)
   role               String  @default("USER") @db.VarChar(10)
 
+  resetPasswordToken   String?   @db.VarChar(64)
+  resetPasswordExpires DateTime?
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   oauthAccounts OauthAccount[]
@@ -80,7 +83,7 @@ model Album {
 
   isPublic Boolean @default(true)
 
-  photos    AlbumImage[]
+  photos AlbumImage[]
 
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -95,8 +98,8 @@ model AlbumImage {
   cloudinaryPublicId String?
 
   album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PhotoLike {

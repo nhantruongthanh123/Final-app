@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NotFound = () => {
   return (
@@ -22,7 +22,7 @@ const NotFound = () => {
           className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
         >
           <Home className="w-5 h-5" />
-          Back to Feed
+          Back to Discover
         </Button>
       </Link>
     </div>

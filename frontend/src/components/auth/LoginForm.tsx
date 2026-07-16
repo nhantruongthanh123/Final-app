@@ -38,15 +38,11 @@ const LoginForm = () => {
       } else {
         await navigate("/feed");
       }
-    } catch (error: any) {
-      setError(error.response?.data?.message || "An error occurred");
+    } catch (error) {
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
-  }
-
-  function handleRegisterClick() {
-    navigate("/register");
   }
 
   return (
@@ -121,12 +117,18 @@ const LoginForm = () => {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-2 text-sm text-center">
-          <button className="text-indigo-600 hover:underline">
-            Forgot password?
-          </button>
           <button
             className="text-indigo-600 hover:underline"
-            onClick={handleRegisterClick}
+            onClick={() => navigate("/forgot-password")}
+            type="button"
+          >
+            Forgot password?
+          </button>
+
+          <button
+            className="text-indigo-600 hover:underline"
+            onClick={() => navigate("/register")}
+            type="button"
           >
             Create a new account
           </button>

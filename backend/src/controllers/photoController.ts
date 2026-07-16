@@ -1,5 +1,5 @@
-import cloudinary from "#/config/cloudinary.js";
-import { prisma } from "#/config/db.js";
+import cloudinary from "#controllers/config/cloudinary.js";
+import { prisma } from "#controllers/config/db.js";
 import { formatFeedPhotos } from "#utils/photoUtils.js";
 import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 import type { Request, Response } from "express";

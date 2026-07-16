@@ -1,12 +1,16 @@
 import AlbumUser from "@/components/album/AlbumUser";
+import EmptyState from "@/components/shared/EmptyState";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import type { Album } from "@/types/album";
+import { ImageOff } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Albums = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -23,7 +27,19 @@ const Albums = () => {
   }, [user]);
 
   if (albums.length === 0) {
-    return <div>No albums available.</div>;
+    return (
+      <EmptyState
+        icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+        title={"You haven't created any albums yet."}
+        description={
+          "Create your first album by uploading your photos. Click the button below to get started!"
+        }
+        actionLabel={"Create Album"}
+        onAction={() => {
+          navigate("/albums/add");
+        }}
+      />
+    );
   }
 
   return (

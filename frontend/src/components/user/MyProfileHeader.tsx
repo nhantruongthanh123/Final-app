@@ -50,11 +50,18 @@ const MyProfileHeader = () => {
       {/* Row 1 on mobile: avatar + username + edit button */}
       <div className="flex flex-row items-center w-full ">
         <div className="relative">
-          <img
-            src={user.avatarUrl}
-            alt="User Avatar"
-            className="w-20 h-20 rounded-full object-cover border-2 border-slate-50"
-          />
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.firstName}
+              className="h-20 w-20 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded-full bg-indigo-800 flex items-center justify-center text-white text-3xl font-bold ">
+              {user.firstName[0]}
+              {user.lastName[0]}
+            </div>
+          )}
           <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-4 border-white rounded-full"></div>
         </div>
 

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { prisma } from "../../src/config/db.js";
+import { prisma } from "../../src/controllers/config/db.js";
 
 async function main() {
   console.log("Seeding 20 users...");

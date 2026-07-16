@@ -1,7 +1,9 @@
+import EmptyState from "@/components/shared/EmptyState";
 import UserCard from "@/components/user/UserCard";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
+import { UserX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Follower = () => {
@@ -22,8 +24,16 @@ const Follower = () => {
     fetchFollowers();
   }, [user]);
 
-  if (!followers) {
-    return <div>Loading...</div>;
+  if (!followers || followers.length === 0) {
+    return (
+      <EmptyState
+        icon={<UserX className="w-10 h-10 text-orange-400" />}
+        title={"You haven't received any followers yet."}
+        description={
+          "You haven't received any followers yet. Start sharing your photos and engaging with the community to attract followers!"
+        }
+      />
+    );
   }
 
   return (

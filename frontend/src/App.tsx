@@ -28,6 +28,8 @@ import { AuthService } from "@/services/authService";
 import { useEffect, useRef } from "react";
 import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
 import UserProfileLayout from "./layouts/UserProfileLayout";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
 import VisitorDiscover from "./pages/Home/VisitorDiscover";
 import AddAlbum from "./pages/User/AddAlbum";
 import AddPhoto from "./pages/User/AddPhoto";
@@ -80,6 +82,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<VisitorDiscover />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
           <Route element={<UserLayout />}>

@@ -1,12 +1,16 @@
 import PhotoUser from "@/components/photo/PhotoUser";
+import EmptyState from "@/components/shared/EmptyState";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import type { Photo } from "@/types/photo";
+import { ImageOff } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Photos = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -23,7 +27,19 @@ const Photos = () => {
   }, [user]);
 
   if (photos.length === 0) {
-    return <div>No photos available.</div>;
+    return (
+      <EmptyState
+        icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+        title={"You haven't uploaded any photos yet."}
+        description={
+          "Start sharing your memories by uploading your first photo. Click the button below to get started!"
+        }
+        actionLabel={"Upload Photo"}
+        onAction={() => {
+          navigate("/photos/add");
+        }}
+      />
+    );
   }
 
   return (

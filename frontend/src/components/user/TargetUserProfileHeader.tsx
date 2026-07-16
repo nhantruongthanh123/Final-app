@@ -63,7 +63,6 @@ const TargetUserProfileHeader = ({
         const userData = await UserService.getUserById(publicUserId);
         setTargetUser(userData);
         setIsFollowing(userData.isFollowing);
-        console.log("Fetched user data:", userData);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -84,11 +83,18 @@ const TargetUserProfileHeader = ({
       {/* Row 1 on mobile: avatar + username + edit button */}
       <div className="flex flex-row items-center w-full ">
         <div className="relative">
-          <img
-            src={targetUser?.avatarUrl}
-            alt="User Avatar"
-            className="w-20 h-20 rounded-full object-cover border-2 border-slate-50"
-          />
+          {targetUser?.avatarUrl ? (
+            <img
+              src={targetUser.avatarUrl}
+              alt={targetUser.firstName}
+              className="h-20 w-20 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded-full bg-indigo-800 flex items-center justify-center text-white text-3xl font-bold ">
+              {targetUser?.firstName[0]}
+              {targetUser?.lastName[0]}
+            </div>
+          )}
           <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-4 border-white rounded-full"></div>
         </div>
 
