@@ -37,4 +37,61 @@ export const AlbumService = {
     );
     return res.data;
   },
+
+  createAlbum: async (data: {
+    title: string;
+    description: string;
+    isPublic: boolean;
+    files: File[];
+  }) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("isPublic", String(data.isPublic));
+
+    data.files.forEach((file) => {
+      formData.append("photos", file);
+    });
+
+    const res = await api.post<Album>("/albums", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    return res.data;
+  },
+
+  updateAlbum: async (
+    id: string,
+    data: {
+      title: string;
+      description: string;
+      isPublic: boolean;
+      files: File[];
+      removedPhotoIds: string[];
+    },
+  ) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("isPublic", String(data.isPublic));
+
+    data.files.forEach((file) => {
+      formData.append("photos", file);
+    });
+
+    formData.append("removedPhotoIds", JSON.stringify(data.removedPhotoIds));
+
+    const res = await api.patch<Album>(`/albums/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    return res.data;
+  },
+
+  deleteAlbum: async (id: string) => {
+    const res = await api.delete(`/albums/${id}`, { withCredentials: true });
+    return res.data;
+  },
 };

@@ -14,9 +14,22 @@ import { PhotoService } from "@/services/photoService";
 import type { Photo } from "@/types/photo";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
+  const navigate = useNavigate();
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -71,6 +84,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           success: (updatedPhoto) => {
             setPreviewPhotoUrl(updatedPhoto.photoUrl);
             setSelectedFile(null);
+            navigate(backlink);
             return "Update photo successfully!";
           },
           error: "Failed to update photo",
@@ -89,7 +103,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
       toast.promise(PhotoService.deletePhoto(photo!.id), {
         loading: "Deleting photo...",
         success: () => {
-          window.location.href = backlink;
+          navigate(backlink);
           return "Delete photo successfully!";
         },
         error: "Failed to delete photo",
@@ -109,7 +123,6 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
         setDescription(data.description);
         setIsPublic(data.isPublic);
         setPreviewPhotoUrl(data.photoUrl);
-        console.log("Fetched photo:", data);
       } catch (error) {
         console.error("Error fetching photo:", error);
         toast.error("Failed to fetch photo");
@@ -210,14 +223,32 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
 
-          <Button
-            variant="ghost"
-            className=" bg-red-500 hover:bg-red-600 text-white"
-            onClick={handleDeletePhoto}
-            disabled={isSaving}
-          >
-            Delete Photo
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={<Button variant="destructive">Delete Album</Button>}
+            />
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Are you sure you want to delete this photo?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. The photo will be deleted
+                  permanently.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeletePhoto}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>

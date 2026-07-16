@@ -52,7 +52,7 @@ const AlbumModal = ({
             </div>
 
             <img
-              src={photos[currentImageIndex]}
+              src={photos[currentImageIndex].photoUrl}
               alt={title}
               className="w-full h-auto object-contain max-h-[60vh]"
             />

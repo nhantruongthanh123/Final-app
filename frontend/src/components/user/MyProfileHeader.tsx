@@ -16,10 +16,6 @@ const MyProfileHeader = () => {
   const [numUserFollowings, setNumUserFollowings] = useState<number>(0);
   const [numUserFollowers, setNumUserFollowers] = useState<number>(0);
 
-  const handleAddPhotos = () => {
-    navigate("/photos/add");
-  };
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -86,7 +82,7 @@ const MyProfileHeader = () => {
                 <Button
                   variant="outline"
                   className="justify-center text-white bg-green-500 hover:bg-green-600"
-                  onClick={handleAddPhotos}
+                  onClick={() => navigate("/photos/add")}
                 >
                   Add Photos
                 </Button>
@@ -96,6 +92,7 @@ const MyProfileHeader = () => {
                 <Button
                   variant="outline"
                   className="justify-center text-white bg-green-500 hover:bg-green-600"
+                  onClick={() => navigate("/albums/add")}
                 >
                   Add Albums
                 </Button>

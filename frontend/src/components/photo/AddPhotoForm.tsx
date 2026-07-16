@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { PhotoService } from "@/services/photoService";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
@@ -16,6 +17,7 @@ import {
 import { Textarea } from "../ui/textarea";
 
 const AddPhotoForm = ({ backlink }: { backlink: string }) => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
@@ -61,7 +63,7 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
         {
           loading: "Saving photo...",
           success: () => {
-            window.location.href = backlink;
+            navigate(backlink);
             return "Photo saved successfully!";
           },
           error: "Failed to save photo.",

@@ -29,6 +29,7 @@ import { useEffect, useRef } from "react";
 import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
 import UserProfileLayout from "./layouts/UserProfileLayout";
 import VisitorDiscover from "./pages/Home/VisitorDiscover";
+import AddAlbum from "./pages/User/AddAlbum";
 import AddPhoto from "./pages/User/AddPhoto";
 import TargetUserAlbums from "./pages/User/TargetUserAlbums";
 import TargetUserFollower from "./pages/User/TargetUserFollower";
@@ -86,6 +87,7 @@ function App() {
             <Route path="/discover" element={<Discover />} />
             <Route path="/photos/add" element={<AddPhoto />} />
             <Route path="/photos/:id" element={<EditPhotoUser />} />
+            <Route path="/albums/add" element={<AddAlbum />} />
             <Route path="/albums/:id" element={<EditAlbumUser />} />
             <Route path="/profile" element={<EditProfile />} />
 

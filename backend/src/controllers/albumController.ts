@@ -1,5 +1,7 @@
 import { prisma } from "#/config/db.js";
+import cloudinary from "#config/cloudinary.js";
 import { formatFeedAlbums } from "#utils/albumUtil.js";
+import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 import type { Request, Response } from "express";
 
 export const getAllAlbums = async (req: Request, res: Response) => {
@@ -23,8 +25,16 @@ export const getAllAlbums = async (req: Request, res: Response) => {
       prisma.album.findMany({
         skip: offset,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         where: visibilityFilter,
+        include: {
+          photos: {
+            select: {
+              id: true,
+              photoUrl: true,
+            },
+          },
+        },
       }),
       prisma.album.count({ where: visibilityFilter }),
     ]);
@@ -43,6 +53,14 @@ export const getAlbumById = async (
 
     const existingAlbum = await prisma.album.findUnique({
       where: { id: albumId },
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+      },
     });
 
     if (!existingAlbum) {
@@ -75,23 +93,42 @@ export const createAlbum = async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Unauthorized: No user found" });
     }
 
-    const userId = req.user.userId;
-
-    const { photos, title, description, isPublic } = req.body;
+    const currentUserId = req.user!.userId;
+    const { title, description, isPublic } = req.body;
+    const files = req.files as Express.Multer.File[];
 
     const newAlbum = await prisma.album.create({
       data: {
-        photos,
         title,
         description,
-        userId,
-        isPublic,
+        isPublic: isPublic === "true" || isPublic === true,
+        user: {
+          connect: { id: currentUserId },
+        },
       },
     });
 
+    await Promise.all(
+      files.map(async (file) => {
+        const { url, publicId } = await uploadToCloudinary(
+          file.buffer,
+          "fotobook/albums",
+        );
+        return prisma.albumImage.create({
+          data: {
+            photoUrl: url,
+            cloudinaryPublicId: publicId,
+            albumId: newAlbum.id,
+          },
+        });
+      }),
+    );
+
     res.status(201).json(newAlbum);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 };
 
@@ -105,6 +142,7 @@ export const deleteAlbum = async (
 
     const existingAlbum = await prisma.album.findUnique({
       where: { id: albumId },
+      include: { photos: true },
     });
 
     if (!existingAlbum) {
@@ -116,6 +154,12 @@ export const deleteAlbum = async (
         .status(403)
         .json({ error: "You are not authorized to delete this album" });
     }
+
+    await Promise.all(
+      existingAlbum.photos
+        .filter((img) => img.cloudinaryPublicId)
+        .map((img) => cloudinary.uploader.destroy(img.cloudinaryPublicId!)),
+    );
 
     const deletedAlbum = await prisma.album.delete({
       where: { id: albumId },
@@ -134,7 +178,16 @@ export const updateAlbum = async (
   try {
     const albumId = req.params.id;
     const currentUserId = req.user!.userId;
-    const { photos, title, description, isPublic } = req.body;
+    const { title, description, isPublic } = req.body ?? {};
+    const files = (req.files as Express.Multer.File[]) ?? [];
+    const removedPhotoIdsRaw = req.body?.removedPhotoIds;
+
+    const removedPhotoIds: string[] =
+      typeof removedPhotoIdsRaw === "string"
+        ? JSON.parse(removedPhotoIdsRaw)
+        : Array.isArray(removedPhotoIdsRaw)
+          ? removedPhotoIdsRaw
+          : [];
 
     const existingAlbum = await prisma.album.findUnique({
       where: { id: albumId },
@@ -150,21 +203,57 @@ export const updateAlbum = async (
         .json({ error: "You are not authorized to update this album" });
     }
 
+    if (removedPhotoIds.length > 0) {
+      const photosToRemove = await prisma.albumImage.findMany({
+        where: { id: { in: removedPhotoIds }, albumId },
+      });
+
+      await Promise.all(
+        photosToRemove
+          .filter((p) => p.cloudinaryPublicId)
+          .map((p) => cloudinary.uploader.destroy(p.cloudinaryPublicId!)),
+      );
+
+      await prisma.albumImage.deleteMany({
+        where: { id: { in: removedPhotoIds }, albumId },
+      });
+    }
+
+    if (files && files.length > 0) {
+      await Promise.all(
+        files.map(async (file) => {
+          const { url, publicId } = await uploadToCloudinary(
+            file.buffer,
+            "fotobook/albums",
+          );
+          return prisma.albumImage.create({
+            data: {
+              photoUrl: url,
+              cloudinaryPublicId: publicId,
+              albumId,
+            },
+          });
+        }),
+      );
+    }
+
     const updatedAlbum = await prisma.album.update({
       where: { id: albumId },
       data: {
-        ...(photos && { photos }),
         ...(title && { title }),
         ...(description && { description }),
         ...(isPublic !== undefined && {
           isPublic: isPublic === "true" || isPublic === true,
         }),
       },
+      include: { photos: true },
     });
 
     res.status(200).json(updatedAlbum);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 };
 
@@ -195,7 +284,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
         userId: { in: followingIds },
         isPublic: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
       skip: offset,
       take: limit,
       include: {
@@ -207,6 +296,12 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
             avatarUrl: true,
           },
         },
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
         _count: {
           select: { albumLikes: true },
         },
@@ -216,6 +311,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
         },
       },
     }),
+
     prisma.album.count({
       where: { userId: { in: followingIds }, isPublic: true },
     }),
@@ -239,7 +335,7 @@ export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
     const [discoverAlbums, totalAlbums] = await Promise.all([
       prisma.album.findMany({
         where: { isPublic: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         skip: offset,
         take: limit,
         include: {
@@ -249,6 +345,12 @@ export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
               firstName: true,
               lastName: true,
               avatarUrl: true,
+            },
+          },
+          photos: {
+            select: {
+              id: true,
+              photoUrl: true,
             },
           },
           _count: {

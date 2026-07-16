@@ -1,44 +1,31 @@
 import RemoveablePhoto from "@/components/photo/RemovablePhoto";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AlbumService } from "@/services/albumService";
+import type { newPhotoPreview } from "@/types/album";
+import { Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import PageHeader from "../shared/PageHeader";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { AlbumService } from "@/services/albumService";
-import type { AlbumImage, newPhotoPreview } from "@/types/album";
-import { Plus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import PageHeader from "../shared/PageHeader";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
-const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
+const AddAlbumForm = ({ backlink }: { backlink: string }) => {
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [sharingMode, setSharingMode] = useState<string>("Public");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [sharingMode, setSharingMode] = useState<string>("Public");
 
-  const [existingPhotos, setExistingPhotos] = useState<AlbumImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [newPhotos, setNewPhotos] = useState<newPhotoPreview[]>([]);
-  const [removedPhotoIds, setRemovedPhotoIds] = useState<string[]>([]);
 
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -51,11 +38,6 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
     }));
 
     setNewPhotos((prev) => [...prev, ...newPhotoPreviews]);
-  };
-
-  const handleRemoveExistingPhoto = (photoId: string) => {
-    setExistingPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
-    setRemovedPhotoIds((prev) => [...prev, photoId]);
   };
 
   const handleRemoveNewPhoto = (photoId: string) => {
@@ -79,67 +61,40 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
       });
       return;
     }
-    if (existingPhotos.length + newPhotos.length === 0) {
+    if (newPhotos.length === 0) {
       toast.error("At least one photo is required", {
+        duration: 3000,
+      });
+      return;
+    }
+    if (newPhotos.length > 25) {
+      toast.error("You can only upload up to 25 photos", {
         duration: 3000,
       });
       return;
     }
 
     toast.promise(
-      AlbumService.updateAlbum(id, {
+      AlbumService.createAlbum({
         title,
         description,
         isPublic: sharingMode === "Public",
         files: newPhotos.map((p) => p.file),
-        removedPhotoIds,
       }),
       {
-        loading: "Saving changes...",
+        loading: "Creating album...",
         success: () => {
           navigate(backlink);
-          return "Changes saved successfully!";
+          return "Album created successfully!";
         },
-        error: "Failed to save changes.",
+        error: "Failed to create album.",
       },
     );
   };
 
-  const handleDeleteAlbum = async () => {
-    try {
-      toast.promise(AlbumService.deleteAlbum(id), {
-        loading: "Deleting album...",
-        success: () => {
-          navigate(backlink);
-          return "Delete album successfully!";
-        },
-        error: "Failed to delete album",
-      });
-    } catch (error) {
-      console.error("Error deleting album:", error);
-      toast.error("Failed to delete album");
-    }
-  };
-
-  useEffect(() => {
-    const fetchAlbum = async () => {
-      try {
-        const albumData = await AlbumService.getAlbumById(id);
-        setSharingMode(albumData.isPublic ? "Public" : "Private");
-        setTitle(albumData.title);
-        setDescription(albumData.description || "");
-        setExistingPhotos(albumData.photos);
-      } catch (error) {
-        console.error("Error fetching album:", error);
-      }
-    };
-
-    fetchAlbum();
-  }, [id]);
-
   return (
     <div className="flex flex-col w-full p-4 md:p-6">
-      <PageHeader title="Edit Album" backlink={backlink} />
+      <PageHeader title="Add Album" backlink={backlink} />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
         <div className="flex flex-col md:flex-row gap-4 p-4">
@@ -197,14 +152,6 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
 
       <div className="flex flex-col">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-          {existingPhotos.map((photo) => (
-            <RemoveablePhoto
-              key={photo.id}
-              imgURL={photo.photoUrl}
-              handleRemove={() => handleRemoveExistingPhoto(photo.id)}
-            />
-          ))}
-
           {newPhotos.map((photo) => (
             <RemoveablePhoto
               key={photo.id}
@@ -239,37 +186,10 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           >
             Save Changes
           </Button>
-
-          <AlertDialog>
-            <AlertDialogTrigger
-              render={<Button variant="destructive">Delete Album</Button>}
-            />
-
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Are you sure you want to delete this album?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. All photos in this album will be
-                  deleted permanently.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAlbum}
-                  className="bg-red-500 hover:bg-red-600"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </div>
     </div>
   );
 };
 
-export default EditAlbumForm;
+export default AddAlbumForm;

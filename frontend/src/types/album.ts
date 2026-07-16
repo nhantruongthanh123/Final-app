@@ -4,7 +4,7 @@ export interface Album {
   description: string;
   userId: string;
   isPublic: boolean;
-  photos: string[];
+  photos: AlbumImage[];
   createdAt: string;
   updatedAt: string;
 }
@@ -25,5 +25,16 @@ export interface AlbumModalProps {
   onClose: () => void;
   title: string;
   description: string;
-  photos: string[];
+  photos: AlbumImage[];
+}
+
+export interface AlbumImage {
+  id: string;
+  photoUrl: string;
+}
+
+export interface newPhotoPreview {
+  id: string;
+  file: File;
+  previewUrl: string;
 }

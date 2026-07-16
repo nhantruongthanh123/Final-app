@@ -7,17 +7,17 @@ const AlbumUser = ({ album }: { album: Album }) => {
       <Link to={`/albums/${album.id}`} className="w-full">
         <div className="w-full h-64 relative ">
           <img
-            src={album.photos[2] || album.photos[0]} // Fallback just in case you don't have 3 images yet
+            src={album.photos[2]?.photoUrl || album.photos[0]?.photoUrl}
             alt="Album bottom"
             className="absolute w-full h-[90%] object-cover border-[6px] border-white shadow-md -rotate-6 z-10"
           />
           <img
-            src={album.photos[1] || album.photos[0]}
+            src={album.photos[1]?.photoUrl || album.photos[0]?.photoUrl}
             alt="Album middle"
             className="absolute w-full h-[90%] object-cover border-[6px] border-white shadow-md rotate-3 z-20"
           />
           <img
-            src={album.photos[0]}
+            src={album.photos[0]?.photoUrl}
             alt="Album cover"
             className="absolute w-full h-[90%] object-cover border-[6px] border-white shadow-lg z-30"
           />

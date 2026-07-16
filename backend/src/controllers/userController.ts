@@ -298,6 +298,15 @@ export const getUserAlbums = async (
 
     const userAlbums = await prisma.album.findMany({
       where: { userId },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+      },
     });
     res.status(200).json(userAlbums);
   } catch (error) {

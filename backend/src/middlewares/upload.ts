@@ -6,15 +6,11 @@ export const upload = multer({
   storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
+    files: 25,
   },
   fileFilter: (req, file, cb) => {
-    const allowedMimeTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-    ];
-    const allowedExtensions = /\.(jpg|jpeg|png|webp|gif)$/i;
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+    const allowedExtensions = /\.(jpg|jpeg|png|gif)$/i;
 
     const hasValidMime = file.mimetype.startsWith("image/");
     const hasValidExtension = allowedExtensions.test(file.originalname);
