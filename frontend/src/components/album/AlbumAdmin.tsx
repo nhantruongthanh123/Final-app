@@ -14,17 +14,17 @@ const AlbumAdmin = ({ album }: { album: Album }) => {
 
         <div className="w-64 h-64 relative">
           <img
-            src={album.photos[2] || album.photos[0]}
+            src={album.photos[2]?.photoUrl || album.photos[0]?.photoUrl}
             alt="Album bottom"
             className="absolute w-full h-[85%] object-cover border-[6px] border-white shadow-md -rotate-10 z-10"
           />
           <img
-            src={album.photos[1] || album.photos[0]}
+            src={album.photos[1]?.photoUrl || album.photos[0]?.photoUrl}
             alt="Album middle"
             className="absolute w-full h-[85%] object-cover border-[6px] border-white shadow-md rotate-5 z-20"
           />
           <img
-            src={album.photos[0]}
+            src={album.photos[0]?.photoUrl}
             alt="Album cover"
             className="absolute w-full h-[85%] object-cover border-[6px] border-white shadow-lg z-30"
           />

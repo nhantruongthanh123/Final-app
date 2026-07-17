@@ -1,13 +1,5 @@
 import UserTable from "@/components/admin/UserTable";
-import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -16,12 +8,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { UserService } from "@/services/userService";
 import type { User } from "@/types/user";
+import { useEffect, useState } from "react";
 
 const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const usersPerPage = 12;
 
@@ -33,6 +34,7 @@ const Users = () => {
           usersPerPage,
         );
         setUsers(users);
+        setTotalUsers(totalUsers);
         setTotalPages(Math.ceil(totalUsers / usersPerPage));
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -92,7 +94,9 @@ const Users = () => {
 
       {/* PAGINATION FOOTER */}
       <div className="mt-4 flex items-center justify-between">
-        <p className="text-sm text-slate-500">Showing 1 to 4 of 48 entries</p>
+        <p className="text-sm text-slate-500">
+          Showing {users.length} of {totalUsers} users
+        </p>
         <div className="flex justify-center items-center mt-auto pt-8 pb-8">
           <Pagination>
             <PaginationContent>

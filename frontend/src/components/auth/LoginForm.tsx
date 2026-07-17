@@ -10,15 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthService } from "@/services/authService";
 import { useAuthStore } from "@/store/authStore";
+import axios from "axios";
 import { useState } from "react";
 import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(true);
 
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -39,6 +42,17 @@ const LoginForm = () => {
         await navigate("/feed");
       }
     } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.data?.code === "EMAIL_NOT_VERIFIED"
+      ) {
+        toast.error(
+          "Please verify your email before logging in. Check your inbox for the verification email.",
+        );
+        setIsEmailVerified(false);
+      } else {
+        toast.error("Email or password is incorrect. Please try again.");
+      }
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -114,6 +128,17 @@ const LoginForm = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </Button>
+
+          {!isEmailVerified && (
+            <Button
+              type="button"
+              disabled={isLoading}
+              className="w-full bg-brand hover:bg-indigo-700"
+              onClick={() => navigate("/resend-verification-email")}
+            >
+              Verify email
+            </Button>
+          )}
         </CardContent>
 
         <CardFooter className="flex flex-col gap-2 text-sm text-center">

@@ -5,12 +5,50 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AuthService } from "@/services/authService";
+import { useState } from "react";
+import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa6";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa6";
 
 const RegisterForm = () => {
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !firstName || !lastName || !password || !confirmPassword) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match. Please try again.");
+      return;
+    }
+
+    try {
+      await AuthService.register(email, password, firstName, lastName);
+      toast.success(
+        "Registration successful! Please check your email to verify your account.",
+      );
+    } catch (error) {
+      toast.error("Registration failed. Please try again.");
+      console.error("Registration error:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
       <Card className="w-full max-w-sm shadow-lg">
@@ -26,15 +64,31 @@ const RegisterForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="name@example.com" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="username">User Name</Label>
+            <Label htmlFor="first-name">First Name</Label>
             <Input
-              id="username"
+              id="first-name"
               type="text"
-              placeholder="Enter your user name"
+              placeholder="Enter your first name"
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="last-name">Last Name</Label>
+            <Input
+              id="last-name"
+              type="text"
+              placeholder="Enter your last name"
+              onChange={(e) => setLastName(e.target.value)}
             />
           </div>
 
@@ -44,6 +98,7 @@ const RegisterForm = () => {
               id="password"
               type="password"
               placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
@@ -53,6 +108,7 @@ const RegisterForm = () => {
               id="confirm-password"
               type="password"
               placeholder="Confirm your password"
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
 
@@ -82,7 +138,10 @@ const RegisterForm = () => {
             </Button>
           </div>
 
-          <Button className="w-full bg-brand hover:bg-indigo-700">
+          <Button
+            className="w-full bg-brand hover:bg-indigo-700"
+            onClick={handleRegister}
+          >
             Register
           </Button>
         </CardContent>

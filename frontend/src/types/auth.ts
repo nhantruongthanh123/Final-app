@@ -8,6 +8,7 @@ export interface AuthState {
 
   // Actions
   setAuth: (accessToken: string, user: User) => void;
+  updateUser: (user: User) => void;
   clearAuth: () => void;
   setCheckingAuth: (status: boolean) => void;
 }

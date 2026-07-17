@@ -9,11 +9,11 @@ function Feed() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div>
+      <div className="sticky top-0 z-40 bg-white dark:bg-black ">
         <TagToggle isPhoto={isPhotoView} setIsPhoto={setIsPhotoView} />
-
-        {isPhotoView ? <PhotosFeed /> : <AlbumsFeed />}
       </div>
+
+      {isPhotoView ? <PhotosFeed /> : <AlbumsFeed />}
     </div>
   );
 }

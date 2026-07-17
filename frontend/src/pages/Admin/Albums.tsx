@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { AlbumService } from "@/services/albumService";
-import type { Album } from "@/types/album";
 import AlbumAdmin from "@/components/album/AlbumAdmin";
 import {
   Pagination,
@@ -11,6 +8,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { AlbumService } from "@/services/albumService";
+import type { Album } from "@/types/album";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Albums = () => {

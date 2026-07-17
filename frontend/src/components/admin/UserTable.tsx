@@ -1,12 +1,3 @@
-import type { User } from "@/types/user";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -15,9 +6,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import type { User } from "@/types/user";
+import { formatDateTime } from "@/utils/formatDateTime";
 import { MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 const UserTable = ({ users }: { users: User[] }) => {
   return (
@@ -78,7 +79,7 @@ const UserTable = ({ users }: { users: User[] }) => {
               </div>
             </TableCell>
 
-            <TableCell>{user.updatedAt}</TableCell>
+            <TableCell>{formatDateTime(user.updatedAt)}</TableCell>
 
             <TableCell className="text-right">
               <DropdownMenu>

@@ -1,5 +1,6 @@
 import { prisma } from "#controllers/config/db.js";
 import { sendResetPasswordEmail } from "#utils/sendResetPasswordEmail.js";
+import { sendVerificationEmail } from "#utils/sendVerificationEmail.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import type { Request, Response } from "express";
@@ -22,17 +23,43 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const emailVerificationToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(emailVerificationToken)
+      .digest("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         firstName,
         lastName,
+        isEmailVerified: false,
+        emailVerificationToken: hashedToken,
+        emailVerificationExpires: expiresAt,
       },
+    });
+
+    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
+
+    sendVerificationEmail(
+      newUser.email,
+      newUser.firstName ?? "",
+      verifyLink,
+    ).catch((err) => {
+      console.error("Error sending verification email:", err);
+    });
+
+    res.status(201).json({
+      message:
+        "Login successful. Please check your email to verify your account.",
     });
 
     res.status(201).json(newUser);
   } catch (error) {
+    console.error("Error in register:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -51,6 +78,14 @@ export const loginUser = async (req: Request, res: Response) => {
 
     if (!user) {
       return res.status(400).json({ error: "Email is not registered." });
+    }
+
+    if (!user.isEmailVerified) {
+      return res.status(400).json({
+        error:
+          "Email is not verified. Please verify your email before logging in.",
+        code: "EMAIL_NOT_VERIFIED",
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -95,7 +130,9 @@ export const loginUser = async (req: Request, res: Response) => {
       accessToken,
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
   }
 };
 
@@ -299,6 +336,107 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ message: "Reset password successfully." });
+  } catch (error) {
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await prisma.user.findFirst({
+      where: {
+        emailVerificationToken: hashedToken,
+        emailVerificationExpires: { gt: new Date() },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        error:
+          "Token is invalid or has expired. Please request a new email verification.",
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+      },
+    });
+
+    res.status(200).json({ message: "Email verified successfully." });
+  } catch (error) {
+    res.status(500).json({
+      error: error instanceof Error ? error.message : "Internal server error",
+    });
+  }
+};
+
+export const resendVerificationEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(200).json({
+        message:
+          "If the email is registered and not verified, a new verification link has been sent",
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(200).json({
+        message:
+          "If the email is registered and not verified, a new verification link has been sent",
+      });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationToken: hashedToken,
+        emailVerificationExpires: expiresAt,
+      },
+    });
+
+    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    sendVerificationEmail(user.email, user.firstName ?? "", verifyLink).catch(
+      (err) => {
+        console.error("Error sending verification email:", err);
+      },
+    );
+
+    res.status(200).json({
+      message:
+        "If the email is registered and not verified, a new verification link has been sent",
+    });
   } catch (error) {
     res.status(500).json({
       error: error instanceof Error ? error.message : "Internal server error",

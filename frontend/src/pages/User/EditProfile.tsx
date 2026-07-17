@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { UserService } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const EditProfile = () => {
   const user = useAuthStore.getState().user;
+  const updateUser = useAuthStore((state) => state.updateUser);
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -30,7 +33,8 @@ const EditProfile = () => {
     try {
       toast.promise(UserService.updateUserAvatar(file), {
         loading: "Updating user information...",
-        success: () => {
+        success: (updatedUser) => {
+          updateUser(updatedUser);
           return "Update user information successfully!";
         },
         error: "Failed to update user information",
@@ -42,12 +46,11 @@ const EditProfile = () => {
       });
     } catch (error) {
       console.error("Error updating user avatar:", error);
-      toast.error("Failed to update profile picture.");
     } finally {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      window.location.reload();
+      navigate("/profile");
     }
   };
 
@@ -61,19 +64,18 @@ const EditProfile = () => {
         }),
         {
           loading: "Updating user information...",
-          success: () => {
+          success: (updatedUser) => {
+            updateUser(updatedUser);
             return "Update user information successfully!";
           },
           error: "Failed to update user information",
         },
       );
-
-      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating user profile:", error);
       toast.error("Failed to update profile.");
     } finally {
-      window.location.reload();
+      navigate("/profile");
     }
   };
 
@@ -99,7 +101,7 @@ const EditProfile = () => {
       console.error("Error changing password:", error);
       toast.error("Failed to change password.");
     } finally {
-      window.location.reload();
+      navigate("/profile");
     }
   };
 
@@ -109,11 +111,18 @@ const EditProfile = () => {
     <div className="flex flex-col w-full gap-4 p-4">
       <PageHeader title="Edit Profile" backlink="/photos" />
       <div className="flex flex-col items-center justify-center w-full">
-        <img
-          src={user?.avatarUrl}
-          alt="Profile"
-          className="w-32 h-32 rounded-full object-cover"
-        />
+        {user?.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.firstName}
+            className="h-24 w-24 rounded-full object-cover"
+          />
+        ) : (
+          <div className="h-24 w-24 rounded-full bg-indigo-800 flex items-center justify-center text-white text-4xl font-bold">
+            {user?.firstName[0]}
+            {user?.lastName[0]}
+          </div>
+        )}
         <Button
           className="mt-4"
           variant="outline"

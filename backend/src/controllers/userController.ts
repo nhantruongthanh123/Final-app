@@ -111,7 +111,7 @@ export const deleteUser = async (
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    console.log("Request body:", req.body);
+    // console.log("Request body:", req.body);
 
     if (!req.user) {
       return res.status(401).json({ error: "Unauthorized: No user found" });
@@ -119,9 +119,9 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const userId = req.user?.userId;
 
-    const { email, firstName, lastName, avatarUrl } = req.body;
+    const { email, firstName, lastName } = req.body;
 
-    console.log(email, firstName, lastName, avatarUrl);
+    // console.log(email, firstName, lastName);
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -129,7 +129,6 @@ export const updateUser = async (req: Request, res: Response) => {
         ...(email && { email }),
         ...(firstName && { firstName }),
         ...(lastName && { lastName }),
-        ...(avatarUrl && { avatarUrl }),
       },
     });
 

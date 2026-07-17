@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import PhotoAdmin from "@/components/photo/PhotoAdmin";
 import {
   Pagination,
@@ -8,8 +7,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import type { Photo } from "@/types/photo";
 import { PhotoService } from "@/services/photoService";
+import type { Photo } from "@/types/photo";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Photos = () => {

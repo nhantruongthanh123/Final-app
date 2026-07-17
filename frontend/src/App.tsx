@@ -29,7 +29,9 @@ import { useEffect, useRef } from "react";
 import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
 import UserProfileLayout from "./layouts/UserProfileLayout";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResendVerifyEmail from "./pages/Auth/ResendVerifyEmail";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import VerifyEmail from "./pages/Auth/VerifyEmail";
 import VisitorDiscover from "./pages/Home/VisitorDiscover";
 import AddAlbum from "./pages/User/AddAlbum";
 import AddPhoto from "./pages/User/AddPhoto";
@@ -84,6 +86,11 @@ function App() {
             <Route path="/" element={<VisitorDiscover />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route
+              path="/resend-verification-email"
+              element={<ResendVerifyEmail />}
+            />
           </Route>
 
           <Route element={<UserLayout />}>

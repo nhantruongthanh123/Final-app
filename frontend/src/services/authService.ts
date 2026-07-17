@@ -50,4 +50,22 @@ export const AuthService = {
     );
     return res.data;
   },
+
+  verifyEmail: async (token: string) => {
+    const res = await api.post(
+      "/auth/verify-email",
+      { token },
+      { timeout: 15000 },
+    );
+    return res.data;
+  },
+
+  resendVerificationEmail: async (email: string) => {
+    const res = await api.post(
+      "/auth/resend-verification-email",
+      { email },
+      { timeout: 15000 },
+    );
+    return res.data;
+  },
 };

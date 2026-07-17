@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import type { User } from "@/types/user";
 import type { AuthState } from "@/types/auth";
+import type { User } from "@/types/user";
+import { create } from "zustand";
 
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
@@ -15,6 +15,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: true,
       isCheckingAuth: false,
     });
+  },
+
+  updateUser: (user: User) => {
+    set((state) => ({
+      ...state,
+      user,
+    }));
   },
 
   clearAuth: () => {
