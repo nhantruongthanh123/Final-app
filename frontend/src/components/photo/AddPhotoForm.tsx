@@ -1,7 +1,7 @@
 import PageHeader from "@/components/shared/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhotoService } from "@/services/photoService";
+import { PhotoService } from "@/services/photo.service";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";

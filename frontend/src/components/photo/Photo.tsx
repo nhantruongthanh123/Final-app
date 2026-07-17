@@ -1,4 +1,4 @@
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";

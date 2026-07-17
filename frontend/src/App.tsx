@@ -24,7 +24,7 @@ import Photos from "@/pages/User/Photos";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AuthService } from "@/services/authService";
+import { AuthService } from "@/services/auth.service";
 import { useEffect, useRef } from "react";
 import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
 import UserProfileLayout from "./layouts/UserProfileLayout";

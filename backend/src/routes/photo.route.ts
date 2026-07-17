@@ -6,7 +6,7 @@ import {
   getAllPhotosFeed,
   getPhotoById,
   updatePhoto,
-} from "#/controllers/photoController.js";
+} from "#controllers/photo.controller.js";
 import { optionalAuth } from "#middlewares/optionalAuth.js";
 import { requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";

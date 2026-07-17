@@ -1,4 +1,4 @@
-import { prisma } from "#controllers/config/db.js";
+import { prisma } from "#config/db.js";
 import { sendResetPasswordEmail } from "#utils/sendResetPasswordEmail.js";
 import { sendVerificationEmail } from "#utils/sendVerificationEmail.js";
 import bcrypt from "bcryptjs";
@@ -50,11 +50,6 @@ export const registerUser = async (req: Request, res: Response) => {
       verifyLink,
     ).catch((err) => {
       console.error("Error sending verification email:", err);
-    });
-
-    res.status(201).json({
-      message:
-        "Login successful. Please check your email to verify your account.",
     });
 
     res.status(201).json(newUser);

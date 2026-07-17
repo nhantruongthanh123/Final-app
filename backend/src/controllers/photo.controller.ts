@@ -1,4 +1,4 @@
-import cloudinary from "#controllers/config/cloudinary.js";
+import cloudinary from "#config/cloudinary.js";
 import { prisma } from "#controllers/config/db.js";
 import { formatFeedPhotos } from "#utils/photoUtils.js";
 import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";

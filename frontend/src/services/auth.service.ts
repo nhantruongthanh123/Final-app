@@ -1,14 +1,10 @@
+import type { RegisterFormValues } from "@/schemas/auth.schema";
 import { api } from "@/services/axiosClient";
 import type { User } from "@/types/user";
 
 export const AuthService = {
-  register: async (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-  ): Promise<void> => {
-    await api.post("/auth/register", { email, password, firstName, lastName });
+  register: async (data: RegisterFormValues): Promise<void> => {
+    await api.post("/auth/register", data);
   },
   login: async (
     email: string,

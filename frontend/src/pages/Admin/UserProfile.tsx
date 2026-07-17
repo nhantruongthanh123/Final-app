@@ -1,6 +1,6 @@
 import ProfileBody from "@/components/admin/ProfileBody";
 import ProfileHeader from "@/components/admin/ProfileHeader";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";

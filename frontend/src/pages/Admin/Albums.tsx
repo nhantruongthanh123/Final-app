@@ -8,7 +8,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import { AlbumService } from "@/services/albumService";
+import { AlbumService } from "@/services/album.service";
 import type { Album } from "@/types/album";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";

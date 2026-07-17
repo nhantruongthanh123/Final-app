@@ -1,6 +1,6 @@
 import PhotoUser from "@/components/photo/PhotoUser";
 import EmptyState from "@/components/shared/EmptyState";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { Photo } from "@/types/photo";
 import { ImageOff } from "lucide-react";

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PhotoService } from "@/services/photoService";
+import { PhotoService } from "@/services/photo.service";
 import type { Photo } from "@/types/photo";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

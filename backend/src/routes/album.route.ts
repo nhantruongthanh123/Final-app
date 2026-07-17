@@ -6,7 +6,7 @@ import {
   getAllAlbumsDiscover,
   getAllAlbumsFeed,
   updateAlbum,
-} from "#/controllers/albumController.js";
+} from "#controllers/album.controller.js";
 import { optionalAuth } from "#middlewares/optionalAuth.js";
 import { requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";

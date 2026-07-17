@@ -13,14 +13,14 @@ import {
   updateUserAdmin,
   updateUserAvatar,
   updateUserPassword,
-} from "#/controllers/userController.js";
-import { followUser, unfollowUser } from "#controllers/followController.js";
+} from "#controllers/user.controller.js";
+import { followUser, unfollowUser } from "#controllers/follow.controller.js";
 import {
   userLikeAlbum,
   userLikePhoto,
   userUnlikeAlbum,
   userUnlikePhoto,
-} from "#controllers/likeController.js";
+} from "#controllers/like.controller.js";
 import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";
 import express from "express";

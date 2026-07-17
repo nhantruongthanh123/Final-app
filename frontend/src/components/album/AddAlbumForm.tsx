@@ -1,5 +1,5 @@
 import RemoveablePhoto from "@/components/photo/RemovablePhoto";
-import { AlbumService } from "@/services/albumService";
+import { AlbumService } from "@/services/album.service";
 import type { newPhotoPreview } from "@/types/album";
 import { Plus } from "lucide-react";
 import { useRef, useState } from "react";

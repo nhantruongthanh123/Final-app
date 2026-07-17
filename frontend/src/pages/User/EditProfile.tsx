@@ -1,7 +1,7 @@
 import FormField from "@/components/shared/FormField";
 import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";

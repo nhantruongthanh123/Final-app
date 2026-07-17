@@ -1,4 +1,4 @@
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { AlbumFeed } from "@/types/album";
 import { formatDateTime } from "@/utils/formatDateTime";

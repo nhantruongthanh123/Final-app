@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
 import { useEffect, useState } from "react";
 

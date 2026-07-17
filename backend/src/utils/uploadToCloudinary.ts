@@ -1,4 +1,4 @@
-import cloudinary from "#controllers/config/cloudinary.js";
+import cloudinary from "#config/cloudinary.js";
 
 export function uploadToCloudinary(
   buffer: Buffer,

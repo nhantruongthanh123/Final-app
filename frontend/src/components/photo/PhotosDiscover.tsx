@@ -1,6 +1,6 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
-import { PhotoService } from "@/services/photoService";
+import { PhotoService } from "@/services/photo.service";
 import type { PhotoFeed } from "@/types/photo";
 import { useEffect, useState } from "react";
 

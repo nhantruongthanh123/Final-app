@@ -5,52 +5,55 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AuthService } from "@/services/authService";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { RegisterFormValues } from "@/schemas/auth.schema";
+import { registerSchema } from "@/schemas/auth.schema";
+import { AuthService } from "@/services/auth.service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 
 const RegisterForm = () => {
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: "onTouched",
+  });
 
-    if (!email || !firstName || !lastName || !password || !confirmPassword) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match. Please try again.");
-      return;
-    }
-
+  const onSubmit = async (data: RegisterFormValues) => {
     try {
-      await AuthService.register(email, password, firstName, lastName);
+      await AuthService.register(data);
+
+      navigate("/login");
+
       toast.success(
-        "Registration successful! Please check your email to verify your account.",
+        "Registration successful. Please check your email to verify your account.",
+        { duration: 10000 },
       );
     } catch (error) {
-      toast.error("Registration failed. Please try again.");
-      console.error("Registration error:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Registration failed. Please try again later.");
+      }
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
+    <form
+      className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-brand">
@@ -64,42 +67,34 @@ const RegisterForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Input id="email" type="email" {...register("email")} />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="first-name">First Name</Label>
-            <Input
-              id="first-name"
-              type="text"
-              placeholder="Enter your first name"
-              onChange={(e) => setFirstName(e.target.value)}
-            />
+            <Input id="first-name" type="text" {...register("firstName")} />
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="last-name">Last Name</Label>
-            <Input
-              id="last-name"
-              type="text"
-              placeholder="Enter your last name"
-              onChange={(e) => setLastName(e.target.value)}
-            />
+            <Input id="last-name" type="text" {...register("lastName")} />
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Input id="password" type="password" {...register("password")} />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -107,9 +102,13 @@ const RegisterForm = () => {
             <Input
               id="confirm-password"
               type="password"
-              placeholder="Confirm your password"
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              {...register("confirmPassword")}
             />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <div className="relative my-2">
@@ -140,13 +139,14 @@ const RegisterForm = () => {
 
           <Button
             className="w-full bg-brand hover:bg-indigo-700"
-            onClick={handleRegister}
+            type="submit"
+            disabled={isSubmitting}
           >
-            Register
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </form>
   );
 };
 

@@ -1,4 +1,4 @@
-import { AlbumService } from "@/services/albumService";
+import { AlbumService } from "@/services/album.service";
 import type { AlbumFeed } from "@/types/album";
 import { ImageOff } from "lucide-react";
 import { useEffect, useState } from "react";

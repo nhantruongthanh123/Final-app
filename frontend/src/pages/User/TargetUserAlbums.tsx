@@ -1,6 +1,6 @@
 import AlbumModal from "@/components/album/AlbumModal";
 import TargetAlbumUser from "@/components/album/TargetAlbumUser";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { Album } from "@/types/album";
 import { useEffect, useState } from "react";

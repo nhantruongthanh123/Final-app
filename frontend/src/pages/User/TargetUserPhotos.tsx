@@ -1,6 +1,6 @@
 import PhotoModal from "@/components/photo/PhotoModal";
 import TargetPhotoUser from "@/components/photo/TargetPhotoUser";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { Photo } from "@/types/photo";
 import { useEffect, useState } from "react";

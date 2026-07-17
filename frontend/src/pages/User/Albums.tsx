@@ -1,6 +1,6 @@
 import AlbumUser from "@/components/album/AlbumUser";
 import EmptyState from "@/components/shared/EmptyState";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { Album } from "@/types/album";
 import { ImageOff } from "lucide-react";

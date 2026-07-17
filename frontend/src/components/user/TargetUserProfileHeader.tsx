@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { User, UserStatType, UserWithFollowStatus } from "@/types/user";
 import { useEffect, useState } from "react";

@@ -7,7 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { PhotoService } from "@/services/photoService";
+import { PhotoService } from "@/services/photo.service";
 import type { Photo } from "@/types/photo";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";

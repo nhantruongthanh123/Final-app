@@ -1,5 +1,5 @@
 import { useTheme } from "@/contexts/ThemeContext";
-import { AuthService } from "@/services/authService";
+import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";

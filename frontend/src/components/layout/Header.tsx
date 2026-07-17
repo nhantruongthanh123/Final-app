@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/ThemeContext";
-import { AuthService } from "@/services/authService";
+import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import { LogOut, Moon, PersonStanding, Settings, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";

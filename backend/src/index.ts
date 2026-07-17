@@ -1,8 +1,8 @@
-import albumRouter from "#/routes/albumRoute.js";
-import authRouter from "#/routes/authRoute.js";
-import photoRouter from "#/routes/photoRoute.js";
-import userRouter from "#/routes/userRoute.js";
 import { errorHandler } from "#middlewares/errorHandler.js";
+import albumRouter from "#routes/album.route.js";
+import authRouter from "#routes/auth.route.js";
+import photoRouter from "#routes/photo.route.js";
+import userRouter from "#routes/user.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";

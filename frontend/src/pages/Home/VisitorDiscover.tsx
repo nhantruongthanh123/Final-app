@@ -5,8 +5,8 @@ import AlbumModal from "@/components/album/AlbumModal";
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import TagToggle from "@/components/shared/TagToggle";
-import { AlbumService } from "@/services/albumService";
-import { PhotoService } from "@/services/photoService";
+import { AlbumService } from "@/services/album.service";
+import { PhotoService } from "@/services/photo.service";
 import type { AlbumFeed } from "@/types/album";
 import type { PhotoFeed } from "@/types/photo";
 

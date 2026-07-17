@@ -1,6 +1,6 @@
 import EmptyState from "@/components/shared/EmptyState";
 import UserCard from "@/components/user/UserCard";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
 import { UserX } from "lucide-react";
