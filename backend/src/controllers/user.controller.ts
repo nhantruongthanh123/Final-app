@@ -1,5 +1,5 @@
 import cloudinary from "#config/cloudinary.js";
-import { prisma } from "#controllers/config/db.js";
+import { prisma } from "#config/db.js";
 import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 import { attachFollowStatus } from "#utils/userUtils.js";
 import bcrypt from "bcryptjs";

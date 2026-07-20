@@ -1,4 +1,4 @@
-import { prisma } from "#controllers/config/db.js";
+import { prisma } from "#config/db.js";
 import { faker } from "@faker-js/faker";
 
 async function main() {

@@ -1,4 +1,4 @@
-import { prisma } from "#controllers/config/db.js";
+import { prisma } from "#config/db.js";
 
 export const attachFollowStatus = async (
   users: {

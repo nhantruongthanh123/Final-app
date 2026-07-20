@@ -8,31 +8,34 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginSchema, type LoginPayload } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 import axios from "axios";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(true);
-
   const navigate = useNavigate();
+  const [isEmailVerified, setIsEmailVerified] = useState(true);
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  const {
+    register: login,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginPayload>({
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched",
+  });
 
+  const onSubmit = async (data: LoginPayload) => {
     try {
-      const response = await AuthService.login(email, password);
+      const response = await AuthService.login(data);
 
       setAuth(response.accessToken, response.user);
       if (response.user.role === "ADMIN") {
@@ -42,30 +45,27 @@ const LoginForm = () => {
         await navigate("/feed");
       }
     } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.data?.code === "EMAIL_NOT_VERIFIED"
-      ) {
-        toast.error(
-          "Please verify your email before logging in. Check your inbox for the verification email.",
-        );
-        setIsEmailVerified(false);
+      if (axios.isAxiosError(error)) {
+        if (
+          error.response?.data?.message ===
+          "Email is not verified. Please verify your email before logging in."
+        ) {
+          toast.error(error.response?.data?.message);
+          setIsEmailVerified(false);
+        } else {
+          toast.error(error.response?.data?.message);
+        }
       } else {
-        toast.error("Email or password is incorrect. Please try again.");
+        toast.error("An unexpected error occurred. Please try again.");
       }
-      console.error("Login error:", error);
-    } finally {
-      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <form
-      onSubmit={handleLogin}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8"
     >
-      {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
-
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-brand">
@@ -76,23 +76,18 @@ const LoginForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-            />
+            <Input id="email" type="email" {...login("email")} />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Input id="password" type="password" {...login("password")} />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="relative my-2">
@@ -123,16 +118,16 @@ const LoginForm = () => {
 
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full bg-brand hover:bg-indigo-700"
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isSubmitting ? "Logging in..." : "Login"}
           </Button>
 
           {!isEmailVerified && (
             <Button
               type="button"
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="w-full bg-brand hover:bg-indigo-700"
               onClick={() => navigate("/resend-verification-email")}
             >

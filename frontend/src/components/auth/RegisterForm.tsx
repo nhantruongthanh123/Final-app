@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { RegisterFormValues } from "@/schemas/auth.schema";
+import type { RegisterPayload } from "@/schemas/auth.schema";
 import { registerSchema } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,12 +25,12 @@ const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({
+  } = useForm<RegisterPayload>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
   });
 
-  const onSubmit = async (data: RegisterFormValues) => {
+  const onSubmit = async (data: RegisterPayload) => {
     try {
       await AuthService.register(data);
 
@@ -41,10 +41,10 @@ const RegisterForm = () => {
         { duration: 10000 },
       );
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.data?.error) {
-        toast.error(error.response.data.error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message);
       } else {
-        toast.error("Registration failed. Please try again later.");
+        toast.error("An unexpected error occurred. Please try again.");
       }
     }
   };

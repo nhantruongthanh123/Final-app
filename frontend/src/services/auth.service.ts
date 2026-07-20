@@ -1,16 +1,19 @@
-import type { RegisterFormValues } from "@/schemas/auth.schema";
+import type {
+  EmailPayload,
+  LoginPayload,
+  RegisterPayload,
+} from "@/schemas/auth.schema";
 import { api } from "@/services/axiosClient";
 import type { User } from "@/types/user";
 
 export const AuthService = {
-  register: async (data: RegisterFormValues): Promise<void> => {
+  register: async (data: RegisterPayload): Promise<void> => {
     await api.post("/auth/register", data);
   },
   login: async (
-    email: string,
-    password: string,
+    data: LoginPayload,
   ): Promise<{ accessToken: string; user: User }> => {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post("/auth/login", data);
     return response.data;
   },
   logout: async (): Promise<void> => {
@@ -21,26 +24,26 @@ export const AuthService = {
     return response.data;
   },
 
-  forgotPassword: async (email: string): Promise<{ message: string }> => {
+  forgotPassword: async (data: EmailPayload): Promise<{ message: string }> => {
     const res = await api.post<{ message: string }>(
       `/auth/forgot-password`,
       {
-        email,
+        email: data.email,
       },
       { timeout: 15000 },
     );
     return res.data;
   },
 
-  resetPassword: async (
-    token: string,
-    newPassword: string,
-  ): Promise<{ message: string }> => {
+  resetPassword: async (data: {
+    token: string;
+    newPassword: string;
+  }): Promise<{ message: string }> => {
     const res = await api.post<{ message: string }>(
       `/auth/reset-password`,
       {
-        token,
-        newPassword,
+        token: data.token,
+        newPassword: data.newPassword,
       },
       { timeout: 15000 },
     );

@@ -25,4 +25,44 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type RegisterPayload = z.infer<typeof registerSchema>;
+
+export const loginSchema = z.object({
+  email: z
+    .email()
+    .min(1, "Email is required")
+    .max(255, "Email must be less than 255 characters"),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters long")
+    .max(64, "Password must be less than 64 characters long"),
+});
+
+export type LoginPayload = z.infer<typeof loginSchema>;
+
+export const emailSchema = z.object({
+  email: z
+    .email()
+    .min(1, "Email is required")
+    .max(255, "Email must be less than 255 characters"),
+});
+
+export type EmailPayload = z.infer<typeof emailSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .max(64, "Password must be less than 64 characters long"),
+    confirmNewPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .max(64, "Password must be less than 64 characters long"),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmNewPassword"],
+  });
+
+export type ResetPasswordPayload = z.infer<typeof resetPasswordSchema>;

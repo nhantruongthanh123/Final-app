@@ -6,15 +6,19 @@ export async function sendVerificationEmail(
   firstName: string,
   verifyLink: string,
 ) {
-  const transporter = await getTransporter();
+  try {
+    const transporter = await getTransporter();
 
-  const info = await transporter.sendMail({
-    from: '"Fotobook" <no-reply@fotobook.test>',
-    to: email,
-    subject: "Verify your Fotobook account",
-    text: `Hello ${firstName},\n\nThank you for registering with Fotobook. Please click the link below to verify your email (valid for 24 hours):\n\n${verifyLink}\n\nIf you did not create this account, please ignore this email.`,
-  });
+    const info = await transporter.sendMail({
+      from: '"Fotobook" <no-reply@fotobook.test>',
+      to: email,
+      subject: "Verify your Fotobook account",
+      text: `Hello ${firstName},\n\nThank you for registering with Fotobook. Please click the link below to verify your email (valid for 24 hours):\n\n${verifyLink}\n\nIf you did not create this account, please ignore this email.`,
+    });
 
-  const previewUrl = nodemailer.getTestMessageUrl(info);
-  if (previewUrl) console.log("📬 View test email at:", previewUrl);
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    if (previewUrl) console.log("📬 View test email at:", previewUrl);
+  } catch (error) {
+    throw new Error("Failed to send verification email");
+  }
 }

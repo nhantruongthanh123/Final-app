@@ -1,4 +1,4 @@
-import { errorHandler } from "#middlewares/errorHandler.js";
+import { errorHandler } from "#middlewares/error.middleware.js";
 import albumRouter from "#routes/album.route.js";
 import authRouter from "#routes/auth.route.js";
 import photoRouter from "#routes/photo.route.js";

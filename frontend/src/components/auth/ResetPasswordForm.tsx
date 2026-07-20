@@ -1,21 +1,32 @@
+import {
+  resetPasswordSchema,
+  type ResetPasswordPayload,
+} from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 const ResetPasswordForm = () => {
   const [searchParams] = useSearchParams();
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const token = searchParams.get("token");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register: resetPassword,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordPayload>({
+    resolver: zodResolver(resetPasswordSchema),
+    mode: "onTouched",
+  });
 
+  const onSubmit = async (data: ResetPasswordPayload) => {
     if (!token) {
       toast.error(
         "Token is missing or expired. Please request a new password reset.",
@@ -23,50 +34,53 @@ const ResetPasswordForm = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    setIsSubmitting(true);
     try {
-      await AuthService.resetPassword(token, newPassword);
+      await AuthService.resetPassword({ token, newPassword: data.newPassword });
       toast.success("Password reset successfully! Please log in again.");
       navigate("/login");
     } catch (error) {
-      console.error("Error resetting password:", error);
-      toast.error(
-        "Token is missing or expired. Please request a new password reset.",
-      );
-    } finally {
-      setIsSubmitting(false);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message);
+      } else {
+        toast.error(
+          "Token is missing or expired. Please request a new password reset.",
+        );
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full max-w-sm space-y-4"
+    >
       <h1 className="text-2xl font-bold text-center">Reset Password</h1>
 
-      <Input
-        type="password"
-        placeholder="New Password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        required
-      />
+      <div className="grid gap-2">
+        <Label htmlFor="newPassword">New Password</Label>
+        <Input
+          id="newPassword"
+          type="password"
+          {...resetPassword("newPassword")}
+        />
+        {errors.newPassword && (
+          <p className="text-sm text-red-500">{errors.newPassword.message}</p>
+        )}
+      </div>
 
-      <Input
-        type="password"
-        placeholder="Confirm New Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        required
-      />
+      <div className="grid gap-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          {...resetPassword("confirmNewPassword")}
+        />
+        {errors.confirmNewPassword && (
+          <p className="text-sm text-red-500">
+            {errors.confirmNewPassword.message}
+          </p>
+        )}
+      </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Processing..." : "Reset Password"}

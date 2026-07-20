@@ -5,8 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { emailSchema, type EmailPayload } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -15,25 +18,35 @@ import { Label } from "../ui/label";
 
 const ResendVerifyEmailForm = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const {
+    register: resendVerificationEmail,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmailPayload>({
+    resolver: zodResolver(emailSchema),
+    mode: "onTouched",
+  });
+
+  const onSubmit = async (data: EmailPayload) => {
+    console.log("test on submit");
     try {
-      const response = await AuthService.resendVerificationEmail(email);
+      const response = await AuthService.resendVerificationEmail(data.email);
       toast.success(response.message);
-      setEmail("");
     } catch (error) {
-      toast.error("Failed to send verification email.");
-      console.error("Error sending verification email:", error);
-    } finally {
-      setIsLoading(false);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message);
+      } else {
+        toast.error("Failed to send verification email.");
+      }
     }
   };
 
   return (
-    <form className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
+    <form
+      className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-brand">
@@ -47,18 +60,19 @@ const ResendVerifyEmailForm = () => {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
+              {...resendVerificationEmail("email")}
             />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full bg-brand hover:bg-indigo-700"
+            type="submit"
           >
-            {isLoading
+            {isSubmitting
               ? "Sending verification email..."
               : "Send Verification Email"}
           </Button>

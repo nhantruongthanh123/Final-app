@@ -5,8 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { EmailPayload } from "@/schemas/auth.schema";
+import { emailSchema } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -15,20 +19,26 @@ import { Label } from "../ui/label";
 
 const ForgotPasswordForm = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const {
+    register: forgotPassword,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmailPayload>({
+    resolver: zodResolver(emailSchema),
+    mode: "onTouched",
+  });
+
+  const onSubmit = async (data: EmailPayload) => {
     try {
-      const response = await AuthService.forgotPassword(email);
+      const response = await AuthService.forgotPassword(data);
       toast.success(response.message);
-      setEmail("");
     } catch (error) {
-      toast.error("Failed to send reset link.");
-      console.error("Error sending reset link:", error);
-    } finally {
-      setIsLoading(false);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message);
+      } else {
+        toast.error("Failed to send reset link.");
+      }
     }
   };
 
@@ -44,21 +54,18 @@ const ForgotPasswordForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Recovery Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-            />
+            <Input id="email" type="email" {...forgotPassword("email")} />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
+            onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
             className="w-full bg-brand hover:bg-indigo-700"
           >
-            {isLoading ? "Sending reset link..." : "Send Reset Link"}
+            {isSubmitting ? "Sending reset link..." : "Send Reset Link"}
           </Button>
 
           <CardFooter className="flex flex-row gap-2 justify-around text-sm text-center">
