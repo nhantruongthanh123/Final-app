@@ -1,9 +1,14 @@
 import PageHeader from "@/components/shared/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { photoSchema, type PhotoPayload } from "@/schemas/photo.schema";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+
 import { PhotoService } from "@/services/photo.service";
+import axios from "axios";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -18,67 +23,66 @@ import { Textarea } from "../ui/textarea";
 
 const AddPhotoForm = ({ backlink }: { backlink: string }) => {
   const navigate = useNavigate();
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [isPublic, setIsPublic] = useState<boolean>(true);
-
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<PhotoPayload>({
+    resolver: zodResolver(photoSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      isPublic: true,
+      file: undefined,
+    },
+    criteriaMode: "all",
+  });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setSelectedFile(file);
+    setValue("file", file, { shouldValidate: true });
     setPreviewPhotoUrl(URL.createObjectURL(file));
   };
 
   const handleRemovePhoto = () => {
-    setSelectedFile(null);
     setPreviewPhotoUrl(null);
+
+    setValue("file", undefined, { shouldValidate: true });
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSaveChanges = async () => {
-    setIsSaving(true);
-    if (!previewPhotoUrl && !selectedFile) {
-      toast.error("Image is required. Please upload a photo.");
-      setIsSaving(false);
-      return;
-    }
-
-    try {
-      toast.promise(
-        PhotoService.createPhoto({
-          file: selectedFile ?? undefined,
-          title,
-          description,
-          isPublic,
-        }),
-        {
-          loading: "Saving photo...",
-          success: () => {
-            navigate(backlink);
-            return "Photo saved successfully!";
-          },
-          error: "Failed to save photo.",
-        },
-      );
-    } catch (error) {
-      console.error("Error saving photo:", error);
-      toast.error("Failed to save photo.");
-    } finally {
-      setIsSaving(false);
-    }
+  const onSubmit = async (data: PhotoPayload) => {
+    await toast.promise(PhotoService.createPhoto(data), {
+      loading: "Saving photo...",
+      success: () => {
+        navigate("/photos");
+        return "Photo saved successfully!";
+      },
+      error: (err) => {
+        if (axios.isAxiosError(err) && err.response?.data?.message) {
+          return err.response.data.message;
+        }
+        return "An unexpected error occurred. Please try again.";
+      },
+    });
   };
 
   return (
-    <div className="flex flex-col w-full p-4 md:p-6">
+    <form
+      className="flex flex-col w-full p-4 md:p-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <PageHeader title="Add Photo" backlink={backlink} />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
@@ -91,27 +95,38 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
               <Input
                 type="text"
                 id="title"
-                placeholder="Place your photo title here..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
+                placeholder="Enter photo title"
               />
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid w-full items-center gap-1.5 mt-4">
-              <Label className="font-bold text-slate-700">Sharing mode</Label>
-              <Select
-                defaultValue="Public"
-                value={isPublic ? "Public" : "Private"}
-                onValueChange={(value) => setIsPublic(value === "Public")}
-              >
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Select a mode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Public">Public</SelectItem>
-                  <SelectItem value="Private">Private</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="isPublic" className="font-bold text-slate-700">
+                Sharing mode
+              </Label>
+              <Controller
+                name="isPublic"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value ? "Public" : "Private"}
+                    onValueChange={(value) =>
+                      field.onChange(value === "Public")
+                    }
+                  >
+                    <SelectTrigger className="w-45" id="isPublic">
+                      <SelectValue placeholder="Select a mode" />
+                    </SelectTrigger>
+                    <SelectContent alignItemWithTrigger={false}>
+                      <SelectItem value="Public">Public</SelectItem>
+                      <SelectItem value="Private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 
@@ -121,11 +136,15 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
             </Label>
             <Textarea
               id="description"
-              placeholder="Place your photo description here..."
               className="h-27 resize-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
+              placeholder="Enter photo description"
             />
+            {errors.description && (
+              <p className="text-sm text-red-500">
+                {errors.description.message}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -135,13 +154,17 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
           <div className="relative w-full md:w-lg h-auto mt-4 rounded-xl object-cover block">
             <img
               src={previewPhotoUrl}
-              alt={title}
+              alt={"Preview"}
               className="rounded-xl w-full h-auto object-cover"
             />
             <X
               onClick={handleRemovePhoto}
               className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-1 rounded-full w-8 h-8 cursor-pointer"
             />
+
+            {errors.file && (
+              <p className="pt-4 text-sm text-red-500">{errors.file.message}</p>
+            )}
           </div>
         ) : (
           <div className="relative w-full md:w-lg h-auto mt-4 rounded-xl object-cover block">
@@ -155,6 +178,9 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
                 onChange={handleFileChange}
               />
             </label>
+            {errors.file && (
+              <p className="pt-4 text-sm text-red-500">{errors.file.message}</p>
+            )}
           </div>
         )}
 
@@ -162,14 +188,14 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
           <Button
             variant="default"
             className=" bg-indigo-500 hover:bg-indigo-600 text-white "
-            onClick={handleSaveChanges}
-            disabled={isSaving}
+            type="submit"
+            disabled={isSubmitting}
           >
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

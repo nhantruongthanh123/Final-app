@@ -10,10 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  updatePhotoSchema,
+  type UpdatePhotoPayload,
+} from "@/schemas/photo.schema";
 import { PhotoService } from "@/services/photo.service";
 import type { Photo } from "@/types/photo";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import axios from "axios";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -31,71 +38,56 @@ import {
 const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const navigate = useNavigate();
   const [photo, setPhoto] = useState<Photo | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [isPublic, setIsPublic] = useState<boolean>(true);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting, dirtyFields },
+  } = useForm<UpdatePhotoPayload>({
+    resolver: zodResolver(updatePhotoSchema),
+  });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setSelectedFile(file);
+    setValue("file", file, { shouldValidate: true, shouldDirty: true });
     setPreviewPhotoUrl(URL.createObjectURL(file));
   };
 
   const handleRemovePhoto = () => {
-    setSelectedFile(null);
     setPreviewPhotoUrl(null);
+    setValue("file", undefined, { shouldValidate: true, shouldDirty: true });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSaveChanges = async () => {
-    setIsSaving(true);
-    if (!previewPhotoUrl && !selectedFile) {
-      toast.error("Image is required. Please upload a photo.");
-      setIsSaving(false);
-      return;
-    }
+  const onSubmit = async (data: UpdatePhotoPayload) => {
+    const changedData: Partial<UpdatePhotoPayload> = {};
 
-    if (!photo) {
-      toast.error("Photo not found.");
-      setIsSaving(false);
-      return;
-    }
+    if (dirtyFields.title) changedData.title = data.title;
+    if (dirtyFields.description) changedData.description = data.description;
+    if (dirtyFields.isPublic) changedData.isPublic = data.isPublic;
+    if (dirtyFields.file) changedData.file = data.file;
 
-    try {
-      toast.promise(
-        PhotoService.updatePhoto(photo.id, {
-          file: selectedFile ?? undefined,
-          title,
-          description,
-          isPublic,
-        }),
-        {
-          loading: "Updating photo...",
-          success: (updatedPhoto) => {
-            setPreviewPhotoUrl(updatedPhoto.photoUrl);
-            setSelectedFile(null);
-            navigate(backlink);
-            return "Update photo successfully!";
-          },
-          error: "Failed to update photo",
-        },
-      );
-    } catch (error) {
-      console.error("Error updating photo:", error);
-      toast.error("Failed to update photo");
-    } finally {
-      setIsSaving(false);
-    }
+    await toast.promise(PhotoService.updatePhoto(id, changedData), {
+      loading: "Updating photo...",
+      success: () => {
+        return "Photo saved successfully!";
+      },
+      error: (err) => {
+        if (axios.isAxiosError(err) && err.response?.data?.message) {
+          return err.response.data.message;
+        }
+        return "An unexpected error occurred. Please try again.";
+      },
+    });
   };
 
   const handleDeletePhoto = async () => {
@@ -118,11 +110,11 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
     const fetchPhoto = async () => {
       try {
         const data = await PhotoService.getPhotoById(id);
-        setPhoto(data);
-        setTitle(data.title);
-        setDescription(data.description);
-        setIsPublic(data.isPublic);
         setPreviewPhotoUrl(data.photoUrl);
+        setPhoto(data);
+        setValue("title", data.title);
+        setValue("description", data.description);
+        setValue("isPublic", data.isPublic);
       } catch (error) {
         console.error("Error fetching photo:", error);
         toast.error("Failed to fetch photo");
@@ -130,10 +122,13 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
     };
 
     fetchPhoto();
-  }, [id]);
+  }, [id, setValue]);
 
   return (
-    <div className="flex flex-col w-full p-4 md:p-6">
+    <form
+      className="flex flex-col w-full p-4 md:p-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <PageHeader title="Edit Photo" backlink={backlink} />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
@@ -147,26 +142,42 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
                 type="text"
                 id="title"
                 placeholder="Lorem ipsum dolor sit amet..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
               />
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid w-full items-center gap-1.5 mt-4">
-              <Label className="font-bold text-slate-700">Sharing mode</Label>
-              <Select
-                defaultValue="Public"
-                value={isPublic ? "Public" : "Private"}
-                onValueChange={(value) => setIsPublic(value === "Public")}
-              >
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Select a mode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Public">Public</SelectItem>
-                  <SelectItem value="Private">Private</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="isPublic" className="font-bold text-slate-700">
+                Sharing mode
+              </Label>
+              <Controller
+                name="isPublic"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value ? "Public" : "Private"}
+                    onValueChange={(value) =>
+                      field.onChange(value === "Public")
+                    }
+                  >
+                    <SelectTrigger className="w-45" id="isPublic">
+                      <SelectValue placeholder="Select a mode" />
+                    </SelectTrigger>
+                    <SelectContent alignItemWithTrigger={false}>
+                      <SelectItem value="Public">Public</SelectItem>
+                      <SelectItem value="Private">Private</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.isPublic && (
+                <p className="text-sm text-red-500">
+                  {errors.isPublic.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -178,9 +189,13 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
               id="description"
               placeholder="Lorem ipsum dolor sit amet..."
               className="h-27 resize-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
             />
+            {errors.description && (
+              <p className="text-sm text-red-500">
+                {errors.description.message}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -190,13 +205,16 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           <div className="relative w-full md:w-lg h-auto mt-4 rounded-xl object-cover block">
             <img
               src={previewPhotoUrl}
-              alt={photo?.title}
+              alt={"Preview"}
               className="rounded-xl w-full h-auto object-cover"
             />
             <X
               onClick={handleRemovePhoto}
               className="absolute top-2 right-2 text-white bg-black bg-opacity-50 p-1 rounded-full w-8 h-8 cursor-pointer"
             />
+            {errors.file && (
+              <p className="pt-4 text-sm text-red-500">{errors.file.message}</p>
+            )}
           </div>
         ) : (
           <div className="relative w-full md:w-lg h-auto mt-4 rounded-xl object-cover block">
@@ -210,6 +228,9 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
                 onChange={handleFileChange}
               />
             </label>
+            {errors.file && (
+              <p className="pt-4 text-sm text-red-500">{errors.file.message}</p>
+            )}
           </div>
         )}
 
@@ -217,15 +238,15 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           <Button
             variant="default"
             className=" bg-indigo-500 hover:bg-indigo-600 text-white "
-            onClick={handleSaveChanges}
-            disabled={isSaving}
+            type="submit"
+            disabled={isSubmitting}
           >
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
 
           <AlertDialog>
             <AlertDialogTrigger
-              render={<Button variant="destructive">Delete Album</Button>}
+              render={<Button variant="destructive">Delete Photo</Button>}
             />
 
             <AlertDialogContent>
@@ -251,7 +272,7 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
           </AlertDialog>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
