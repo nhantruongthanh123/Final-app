@@ -2,9 +2,11 @@ import ProfileBody from "@/components/admin/ProfileBody";
 import ProfileHeader from "@/components/admin/ProfileHeader";
 import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
+import axios from "axios";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const UserProfile = () => {
   const { id } = useParams() || "";
@@ -17,6 +19,9 @@ const UserProfile = () => {
         setUser(user);
       } catch (error) {
         console.error("Error fetching user:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          toast.error("User not found");
+        }
       }
     };
 
@@ -26,7 +31,7 @@ const UserProfile = () => {
   if (!id || !user) {
     return (
       <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
-        <p className="text-slate-500 text-sm mt-1"> User not found</p>
+        <p className="text-slate-500 text-sm mt-1"> {user?.email}</p>
       </div>
     );
   }
