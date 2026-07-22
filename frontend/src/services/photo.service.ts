@@ -68,9 +68,15 @@ export const PhotoService = {
     return res.data;
   },
 
-  getFeedPhotos: async () => {
+  getFeedPhotos: async (page?: number, limit?: number) => {
     const res = await api.get<{ feed: PhotoFeed[]; total: number }>(
       "/photos/feed",
+      {
+        params: {
+          page,
+          limit,
+        },
+      },
     );
     return res.data;
   },

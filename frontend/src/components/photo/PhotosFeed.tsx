@@ -1,43 +1,72 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
-import { PhotoService } from "@/services/photo.service";
+import { usePhotoFeed } from "@/hooks/usePhotoFeed";
 import type { PhotoFeed } from "@/types/photo";
-import { ImageOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { ImageOff, LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../shared/EmptyState";
 
+interface PhotoFeedResponse {
+  feed: PhotoFeed[];
+  total: number;
+}
+
 const PhotosFeed = () => {
-  const [feedPhotos, setFeedPhotos] = useState<PhotoFeed[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoFeed | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    usePhotoFeed();
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const feedPhotos = data?.pages.flatMap((page) => page.feed) ?? [];
 
   const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
-    setFeedPhotos((prevPhotos) =>
-      prevPhotos.map((photo) =>
-        photo.id === photoId
-          ? {
-              ...photo,
-              isLiked: newIsLiked,
-              numLikes: newIsLiked ? photo.numLikes + 1 : photo.numLikes - 1,
-            }
-          : photo,
-      ),
+    queryClient.setQueryData<InfiniteData<PhotoFeedResponse>>(
+      ["photos", "feed"],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            feed: page.feed.map((photo) =>
+              photo.id === photoId
+                ? {
+                    ...photo,
+                    isLiked: newIsLiked,
+                    numLikes: newIsLiked
+                      ? photo.numLikes + 1
+                      : photo.numLikes - 1,
+                  }
+                : photo,
+            ),
+          })),
+        };
+      },
     );
   };
 
   useEffect(() => {
-    try {
-      const fetchPhotos = async () => {
-        const photosData = await PhotoService.getFeedPhotos();
-        setFeedPhotos(photosData.feed);
-      };
+    const el = sentinelRef.current;
+    if (!el) return;
 
-      fetchPhotos();
-    } catch (error) {
-      console.error("Error fetching photos:", error);
-    }
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [data?.pages, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if (feedPhotos.length === 0) {
     return (
@@ -65,6 +94,11 @@ const PhotosFeed = () => {
           />
         </div>
       ))}
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
 
       <PhotoModal
         isOpen={selectedPhoto !== null}
