@@ -229,7 +229,7 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
 
   const formattedFeedPhotos = feedPhotos.map(formatFeedPhotos);
 
-  res.status(200).json({ feed: formattedFeedPhotos, total: totalPhotos });
+  res.status(200).json({ items: formattedFeedPhotos, total: totalPhotos });
 };
 
 export const getAllPhotosDiscover = async (req: Request, res: Response) => {
@@ -242,7 +242,7 @@ export const getAllPhotosDiscover = async (req: Request, res: Response) => {
   const [discoverPhotos, totalPhotos] = await Promise.all([
     prisma.photo.findMany({
       where: { isPublic: true },
-      orderBy: { updatedAt: "desc" },
+      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
       skip: offset,
       take: limit,
       include: {
@@ -274,7 +274,5 @@ export const getAllPhotosDiscover = async (req: Request, res: Response) => {
 
   const formattedDiscoverPhotos = discoverPhotos.map(formatFeedPhotos);
 
-  res
-    .status(200)
-    .json({ discover: formattedDiscoverPhotos, total: totalPhotos });
+  res.status(200).json({ items: formattedDiscoverPhotos, total: totalPhotos });
 };

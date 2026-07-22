@@ -4,13 +4,13 @@ import type { PhotoWithMeta } from "@/types/photo";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 const LIMIT = 20;
-type PhotoFeedResponse = PaginatedResponse<PhotoWithMeta>;
+type PhotoDiscoverResponse = PaginatedResponse<PhotoWithMeta>;
 
-export function usePhotoFeed() {
-  return useInfiniteQuery<PhotoFeedResponse, Error>({
-    queryKey: ["photos", "feed"],
+export function usePhotoDiscover() {
+  return useInfiniteQuery<PhotoDiscoverResponse, Error>({
+    queryKey: ["photos", "discover"],
     queryFn: async ({ pageParam }) => {
-      return PhotoService.getFeedPhotos(pageParam as number, LIMIT);
+      return await PhotoService.getDiscoverPhotos(pageParam as number, LIMIT);
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

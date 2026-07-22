@@ -1,20 +1,20 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
 import { usePhotoFeed } from "@/hooks/usePhotoFeed";
-import type { PhotoFeed } from "@/types/photo";
+import type { PaginatedResponse } from "@/types/api";
+import type { PhotoWithMeta } from "@/types/photo";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../shared/EmptyState";
 
-interface PhotoFeedResponse {
-  feed: PhotoFeed[];
-  total: number;
-}
+type PhotoFeedResponse = PaginatedResponse<PhotoWithMeta>;
 
 const PhotosFeed = () => {
-  const [selectedPhoto, setSelectedPhoto] = useState<PhotoFeed | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithMeta | null>(
+    null,
+  );
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -23,7 +23,7 @@ const PhotosFeed = () => {
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const feedPhotos = data?.pages.flatMap((page) => page.feed) ?? [];
+  const feedPhotos = data?.pages.flatMap((page) => page.items) ?? [];
 
   const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<PhotoFeedResponse>>(
@@ -34,7 +34,7 @@ const PhotosFeed = () => {
           ...old,
           pages: old.pages.map((page) => ({
             ...page,
-            feed: page.feed.map((photo) =>
+            items: page.items.map((photo) =>
               photo.id === photoId
                 ? {
                     ...photo,

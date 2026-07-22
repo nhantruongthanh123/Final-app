@@ -1,6 +1,6 @@
 import type { AlbumPayload } from "@/schemas/album.schema";
 import { api } from "@/services/axiosClient";
-import type { Album, AlbumFeed } from "@/types/album";
+import type { Album, AlbumWithMeta } from "@/types/album";
 
 export const AlbumService = {
   getAllAlbums: async (
@@ -25,16 +25,28 @@ export const AlbumService = {
     return res.data;
   },
 
-  getFeedAlbums: async () => {
-    const res = await api.get<{ feed: AlbumFeed[]; total: number }>(
+  getFeedAlbums: async (page?: number, limit?: number) => {
+    const res = await api.get<{ items: AlbumWithMeta[]; total: number }>(
       "/albums/feed",
+      {
+        params: {
+          page,
+          limit,
+        },
+      },
     );
     return res.data;
   },
 
-  getDiscoverAlbums: async () => {
-    const res = await api.get<{ discover: AlbumFeed[]; total: number }>(
+  getDiscoverAlbums: async (page?: number, limit?: number) => {
+    const res = await api.get<{ items: AlbumWithMeta[]; total: number }>(
       "/albums/discover",
+      {
+        params: {
+          page,
+          limit,
+        },
+      },
     );
     return res.data;
   },

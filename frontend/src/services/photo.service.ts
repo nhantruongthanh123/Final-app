@@ -1,6 +1,7 @@
 import type { PhotoPayload, UpdatePhotoPayload } from "@/schemas/photo.schema";
 import { api } from "@/services/axiosClient";
-import type { Photo, PhotoFeed } from "@/types/photo";
+import type { PaginatedResponse } from "@/types/api";
+import type { Photo, PhotoWithMeta } from "@/types/photo";
 
 export const PhotoService = {
   getAllPhotos: async (
@@ -68,8 +69,11 @@ export const PhotoService = {
     return res.data;
   },
 
-  getFeedPhotos: async (page?: number, limit?: number) => {
-    const res = await api.get<{ feed: PhotoFeed[]; total: number }>(
+  getFeedPhotos: async (
+    page?: number,
+    limit?: number,
+  ): Promise<PaginatedResponse<PhotoWithMeta>> => {
+    const res = await api.get<{ items: PhotoWithMeta[]; total: number }>(
       "/photos/feed",
       {
         params: {
@@ -81,9 +85,18 @@ export const PhotoService = {
     return res.data;
   },
 
-  getDiscoverPhotos: async () => {
-    const res = await api.get<{ discover: PhotoFeed[]; total: number }>(
+  getDiscoverPhotos: async (
+    page?: number,
+    limit?: number,
+  ): Promise<PaginatedResponse<PhotoWithMeta>> => {
+    const res = await api.get<{ items: PhotoWithMeta[]; total: number }>(
       "/photos/discover",
+      {
+        params: {
+          page,
+          limit,
+        },
+      },
     );
     return res.data;
   },

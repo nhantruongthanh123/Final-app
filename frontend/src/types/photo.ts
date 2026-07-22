@@ -9,7 +9,7 @@ export interface Photo {
   updatedAt: string;
 }
 
-export interface PhotoFeed extends Photo {
+export interface PhotoWithMeta extends Photo {
   user: {
     id: string;
     firstName: string;

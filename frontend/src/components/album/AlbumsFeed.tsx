@@ -1,43 +1,72 @@
-import { AlbumService } from "@/services/album.service";
-import type { AlbumFeed } from "@/types/album";
-import { ImageOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useAlbumFeed } from "@/hooks/useAlbumFeed";
+import type { AlbumWithMeta } from "@/types/album";
+import type { PaginatedResponse } from "@/types/api";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { ImageOff, LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../shared/EmptyState";
 import Album from "./Album";
 import AlbumModal from "./AlbumModal";
 
+type AlbumFeedResponse = PaginatedResponse<AlbumWithMeta>;
+
 const AlbumsFeed = () => {
-  const [feedAlbums, setFeedAlbums] = useState<AlbumFeed[]>([]);
-  const [selectedAlbum, setSelectedAlbum] = useState<AlbumFeed | null>(null);
+  const [selectedAlbum, setSelectedAlbum] = useState<AlbumWithMeta | null>(
+    null,
+  );
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useAlbumFeed();
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const feedAlbums = data?.pages.flatMap((page) => page.items) ?? [];
 
   const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
-    setFeedAlbums((prevAlbums) =>
-      prevAlbums.map((album) =>
-        album.id === albumId
-          ? {
-              ...album,
-              isLiked: newIsLiked,
-              numLikes: newIsLiked ? album.numLikes + 1 : album.numLikes - 1,
-            }
-          : album,
-      ),
+    queryClient.setQueryData<InfiniteData<AlbumFeedResponse>>(
+      ["albums", "feed"],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((album) =>
+              album.id === albumId
+                ? {
+                    ...album,
+                    isLiked: newIsLiked,
+                    numLikes: newIsLiked
+                      ? album.numLikes + 1
+                      : album.numLikes - 1,
+                  }
+                : album,
+            ),
+          })),
+        };
+      },
     );
   };
 
   useEffect(() => {
-    try {
-      const fetchAlbums = async () => {
-        const AlbumsData = await AlbumService.getFeedAlbums();
-        setFeedAlbums(AlbumsData.feed);
-      };
+    const el = sentinelRef.current;
+    if (!el) return;
 
-      fetchAlbums();
-    } catch (error) {
-      console.error("Error fetching Albums:", error);
-    }
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [data?.pages, fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if (feedAlbums.length === 0) {
     return (
@@ -65,6 +94,11 @@ const AlbumsFeed = () => {
           />
         </div>
       ))}
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
 
       <AlbumModal
         isOpen={selectedAlbum !== null}

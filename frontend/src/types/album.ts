@@ -9,7 +9,7 @@ export interface Album {
   updatedAt: string;
 }
 
-export interface AlbumFeed extends Album {
+export interface AlbumWithMeta extends Album {
   user: {
     id: string;
     firstName: string;

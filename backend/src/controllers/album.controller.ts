@@ -288,7 +288,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
     return formatFeedAlbums(album);
   });
 
-  res.status(200).json({ feed: formattedFeedAlbums, total: totalAlbums });
+  res.status(200).json({ items: formattedFeedAlbums, total: totalAlbums });
 };
 
 export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
@@ -301,7 +301,7 @@ export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
   const [discoverAlbums, totalAlbums] = await Promise.all([
     prisma.album.findMany({
       where: { isPublic: true },
-      orderBy: { updatedAt: "desc" },
+      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
       skip: offset,
       take: limit,
       include: {
@@ -339,7 +339,5 @@ export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
 
   const formattedDiscoverAlbums = discoverAlbums.map(formatFeedAlbums);
 
-  res
-    .status(200)
-    .json({ discover: formattedDiscoverAlbums, total: totalAlbums });
+  res.status(200).json({ items: formattedDiscoverAlbums, total: totalAlbums });
 };

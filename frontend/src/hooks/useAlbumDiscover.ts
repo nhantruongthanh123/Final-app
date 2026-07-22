@@ -1,16 +1,17 @@
-import { PhotoService } from "@/services/photo.service";
+import { AlbumService } from "@/services/album.service";
+import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
-import type { PhotoWithMeta } from "@/types/photo";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-const LIMIT = 20;
-type PhotoFeedResponse = PaginatedResponse<PhotoWithMeta>;
+type AlbumDiscoverResponse = PaginatedResponse<AlbumWithMeta>;
 
-export function usePhotoFeed() {
-  return useInfiniteQuery<PhotoFeedResponse, Error>({
-    queryKey: ["photos", "feed"],
+const LIMIT = 12;
+
+export function useAlbumDiscover() {
+  return useInfiniteQuery<AlbumDiscoverResponse, Error>({
+    queryKey: ["albums", "discover"],
     queryFn: async ({ pageParam }) => {
-      return PhotoService.getFeedPhotos(pageParam as number, LIMIT);
+      return AlbumService.getDiscoverAlbums(pageParam as number, LIMIT);
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
