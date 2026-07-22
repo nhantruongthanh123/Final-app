@@ -268,6 +268,27 @@ export const updateUserAvatarAdmin = async (req: Request, res: Response) => {
   res.status(200).json(updatedUser);
 };
 
+export const updateUserIsActiveAdmin = async (req: Request, res: Response) => {
+  const rawUserId = req.params.id;
+
+  if (!rawUserId) {
+    throw new AppError("User ID is required", 400);
+  }
+
+  const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId;
+
+  const { isActive } = req.body;
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      isActive,
+    },
+  });
+
+  res.status(200).json(updatedUser);
+};
+
 export const getUserPhotos = async (
   req: Request<{ id: string }>,
   res: Response,

@@ -15,12 +15,38 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { MoreVertical } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const UserTable = ({ users }: { users: User[] }) => {
+  const navigate = useNavigate();
+
+  const suspendUser = async (userId: string) => {
+    toast.promise(UserService.updateUserIsActiveByAdmin(userId, false), {
+      loading: "Suspending user...",
+      success: () => {
+        setTimeout(() => navigate(0), 1000);
+        return "User suspended successfully!";
+      },
+      error: "Failed to suspend user.",
+    });
+  };
+
+  const activateUser = async (userId: string) => {
+    toast.promise(UserService.updateUserIsActiveByAdmin(userId, true), {
+      loading: "Activating user...",
+      success: () => {
+        setTimeout(() => navigate(0), 1000);
+        return "User activated successfully!";
+      },
+      error: "Failed to activate user.",
+    });
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -98,9 +124,21 @@ const UserTable = ({ users }: { users: User[] }) => {
                   <DropdownMenuItem>
                     <Link to={`/admin/users/${user.id}`}>View Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                    Suspend User
-                  </DropdownMenuItem>
+                  {user.isActive === true ? (
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      onClick={() => suspendUser(user.id)}
+                    >
+                      Suspend User
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      className="text-green-600 focus:text-green-600 focus:bg-green-50"
+                      onClick={() => activateUser(user.id)}
+                    >
+                      Activate User
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>

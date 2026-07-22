@@ -95,6 +95,14 @@ export const UserService = {
     return res.data;
   },
 
+  updateUserIsActiveByAdmin: async (
+    id: string,
+    isActive: boolean,
+  ): Promise<User> => {
+    const res = await api.patch<User>(`/users/${id}/isActive`, { isActive });
+    return res.data;
+  },
+
   likePhoto: async (photoId: string): Promise<void> => {
     await api.post(`/users/${photoId}/likePhoto`);
   },

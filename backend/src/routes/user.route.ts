@@ -20,6 +20,7 @@ import {
   updateUserAdmin,
   updateUserAvatar,
   updateUserAvatarAdmin,
+  updateUserIsActiveAdmin,
   updateUserPassword,
 } from "#controllers/user.controller.js";
 import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
@@ -32,6 +33,7 @@ import {
 import { idParamSchema } from "#schemas/param.schema.js";
 import { userQuerySchema } from "#schemas/query.schema.js";
 import {
+  isActiveSchema,
   updateUserPasswordSchema,
   updateUserSchema,
   userSchema,
@@ -127,6 +129,14 @@ userRouter.patch(
   upload.single("avatar"),
   validateParams(idParamSchema),
   updateUserAvatarAdmin,
+);
+
+userRouter.patch(
+  "/users/:id/isActive",
+  requireAdmin,
+  validateParams(idParamSchema),
+  validateBody(isActiveSchema),
+  updateUserIsActiveAdmin,
 );
 
 userRouter.delete(

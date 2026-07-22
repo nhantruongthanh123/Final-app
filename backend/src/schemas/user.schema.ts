@@ -43,3 +43,9 @@ export const updateUserPasswordSchema = z.object({
 });
 
 export type UpdateUserPassword = z.infer<typeof updateUserPasswordSchema>;
+
+export const isActiveSchema = z.object({
+  isActive: z.boolean("isActive must be a boolean value"),
+});
+
+export type IsActive = z.infer<typeof isActiveSchema>;
