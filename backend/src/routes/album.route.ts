@@ -12,10 +12,15 @@ import { requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";
 import {
   validateBody,
+  validateFiles,
   validateParams,
   validateQuery,
 } from "#middlewares/validate.middleware.js";
 import { albumSchema, updateAlbumSchema } from "#schemas/album.schema.js";
+import {
+  multipleFilesSchema,
+  updateAlbumFilesSchema,
+} from "#schemas/file.schema.js";
 import { idParamSchema } from "#schemas/param.schema.js";
 import { albumQuerySchema } from "#schemas/query.schema.js";
 import express from "express";
@@ -52,6 +57,7 @@ albumRouter.post(
   requireAuth,
   upload.array("photos", 25),
   validateBody(albumSchema),
+  validateFiles(multipleFilesSchema),
   createAlbum,
 );
 
@@ -61,6 +67,7 @@ albumRouter.patch(
   validateParams(idParamSchema),
   upload.array("photos", 25),
   validateBody(updateAlbumSchema),
+  validateFiles(updateAlbumFilesSchema),
   updateAlbum,
 );
 albumRouter.delete(

@@ -10,10 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { editAlbumSchema, type EditAlbumPayload } from "@/schemas/album.schema";
 import { AlbumService } from "@/services/album.service";
 import type { AlbumImage, newPhotoPreview } from "@/types/album";
+import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
+import axios from "axios";
 import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import PageHeader from "../shared/PageHeader";
@@ -32,13 +36,32 @@ import {
 const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [sharingMode, setSharingMode] = useState<string>("Public");
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
 
   const [existingPhotos, setExistingPhotos] = useState<AlbumImage[]>([]);
   const [newPhotos, setNewPhotos] = useState<newPhotoPreview[]>([]);
   const [removedPhotoIds, setRemovedPhotoIds] = useState<string[]>([]);
+  const [sharingMode, setSharingMode] = useState<"Public" | "Private">(
+    "Public",
+  );
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<EditAlbumPayload>({
+    resolver: zodResolver(editAlbumSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      isPublic: true,
+      files: [],
+    },
+    criteriaMode: "all",
+  });
 
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -50,7 +73,19 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
       previewUrl: URL.createObjectURL(file),
     }));
 
-    setNewPhotos((prev) => [...prev, ...newPhotoPreviews]);
+    setNewPhotos((prev) => {
+      const nextPhotos = [...prev, ...newPhotoPreviews];
+      setValue(
+        "files",
+        nextPhotos.map((photo) => photo.file),
+        { shouldValidate: true },
+      );
+      return nextPhotos;
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleRemoveExistingPhoto = (photoId: string) => {
@@ -60,38 +95,47 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
 
   const handleRemoveNewPhoto = (photoId: string) => {
     setNewPhotos((prev) => {
-      const target = prev.find((p) => p.id === photoId);
-      if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((p) => p.id !== photoId);
+      const removedPhoto = prev.find((photo) => photo.id === photoId);
+      if (removedPhoto) URL.revokeObjectURL(removedPhoto.previewUrl);
+
+      const nextPhotos = prev.filter((photo) => photo.id !== photoId);
+      setValue(
+        "files",
+        nextPhotos.map((photo) => photo.file),
+        { shouldValidate: true },
+      );
+
+      return nextPhotos;
     });
   };
 
-  const handleSaveChanges = async () => {
-    if (!title.trim()) {
-      toast.error("Title is required", {
-        duration: 3000,
-      });
-      return;
-    }
-    if (!description.trim()) {
-      toast.error("Description is required", {
-        duration: 3000,
-      });
-      return;
-    }
-    if (existingPhotos.length + newPhotos.length === 0) {
-      toast.error("At least one photo is required", {
-        duration: 3000,
+  const onSubmit = async (data: EditAlbumPayload) => {
+    const totalPhotos = existingPhotos.length + newPhotos.length;
+
+    if (totalPhotos === 0) {
+      setError("files", {
+        type: "manual",
+        message: "At least one photo is required to save this album.",
       });
       return;
     }
 
-    toast.promise(
+    if (totalPhotos > 25) {
+      setError("files", {
+        type: "manual",
+        message: "You can only upload up to 25 photos.",
+      });
+      return;
+    }
+
+    clearErrors("files");
+
+    await toast.promise(
       AlbumService.updateAlbum(id, {
-        title,
-        description,
-        isPublic: sharingMode === "Public",
-        files: newPhotos.map((p) => p.file),
+        title: data.title,
+        description: data.description,
+        isPublic: data.isPublic,
+        files: data.files ?? [],
         removedPhotoIds,
       }),
       {
@@ -100,14 +144,21 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           navigate(backlink);
           return "Changes saved successfully!";
         },
-        error: "Failed to save changes.",
+        error: (error) => {
+          if (axios.isAxiosError(error)) {
+            console.log(error);
+            return error.response?.data?.message;
+          }
+
+          return "Failed to save changes.";
+        },
       },
     );
   };
 
   const handleDeleteAlbum = async () => {
     try {
-      toast.promise(AlbumService.deleteAlbum(id), {
+      await toast.promise(AlbumService.deleteAlbum(id), {
         loading: "Deleting album...",
         success: () => {
           navigate(backlink);
@@ -125,20 +176,27 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
     const fetchAlbum = async () => {
       try {
         const albumData = await AlbumService.getAlbumById(id);
-        setSharingMode(albumData.isPublic ? "Public" : "Private");
-        setTitle(albumData.title);
-        setDescription(albumData.description || "");
         setExistingPhotos(albumData.photos);
+        setSharingMode(albumData.isPublic ? "Public" : "Private");
+        reset({
+          title: albumData.title,
+          description: albumData.description || "",
+          isPublic: albumData.isPublic,
+          files: [],
+        });
       } catch (error) {
         console.error("Error fetching album:", error);
       }
     };
 
     fetchAlbum();
-  }, [id]);
+  }, [id, reset]);
 
   return (
-    <div className="flex flex-col w-full p-4 md:p-6">
+    <form
+      className="flex flex-col w-full p-4 md:p-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <PageHeader title="Edit Album" backlink={backlink} />
 
       <div className="border border-gray-200 rounded-xl flex flex-col">
@@ -152,18 +210,24 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
                 type="text"
                 id="title"
                 placeholder="Lorem ipsum dolor sit amet..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
               />
+              {errors.title?.message && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="grid w-full items-center gap-1.5 mt-4">
               <Label className="font-bold text-slate-700">Sharing mode</Label>
               <Select
-                defaultValue={sharingMode}
-                onValueChange={(value) =>
-                  setSharingMode(value as "Public" | "Private")
-                }
+                value={sharingMode}
+                onValueChange={(value) => {
+                  const nextMode = value as "Public" | "Private";
+                  setSharingMode(nextMode);
+                  setValue("isPublic", nextMode === "Public", {
+                    shouldValidate: true,
+                  });
+                }}
               >
                 <SelectTrigger className="w-45">
                   <SelectValue placeholder="Select a mode" />
@@ -188,9 +252,13 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
               id="description"
               placeholder="Lorem ipsum dolor sit amet..."
               className="h-27 resize-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
             />
+            {errors.description?.message && (
+              <p className="text-sm text-red-500">
+                {errors.description.message}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -214,6 +282,7 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           ))}
 
           <button
+            type="button"
             className="flex items-center justify-center w-full aspect-square rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition-colors text-slate-400 cursor-pointer"
             onClick={() => {
               fileInputRef.current?.click();
@@ -231,18 +300,31 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           </button>
         </div>
 
+        {errors.files?.message && (
+          <p className="mt-4 text-sm text-red-500">{errors.files.message}</p>
+        )}
+
         <div className="flex flex-row mt-6 gap-6">
           <Button
             variant="default"
-            className=" bg-indigo-500 hover:bg-indigo-600 text-white"
-            onClick={handleSaveChanges}
+            className="bg-indigo-500 hover:bg-indigo-600 text-white"
+            type="submit"
+            disabled={isSubmitting}
           >
             Save Changes
           </Button>
 
           <AlertDialog>
             <AlertDialogTrigger
-              render={<Button variant="destructive">Delete Album</Button>}
+              render={
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={isSubmitting}
+                >
+                  Delete Album
+                </Button>
+              }
             />
 
             <AlertDialogContent>
@@ -268,7 +350,7 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           </AlertDialog>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

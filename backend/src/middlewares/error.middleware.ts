@@ -24,10 +24,11 @@ export async function errorHandler(
       stacktree: err.stack,
     });
   } else {
-    console.error(err);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
+      statusCode: 500,
+      stacktree: err.stack,
     });
   }
 }

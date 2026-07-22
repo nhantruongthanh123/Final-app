@@ -1,3 +1,4 @@
+import type { AlbumPayload } from "@/schemas/album.schema";
 import { api } from "@/services/axiosClient";
 import type { Album, AlbumFeed } from "@/types/album";
 
@@ -38,12 +39,7 @@ export const AlbumService = {
     return res.data;
   },
 
-  createAlbum: async (data: {
-    title: string;
-    description: string;
-    isPublic: boolean;
-    files: File[];
-  }) => {
+  createAlbum: async (data: AlbumPayload) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
@@ -54,8 +50,8 @@ export const AlbumService = {
     });
 
     const res = await api.post<Album>("/albums", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
+      timeout: 15000,
     });
 
     return res.data;
@@ -83,8 +79,8 @@ export const AlbumService = {
     formData.append("removedPhotoIds", JSON.stringify(data.removedPhotoIds));
 
     const res = await api.patch<Album>(`/albums/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
       withCredentials: true,
+      timeout: 15000,
     });
 
     return res.data;

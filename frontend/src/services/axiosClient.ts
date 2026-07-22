@@ -1,13 +1,10 @@
-import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import axios from "axios";
 
 export const api = axios.create({
   baseURL: "http://localhost:5000/api",
   withCredentials: true,
   timeout: 5000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Step 1:Attach access token to every request if available

@@ -7,9 +7,15 @@ export const albumSchema = z.object({
     .max(100, { message: "Title must be less than 100 characters" }),
   description: z
     .string()
-    .max(500, { message: "Description must be less than 500 characters" })
+    .max(500, { message: "Description must be less than 500 characters" }),
+  isPublic: z
+    .preprocess((val) => {
+      if (typeof val === "string") {
+        return val === "true";
+      }
+      return val;
+    }, z.boolean())
     .optional(),
-  isPublic: z.boolean().optional(),
 });
 
 export type Album = z.infer<typeof albumSchema>;
