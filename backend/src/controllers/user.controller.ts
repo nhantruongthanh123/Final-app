@@ -103,6 +103,14 @@ export const updateUser = async (req: Request, res: Response) => {
 
   const { email, firstName, lastName } = req.body;
 
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser && existingUser.id !== userId) {
+    throw new AppError("Email already exists", 409);
+  }
+
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -167,7 +175,13 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
   }
 
   // Delete the old avatar from Cloudinary if it exists
-  await cloudinary.uploader.destroy(existingUser.avatarCloudinaryId || "");
+  if (existingUser.avatarCloudinaryId) {
+    try {
+      await cloudinary.uploader.destroy(existingUser.avatarCloudinaryId);
+    } catch (error) {
+      console.error("Error deleting old avatar from Cloudinary:", error);
+    }
+  }
 
   const updatedUser = await prisma.user.update({
     where: { id: userId },
@@ -190,7 +204,7 @@ export const updateUserAdmin = async (
     throw new AppError("User ID is required", 400);
   }
 
-  const { email, firstName, lastName, password } = req.body;
+  const { email, firstName, lastName } = req.body;
 
   console.log(email);
 
@@ -200,7 +214,54 @@ export const updateUserAdmin = async (
       ...(email && { email }),
       ...(firstName && { firstName }),
       ...(lastName && { lastName }),
-      ...(password && { password }),
+    },
+  });
+
+  res.status(200).json(updatedUser);
+};
+
+export const updateUserAvatarAdmin = async (req: Request, res: Response) => {
+  const rawUserId = req.params.id;
+
+  if (!rawUserId) {
+    throw new AppError("User ID is required", 400);
+  }
+
+  const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId;
+
+  if (!req.file) {
+    throw new AppError("No file uploaded", 400);
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatarCloudinaryId: true },
+  });
+
+  if (!existingUser) {
+    throw new AppError("User not found", 404);
+  }
+
+  // Upload the new avatar to Cloudinary
+  const { url, publicId } = await uploadToCloudinary(
+    req.file.buffer,
+    "fotobook/avatars",
+  );
+
+  // Delete the old avatar from Cloudinary if it exists
+  if (existingUser.avatarCloudinaryId) {
+    try {
+      await cloudinary.uploader.destroy(existingUser.avatarCloudinaryId);
+    } catch (error) {
+      console.error("Error deleting old avatar from Cloudinary:", error);
+    }
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      avatarUrl: url,
+      avatarCloudinaryId: publicId,
     },
   });
 

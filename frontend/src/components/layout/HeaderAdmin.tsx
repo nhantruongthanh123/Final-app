@@ -1,8 +1,16 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  LogOut,
+  Moon,
+  Settings,
+  ShieldAlert,
+  Sun,
+  User,
+  UserRound,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,19 +57,37 @@ const Header = () => {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-44 mt-2">
-              <Link to="/photos">
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>My Profile</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/photos")}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </DropdownMenuItem>
 
-              <Link to="/profile">
-                <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Account Settings</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/profile")}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Account Settings</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/feed")}
+              >
+                <UserRound className="mr-2 h-4 w-4" />
+                <span>User page</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/admin/photos")}
+              >
+                <ShieldAlert className="mr-2 h-4 w-4" />
+                <span>Admin page </span>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
@@ -77,7 +103,10 @@ const Header = () => {
                 <span>Toggle Theme</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50  dark:text-red-400 dark:focus:text-red-50 dark:focus:bg-red-600">
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50  dark:text-red-400 dark:focus:text-red-50 dark:focus:bg-red-600"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

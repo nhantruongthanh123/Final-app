@@ -28,6 +28,7 @@ import { AuthService } from "@/services/auth.service";
 import { useEffect, useRef } from "react";
 import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
 import UserProfileLayout from "./layouts/UserProfileLayout";
+import EditUserProfile from "./pages/Admin/EditUserProfile";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResendVerifyEmail from "./pages/Auth/ResendVerifyEmail";
 import ResetPassword from "./pages/Auth/ResetPassword";
@@ -124,6 +125,7 @@ function App() {
             <Route path="/admin/albums/:id" element={<EditAlbumAdmin />} />
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/users/:id" element={<UserProfile />} />
+            <Route path="/admin/users/:id/edit" element={<EditUserProfile />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

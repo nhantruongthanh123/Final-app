@@ -1,3 +1,4 @@
+import { AppError } from "#utils/app.error.js";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
@@ -9,7 +10,7 @@ export const requireAuth = (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Unauthorized" });
+      throw new AppError("Unauthorized: No token provided", 401);
     }
 
     const token = authHeader.split(" ")[1];
@@ -21,7 +22,10 @@ export const requireAuth = (
     req.user = decoded as { userId: string; role: string };
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Unauthorized" });
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new AppError("Unauthorized: Invalid token", 401);
+    }
+    throw new AppError("Unauthorized: Token verification failed", 401);
   }
 };
 
@@ -30,13 +34,29 @@ export const requireAdmin = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.user) {
-    return res.status(401).json({ error: "Unauthorized: No user found" });
-  }
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new AppError("Unauthorized: No token provided", 401);
+    }
 
-  if (req.user.role !== "ADMIN") {
-    return res.status(403).json({ error: "Forbidden: Admin access required" });
-  }
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET as string,
+    );
 
-  next();
+    req.user = decoded as { userId: string; role: string };
+
+    if (req.user.role !== "ADMIN") {
+      throw new AppError("Forbidden: Admin access required", 403);
+    }
+
+    next();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new AppError("Unauthorized: Invalid token", 401);
+    }
+    throw new AppError("Unauthorized: Token verification failed", 401);
+  }
 };

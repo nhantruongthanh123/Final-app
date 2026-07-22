@@ -1,8 +1,11 @@
-import type { User } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { User } from "@/types/user";
+import { useNavigate } from "react-router-dom";
 
 const ProfileHeader = ({ user }: { user: User | undefined }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-row items-center justify-between border border-slate-200 rounded-lg shadow-sm p-4">
       {/* Avatar and Information */}
@@ -32,7 +35,11 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
       </div>
 
       {/* Edit button */}
-      <Button variant="outline" className="mx-4">
+      <Button
+        variant="outline"
+        className="mx-4"
+        onClick={() => navigate(`/admin/users/${user?.id}/edit`)}
+      >
         Edit Profile
       </Button>
     </div>

@@ -15,4 +15,6 @@ export const multipleFilesSchema = z
   .min(1, "At least one file is required")
   .max(25, "You can upload a maximum of 25 files");
 
+export const updatePhotoFilesSchema = z.array(singleFileSchema).optional();
+
 export const updateAlbumFilesSchema = z.array(singleFileSchema).optional();

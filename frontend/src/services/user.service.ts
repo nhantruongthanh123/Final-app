@@ -1,11 +1,8 @@
+import type { ProfilePayload } from "@/schemas/user.schema";
 import { api } from "@/services/axiosClient";
 import type { Album } from "@/types/album";
 import type { Photo } from "@/types/photo";
-import type {
-  UpdateUserProfileData,
-  User,
-  UserWithFollowStatus,
-} from "@/types/user";
+import type { User, UserWithFollowStatus } from "@/types/user";
 
 export const UserService = {
   getAllUsers: async (
@@ -55,7 +52,7 @@ export const UserService = {
     await api.delete(`/users/${userId}/unfollow`);
   },
 
-  updateUserProfile: async (data: UpdateUserProfileData): Promise<User> => {
+  updateUserProfile: async (data: ProfilePayload): Promise<User> => {
     const res = await api.patch<User>(`/users/me`, data);
     return res.data;
   },
@@ -73,9 +70,25 @@ export const UserService = {
     formData.append("avatar", file);
 
     const res = await api.patch<User>(`/users/me/avatar`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      withCredentials: true,
+    });
+
+    return res.data;
+  },
+
+  updateUserProfileByAdmin: async (
+    id: string,
+    data: ProfilePayload,
+  ): Promise<User> => {
+    const res = await api.patch<User>(`/users/${id}`, data);
+    return res.data;
+  },
+
+  updateUserAvatarByAdmin: async (id: string, file: File): Promise<User> => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const res = await api.patch<User>(`/users/${id}/avatar`, formData, {
       withCredentials: true,
     });
 

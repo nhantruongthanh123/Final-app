@@ -138,7 +138,7 @@ export const updatePhoto = async (
     throw new AppError("Photo not found", 404);
   }
 
-  if (existingPhoto.userId !== currentUserId && req.user?.role !== "admin") {
+  if (existingPhoto.userId !== currentUserId && req.user?.role !== "ADMIN") {
     throw new AppError("You are not authorized to update this photo", 403);
   }
 

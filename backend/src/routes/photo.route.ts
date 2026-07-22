@@ -11,10 +11,17 @@ import { optionalAuth } from "#middlewares/optionalAuth.js";
 import { requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";
 import {
+  validateBody,
+  validateFiles,
   validateParams,
   validateQuery,
 } from "#middlewares/validate.middleware.js";
+import {
+  singleFileSchema,
+  updatePhotoFilesSchema,
+} from "#schemas/file.schema.js";
 import { idParamSchema } from "#schemas/param.schema.js";
+import { photoSchema, updatePhotoSchema } from "#schemas/photo.schema.js";
 import { photoQuerySchema } from "#schemas/query.schema.js";
 import express from "express";
 
@@ -48,7 +55,14 @@ photoRouter.get(
   getPhotoById,
 );
 
-photoRouter.post("/photos", requireAuth, upload.single("photo"), createPhoto);
+photoRouter.post(
+  "/photos",
+  requireAuth,
+  upload.single("photo"),
+  validateBody(photoSchema),
+  validateFiles(singleFileSchema),
+  createPhoto,
+);
 
 photoRouter.delete(
   "/photos/:id",
@@ -62,6 +76,8 @@ photoRouter.patch(
   requireAuth,
   validateParams(idParamSchema),
   upload.single("photo"),
+  validateBody(updatePhotoSchema),
+  validateFiles(updatePhotoFilesSchema),
   updatePhoto,
 );
 

@@ -171,7 +171,7 @@ export const updateAlbum = async (
     throw new AppError("Album not found", 404);
   }
 
-  if (existingAlbum.userId !== currentUserId && req.user?.role !== "admin") {
+  if (existingAlbum.userId !== currentUserId && req.user?.role !== "ADMIN") {
     throw new AppError("You are not authorized to update this album", 403);
   }
 

@@ -8,7 +8,14 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
-import { LogOut, Moon, PersonStanding, Settings, Sun } from "lucide-react";
+import {
+  LogOut,
+  Moon,
+  PersonStanding,
+  Settings,
+  ShieldAlert,
+  Sun,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
@@ -32,6 +39,9 @@ const Header = () => {
         <input
           className="bg-white text-gray-700 placeholder:text-gray-400 rounded-sm px-2 md:px-4 py-1 w-[90%] md:w-[80%] text-xs md:text-base dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500"
           placeholder="Search photo/album..."
+          type="search"
+          autoComplete="nope"
+          readOnly={true}
         />
       </div>
 
@@ -74,6 +84,16 @@ const Header = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Account Settings</span>
               </DropdownMenuItem>
+
+              {user.role === "ADMIN" && (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => navigate("/admin/photos")}
+                >
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  <span>Admin page </span>
+                </DropdownMenuItem>
+              )}
 
               <DropdownMenuSeparator />
 

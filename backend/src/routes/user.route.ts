@@ -19,6 +19,7 @@ import {
   updateUser,
   updateUserAdmin,
   updateUserAvatar,
+  updateUserAvatarAdmin,
   updateUserPassword,
 } from "#controllers/user.controller.js";
 import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
@@ -118,6 +119,14 @@ userRouter.patch(
   validateBody(updateUserSchema),
   validateParams(idParamSchema),
   updateUserAdmin,
+);
+
+userRouter.patch(
+  "/users/:id/avatar",
+  requireAdmin,
+  upload.single("avatar"),
+  validateParams(idParamSchema),
+  updateUserAvatarAdmin,
 );
 
 userRouter.delete(

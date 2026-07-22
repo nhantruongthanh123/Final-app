@@ -62,9 +62,6 @@ export const PhotoService = {
     }
 
     const res = await api.patch<Photo>(`/photos/${id}`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
       withCredentials: true,
     });
 

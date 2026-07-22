@@ -3,26 +3,27 @@ import PageHeader from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import {
   avatarSchema,
-  passwordSchema,
   profileSchema,
-  type PasswordPayload,
   type ProfilePayload,
 } from "@/schemas/user.schema";
 import { UserService } from "@/services/user.service";
-import { useAuthStore } from "@/store/authStore";
+import type { User } from "@/types/user";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 import axios from "axios";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const EditProfile = () => {
-  const user = useAuthStore.getState().user;
-  const updateUser = useAuthStore((state) => state.updateUser);
+  const { id } = useParams() || "";
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   const {
     register: registerProfile,
     handleSubmit: handleProfileSubmit,
+    setValue,
     formState: { errors: profileErrors, isSubmitting: isProfileSubmitting },
   } = useForm<ProfilePayload>({
     resolver: zodResolver(profileSchema),
@@ -30,20 +31,6 @@ const EditProfile = () => {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       email: user?.email || "",
-    },
-  });
-
-  const {
-    register: registerPassword,
-    handleSubmit: handlePasswordSubmit,
-    reset: resetPasswordForm,
-    formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
-  } = useForm<PasswordPayload>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: {
-      password: "",
-      newPassword: "",
-      passwordConfirmation: "",
     },
   });
 
@@ -69,10 +56,15 @@ const EditProfile = () => {
       return;
     }
 
-    toast.promise(UserService.updateUserAvatar(file), {
+    if (!id) {
+      toast.error("User ID is required");
+      return null;
+    }
+
+    toast.promise(UserService.updateUserAvatarByAdmin(id, file), {
       loading: "Updating user information...",
-      success: (updatedUser) => {
-        updateUser(updatedUser);
+      success: () => {
+        navigate(`/admin/users/${id}`);
         return "Update user information successfully!";
       },
       error: (error) => {
@@ -85,63 +77,48 @@ const EditProfile = () => {
   };
 
   const handleSaveChanges = async (data: ProfilePayload) => {
-    toast.promise(
-      UserService.updateUserProfile({
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-      }),
-      {
-        loading: "Updating user information...",
-        success: (updatedUser) => {
-          updateUser(updatedUser);
-          return "Update user information successfully!";
-        },
-        error: (error) => {
-          if (axios.isAxiosError(error) && error.response?.data?.message) {
-            return error.response.data.message;
-          }
-          return "Failed to update user information";
-        },
-      },
-    );
-  };
-
-  const handleChangePassword = async (data: PasswordPayload) => {
-    if (data.newPassword !== data.passwordConfirmation) {
-      toast.error("Confirmation password does not match the new password.", {
-        duration: 4000,
-      });
-
-      return;
+    if (!id) {
+      toast.error("User ID is required");
+      return null;
     }
 
-    await toast.promise(
-      UserService.updateUserPassword({
-        password: data.password,
-        newPassword: data.newPassword,
-      }),
-      {
-        loading: "Changing password...",
-        success: () => {
-          resetPasswordForm();
-          return "Password changed successfully!";
-        },
-        error: (error) => {
-          if (axios.isAxiosError(error) && error.response?.data?.message) {
-            return error.response.data.message;
-          }
-          return "Failed to update user information";
-        },
+    toast.promise(UserService.updateUserProfileByAdmin(id, data), {
+      loading: "Updating user information...",
+      success: () => {
+        navigate(`/admin/users/${id}`);
+        return "Update user information successfully!";
       },
-    );
+      error: (error) => {
+        if (axios.isAxiosError(error) && error.response?.data?.message) {
+          return error.response.data.message;
+        }
+        return "Failed to update user information";
+      },
+    });
   };
 
-  useEffect(() => {}, [user]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await UserService.getUserById(id);
+        setUser(user);
+        setValue("firstName", user.firstName);
+        setValue("lastName", user.lastName);
+        setValue("email", user.email);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          toast.error("User not found");
+        }
+      }
+    };
+
+    fetchUser();
+  }, [id, setValue]);
 
   return (
     <div className="flex flex-col w-full gap-4 p-4">
-      <PageHeader title="Edit Profile" backlink="/photos" />
+      <PageHeader title="Edit Profile" backlink="/admin/users" />
       <div className="flex flex-col items-center justify-center w-full">
         {user?.avatarUrl ? (
           <img
@@ -151,8 +128,8 @@ const EditProfile = () => {
           />
         ) : (
           <div className="h-24 w-24 rounded-full bg-indigo-800 flex items-center justify-center text-white text-4xl font-bold">
-            {user?.firstName[0]}
-            {user?.lastName[0]}
+            {user?.firstName[0]?.toUpperCase()}
+            {user?.lastName[0]?.toUpperCase()}
           </div>
         )}
         <Button
@@ -172,8 +149,7 @@ const EditProfile = () => {
         />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8 w-full max-w-6xl mx-auto mt-4">
-        {/* Left Column: Basic Information */}
+      <div className="flex flex-col items-center justify-center w-full ">
         <form
           className="flex-1 w-full"
           onSubmit={handleProfileSubmit(handleSaveChanges)}
@@ -211,43 +187,6 @@ const EditProfile = () => {
             type="submit"
           >
             {isProfileSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-        </form>
-
-        {/* Right Column: Password */}
-        <form className="flex-1 w-full">
-          <h2 className="text-lg font-bold text-brand mb-4">Password</h2>
-          <div className="flex flex-col gap-4">
-            <FormField
-              label="Current Password"
-              placeholder="Enter your current password"
-              type="password"
-              {...registerPassword("password")}
-              error={passwordErrors.password?.message}
-            />
-            <FormField
-              label="New Password"
-              placeholder="Enter your new password"
-              type="password"
-              {...registerPassword("newPassword")}
-              error={passwordErrors.newPassword?.message}
-            />
-            <FormField
-              label="Password Confirmation"
-              placeholder="Confirm your new password"
-              type="password"
-              {...registerPassword("passwordConfirmation")}
-              error={passwordErrors.passwordConfirmation?.message}
-            />
-          </div>
-          <Button
-            className="mt-4 md:mt-6"
-            variant="outline"
-            size="sm"
-            onClick={handlePasswordSubmit(handleChangePassword)}
-            disabled={isPasswordSubmitting}
-          >
-            {isPasswordSubmitting ? "Saving..." : "Change Password"}
           </Button>
         </form>
       </div>
