@@ -1,4 +1,16 @@
 import { useTheme } from "@/contexts/ThemeContext";
+import { AuthService } from "@/services/auth.service";
+import { useAuthStore } from "@/store/authStore";
+import {
+  LogOut,
+  Moon,
+  Settings,
+  ShieldAlert,
+  Sun,
+  User,
+  UserRound,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,15 +18,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
-import { Link } from "react-router-dom";
 
-const Header = ({ name }: { name?: string }) => {
-  const { theme, toggleTheme } = useTheme();
+const Header = () => {
+  const { toggleTheme } = useTheme();
+  const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await AuthService.logout();
+    await useAuthStore.getState().clearAuth();
+    navigate("/");
+  };
 
   return (
     <div className="bg-brand flex flex-row items-center justify-between py-2 font-bold sticky top-0 z-50">
-      <div className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base pl-2 md:pl-0">
+      <div
+        className="text-white flex justify-center w-[20%] md:w-[15%] shrink-0 md text-sm md:text-base pl-2 md:pl-0"
+        onClick={() => navigate("/admin/photos")}
+      >
         Fotobook Admin
       </div>
 
@@ -25,33 +46,51 @@ const Header = ({ name }: { name?: string }) => {
         />
       </div>
 
-      {name ? (
+      {user ? (
         <div className="flex items-center gap-2 md:gap-8 md:mr-[5%]">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex flex-row items-center gap-4 hover:opacity-80 transition-opacity outline-none">
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white flex items-center justify-center text-brand">
-                {name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+                {user.firstName[0]}
+                {user.lastName[0]}
               </div>
-              <div className="text-white hidden md:block">{name}</div>
+              <div className="text-white hidden md:block">
+                {user.firstName} {user.lastName}
+              </div>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-44 mt-2">
-              <Link to="/photos">
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>My Profile</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/photos")}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </DropdownMenuItem>
 
-              <Link to="/profile">
-                <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Account Settings</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/profile")}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Account Settings</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/feed")}
+              >
+                <UserRound className="mr-2 h-4 w-4" />
+                <span>User page</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/admin/photos")}
+              >
+                <ShieldAlert className="mr-2 h-4 w-4" />
+                <span>Admin page </span>
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
@@ -67,7 +106,10 @@ const Header = ({ name }: { name?: string }) => {
                 <span>Toggle Theme</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50">
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 focus:text-red-50 focus:bg-red-50  dark:text-red-400 dark:focus:text-red-50 dark:focus:bg-red-600"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
@@ -75,7 +117,7 @@ const Header = ({ name }: { name?: string }) => {
           </DropdownMenu>
 
           <div className="text-white pr-2 md:pr-0">
-            <button>Log out</button>
+            <button onClick={handleLogout}>Log out</button>
           </div>
         </div>
       ) : (

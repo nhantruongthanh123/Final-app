@@ -1,29 +1,82 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Feed from "@/pages/Home/Feed";
-import Discover from "@/pages/Home/Discover";
+import AdminLayout from "@/layouts/AdminLayout";
+import UserLayout from "@/layouts/UserLayout";
+import VisitorLayout from "@/layouts/VisitorLayout";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
-import VisitorLayout from "@/layouts/VisitorLayout";
-import UserLayout from "@/layouts/UserLayout";
-import AdminLayout from "@/layouts/AdminLayout";
+import Discover from "@/pages/Home/Discover";
+import Feed from "@/pages/Home/Feed";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import VisitorDiscover from "@/pages/Home/VisitorDiscover";
-import Users from "@/pages/Admin/Users";
 import AlbumsAdmin from "@/pages/Admin/Albums";
+import EditAlbumAdmin from "@/pages/Admin/EditAlbum";
+import EditPhotoAdmin from "@/pages/Admin/EditPhoto";
 import PhotosAdmin from "@/pages/Admin/Photos";
 import UserProfile from "@/pages/Admin/UserProfile";
-import Photos from "@/pages/User/Photos";
+import Users from "@/pages/Admin/Users";
+import NotFound from "@/pages/NotFound";
 import Albums from "@/pages/User/Albums";
+import EditAlbumUser from "@/pages/User/EditAlbum";
+import EditPhotoUser from "@/pages/User/EditPhoto";
+import EditProfile from "@/pages/User/EditProfile";
 import Follower from "@/pages/User/Follower";
 import Following from "@/pages/User/Following";
-import EditPhoto from "@/pages/User/EditPhoto";
-import EditAlbum from "@/pages/User/EditAlbum";
-import EditProfile from "@/pages/User/EditProfile";
-import NotFound from "@/pages/NotFound";
+import Photos from "@/pages/User/Photos";
 
+import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthService } from "@/services/auth.service";
+import { useEffect, useRef } from "react";
+import TargetUserProfileLayout from "./layouts/TargetUserProfileLayout";
+import UserProfileLayout from "./layouts/UserProfileLayout";
+import EditUserProfile from "./pages/Admin/EditUserProfile";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResendVerifyEmail from "./pages/Auth/ResendVerifyEmail";
+import ResetPassword from "./pages/Auth/ResetPassword";
+import VerifyEmail from "./pages/Auth/VerifyEmail";
+import VisitorDiscover from "./pages/Home/VisitorDiscover";
+import AddAlbum from "./pages/User/AddAlbum";
+import AddPhoto from "./pages/User/AddPhoto";
+import TargetUserAlbums from "./pages/User/TargetUserAlbums";
+import TargetUserFollower from "./pages/User/TargetUserFollower";
+import TargetUserFollowing from "./pages/User/TargetUserFollowing";
+import TargetUserPhotos from "./pages/User/TargetUserPhotos";
+import { useAuthStore } from "./store/authStore";
 
 function App() {
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+  const setCheckingAuth = useAuthStore((state) => state.setCheckingAuth);
+
+  const hasCheckedAuth = useRef(false);
+
+  useEffect(() => {
+    if (hasCheckedAuth.current) return;
+    hasCheckedAuth.current = true;
+
+    const checkAuth = async () => {
+      try {
+        const response = await AuthService.refreshToken();
+        setAuth(response.accessToken, response.user);
+      } catch (error) {
+        console.error("Failed to refresh token:", error);
+        clearAuth();
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [setAuth, clearAuth, setCheckingAuth]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-900 text-white">
+        Loading PhotoBook...
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <ThemeProvider>
@@ -32,29 +85,52 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<VisitorDiscover />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route
+              path="/resend-verification-email"
+              element={<ResendVerifyEmail />}
+            />
           </Route>
 
           <Route element={<UserLayout />}>
             <Route path="/feed" element={<Feed />} />
             <Route path="/discover" element={<Discover />} />
-            <Route path="/photos" element={<Photos />} />
-            <Route path="/photos/:id" element={<EditPhoto />} />
-            <Route path="/albums" element={<Albums />} />
-            <Route path="/albums/:id" element={<EditAlbum />} />
-            <Route path="/followers" element={<Follower />} />
-            <Route path="/followings" element={<Following />} />
+            <Route path="/photos/add" element={<AddPhoto />} />
+            <Route path="/photos/:id" element={<EditPhotoUser />} />
+            <Route path="/albums/add" element={<AddAlbum />} />
+            <Route path="/albums/:id" element={<EditAlbumUser />} />
             <Route path="/profile" element={<EditProfile />} />
+
+            <Route element={<UserProfileLayout />}>
+              <Route path="/photos" element={<Photos />} />
+              <Route path="/albums" element={<Albums />} />
+              <Route path="/followers" element={<Follower />} />
+              <Route path="/followings" element={<Following />} />
+            </Route>
+
+            <Route path="users/:id" element={<TargetUserProfileLayout />}>
+              <Route path="photos" element={<TargetUserPhotos />} />
+              <Route path="albums" element={<TargetUserAlbums />} />
+              <Route path="followers" element={<TargetUserFollower />} />
+              <Route path="followings" element={<TargetUserFollowing />} />
+            </Route>
           </Route>
 
           <Route element={<AdminLayout />}>
             <Route path="/admin/photos" element={<PhotosAdmin />} />
+            <Route path="/admin/photos/:id" element={<EditPhotoAdmin />} />
             <Route path="/admin/albums" element={<AlbumsAdmin />} />
+            <Route path="/admin/albums/:id" element={<EditAlbumAdmin />} />
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/users/:id" element={<UserProfile />} />
+            <Route path="/admin/users/:id/edit" element={<EditUserProfile />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Toaster richColors position="top-center" />
       </ThemeProvider>
     </BrowserRouter>
   );

@@ -1,15 +1,22 @@
-import { useState } from "react";
+import type { AlbumModalProps } from "@/types/album";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
+const AlbumModal = ({
+  isOpen,
+  onClose,
+  title,
+  description,
+  photos,
+}: AlbumModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleNextImage = () => {
-    setCurrentImageIndex((pre) => (pre + 1) % imgURLs.length);
+    setCurrentImageIndex((pre) => (pre + 1) % photos.length);
   };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex((pre) => (pre - 1 + imgURLs.length) % imgURLs.length);
+    setCurrentImageIndex((pre) => (pre - 1 + photos.length) % photos.length);
   };
 
   if (!isOpen) return null;
@@ -45,7 +52,7 @@ const AlbumModal = ({ isOpen, onClose, title, description, imgURLs }: any) => {
             </div>
 
             <img
-              src={imgURLs[currentImageIndex]}
+              src={photos[currentImageIndex].photoUrl}
               alt={title}
               className="w-full h-auto object-contain max-h-[60vh]"
             />

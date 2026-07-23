@@ -1,12 +1,3 @@
-import type { User } from "@/types/user";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -15,11 +6,53 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { UserService } from "@/services/user.service";
+import type { User } from "@/types/user";
+import { formatDateTime } from "@/utils/formatDateTime";
+import { MoreVertical } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-const UserTable = ({ users }: { users: User[] }) => {
+const UserTable = ({
+  users,
+  setUserToDelete,
+}: {
+  users: User[];
+  setUserToDelete: (userId: string | null) => void;
+}) => {
+  const navigate = useNavigate();
+
+  const suspendUser = async (userId: string) => {
+    toast.promise(UserService.updateUserIsActiveByAdmin(userId, false), {
+      loading: "Suspending user...",
+      success: () => {
+        setTimeout(() => navigate(0), 500);
+        return "User suspended successfully!";
+      },
+      error: "Failed to suspend user.",
+    });
+  };
+
+  const activateUser = async (userId: string) => {
+    toast.promise(UserService.updateUserIsActiveByAdmin(userId, true), {
+      loading: "Activating user...",
+      success: () => {
+        setTimeout(() => navigate(0), 500);
+        return "User activated successfully!";
+      },
+      error: "Failed to activate user.",
+    });
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -39,7 +72,7 @@ const UserTable = ({ users }: { users: User[] }) => {
             key={user.id}
             className="group dark:bg-slate-800 dark:hover:bg-slate-700"
           >
-            <TableCell className="font-medium">{user.name}</TableCell>
+            <TableCell className="font-medium">{`${user.firstName} ${user.lastName}`}</TableCell>
             <TableCell>{user.email}</TableCell>
 
             <TableCell>
@@ -60,7 +93,7 @@ const UserTable = ({ users }: { users: User[] }) => {
                 <div
                   className={cn(
                     "h-2 w-2 rounded-full",
-                    user.status === "Active"
+                    user.isActive === true
                       ? "bg-indigo-600 dark:text-indigo-400"
                       : "bg-red-500 dark:bg-red-400",
                   )}
@@ -68,17 +101,17 @@ const UserTable = ({ users }: { users: User[] }) => {
                 <span
                   className={cn(
                     "font-medium",
-                    user.status === "Active"
+                    user.isActive === true
                       ? "text-indigo-600 dark:text-indigo-400"
                       : "text-red-500 dark:text-red-400",
                   )}
                 >
-                  {user.status}
+                  {user.isActive === true ? "Active" : "Inactive"}
                 </span>
               </div>
             </TableCell>
 
-            <TableCell>{user.lastLogin}</TableCell>
+            <TableCell>{formatDateTime(user.updatedAt)}</TableCell>
 
             <TableCell className="text-right">
               <DropdownMenu>
@@ -97,8 +130,28 @@ const UserTable = ({ users }: { users: User[] }) => {
                   <DropdownMenuItem>
                     <Link to={`/admin/users/${user.id}`}>View Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                    Suspend User
+                  {user.isActive === true ? (
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      onClick={() => suspendUser(user.id)}
+                    >
+                      Suspend User
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      className="text-green-600 focus:text-green-600 focus:bg-green-50"
+                      onClick={() => activateUser(user.id)}
+                    >
+                      Activate User
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem>
+                    <button
+                      className="text-red-600"
+                      onClick={() => setUserToDelete(user.id)}
+                    >
+                      Delete User
+                    </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

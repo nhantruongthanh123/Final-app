@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String  @id @default(uuid()) @db.Uuid
+  email              String  @unique @db.VarChar(255)
+  password           String  @db.VarChar(64)
+  firstName          String? @db.VarChar(25)
+  lastName           String? @db.VarChar(25)
+  avatarUrl          String?
+  avatarCloudinaryId String?
+  isActive           Boolean @default(true)
+  role               String  @default("USER") @db.VarChar(10)
+
+  resetPasswordToken   String?   @db.VarChar(64)
+  resetPasswordExpires DateTime?
+
+  isEmailVerified          Boolean   @default(false)
+  emailVerificationToken   String?   @db.VarChar(64)
+  emailVerificationExpires DateTime?
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  oauthAccounts OauthAccount[]
+  photos        Photo[]
+  albums        Album[]
+  photoLikes    PhotoLike[]
+  albumLikes    AlbumLike[]
+  followers     Follow[]       @relation("Following")
+  following     Follow[]       @relation("Follower")
+  sessions      Session[]
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
+  refreshToken String   @unique
+  expiresAt    DateTime
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OauthAccount {
+  id                String @id @default(uuid()) @db.Uuid
+  userId            String @db.Uuid
+  provider          String
+  providerAccountId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Photo {
+  id                 String  @id @default(uuid()) @db.Uuid
+  photoUrl           String
+  title              String  @db.VarChar(140)
+  description        String? @db.VarChar(300)
+  userId             String  @db.Uuid
+  isPublic           Boolean @default(true)
+  cloudinaryPublicId String?
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photoLikes PhotoLike[]
+}
+
+model Album {
+  id          String  @id @default(uuid()) @db.Uuid
+  title       String  @db.VarChar(140)
+  description String? @db.VarChar(300)
+  userId      String  @db.Uuid
+
+  isPublic Boolean @default(true)
+
+  photos AlbumImage[]
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  albumLikes AlbumLike[]
+}
+
+model AlbumImage {
+  id                 String  @id @default(uuid()) @db.Uuid
+  albumId            String  @db.Uuid
+  photoUrl           String
+  cloudinaryPublicId String?
+
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PhotoLike {
+  id      String @id @default(uuid()) @db.Uuid
+  photoId String @db.Uuid
+  userId  String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, userId])
+}
+
+model AlbumLike {
+  id      String @id @default(uuid()) @db.Uuid
+  albumId String @db.Uuid
+  userId  String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, userId])
+}
+
+model Follow {
+  id         String @id @default(uuid()) @db.Uuid
+  followerId String @db.Uuid
+  followedId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  follower  User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User     @relation("Following", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+}

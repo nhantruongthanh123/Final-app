@@ -1,8 +1,11 @@
-import type { User } from "@/types/user";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { User } from "@/types/user";
+import { useNavigate } from "react-router-dom";
 
 const ProfileHeader = ({ user }: { user: User | undefined }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-row items-center justify-between border border-slate-200 rounded-lg shadow-sm p-4">
       {/* Avatar and Information */}
@@ -10,7 +13,8 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
         <div className="relative">
           <img
             src={
-              "https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau-001.jpg"
+              user?.avatarUrl ||
+              "https://aui.atlassian.com/assets/aui/9.3/docs/images/avatar-person.svg"
             }
             alt="User Avatar"
             className="w-20 h-20 rounded-full object-cover border-2 border-slate-50"
@@ -20,7 +24,7 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
 
         <div className="flex flex-col gap-2">
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-            {user?.name}
+            {`${user?.firstName} ${user?.lastName}`}
           </h2>
           <div>
             <Badge variant={user?.role === "Admin" ? "default" : "secondary"}>
@@ -31,7 +35,11 @@ const ProfileHeader = ({ user }: { user: User | undefined }) => {
       </div>
 
       {/* Edit button */}
-      <Button variant="outline" className="mx-4">
+      <Button
+        variant="outline"
+        className="mx-4"
+        onClick={() => navigate(`/admin/users/${user?.id}/edit`)}
+      >
         Edit Profile
       </Button>
     </div>

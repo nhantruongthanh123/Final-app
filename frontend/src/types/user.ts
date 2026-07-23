@@ -1,24 +1,28 @@
 export interface User {
-  id: number;
-  name: string;
+  id: string;
   email: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string;
   role: string;
-  status: string;
-  lastLogin: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface FollowingUser {
-  id: number;
-  name: string;
-  avatar: string;
-  numOfPhotos: number;
-  numOfAlbums: number;
+export interface UserStatType {
+  id: string;
+  count: number;
+  label: string;
 }
 
-export interface FollowerUser {
-  id: number;
-  name: string;
-  avatar: string;
-  numOfPhotos: number;
-  numOfAlbums: number;
+export interface UpdateUserProfileData {
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+}
+
+export interface UserWithFollowStatus extends User {
+  isFollowing: boolean;
 }

@@ -5,14 +5,55 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { RegisterPayload } from "@/schemas/auth.schema";
+import { registerSchema } from "@/schemas/auth.schema";
+import { AuthService } from "@/services/auth.service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { useForm } from "react-hook-form";
 import { FaFacebook, FaGoogle, FaTwitter } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterPayload>({
+    resolver: zodResolver(registerSchema),
+    mode: "onTouched",
+  });
+
+  const onSubmit = async (data: RegisterPayload) => {
+    try {
+      await AuthService.register(data);
+
+      navigate("/login");
+
+      toast.success(
+        "Registration successful. Please check your email to verify your account.",
+        { duration: 10000 },
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message);
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8">
+    <form
+      className="flex flex-col items-center justify-center flex-1 w-full px-4 py-8"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-brand">
@@ -26,25 +67,34 @@ const RegisterForm = () => {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="name@example.com" />
+            <Input id="email" type="email" {...register("email")} />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="username">User Name</Label>
-            <Input
-              id="username"
-              type="text"
-              placeholder="Enter your user name"
-            />
+            <Label htmlFor="first-name">First Name</Label>
+            <Input id="first-name" type="text" {...register("firstName")} />
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="last-name">Last Name</Label>
+            <Input id="last-name" type="text" {...register("lastName")} />
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-            />
+            <Input id="password" type="password" {...register("password")} />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -52,8 +102,13 @@ const RegisterForm = () => {
             <Input
               id="confirm-password"
               type="password"
-              placeholder="Confirm your password"
+              {...register("confirmPassword")}
             />
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <div className="relative my-2">
@@ -82,12 +137,16 @@ const RegisterForm = () => {
             </Button>
           </div>
 
-          <Button className="w-full bg-brand hover:bg-indigo-700">
-            Register
+          <Button
+            className="w-full bg-brand hover:bg-indigo-700"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </form>
   );
 };
 

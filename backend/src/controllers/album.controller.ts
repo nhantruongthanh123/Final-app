@@ -1,0 +1,378 @@
+import cloudinary from "#config/cloudinary.js";
+import { prisma } from "#config/db.js";
+import { formatFeedAlbums } from "#utils/albumUtil.js";
+import { AppError } from "#utils/app.error.js";
+import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
+import type { Request, Response } from "express";
+
+export const getAllAlbums = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  let visibilityFilter: any = { isPublic: true };
+  if (req.user) {
+    if (req.user.role === "ADMIN") {
+      visibilityFilter = {};
+    } else {
+      visibilityFilter = {
+        OR: [{ isPublic: true }, { userId: req.user.userId }],
+      };
+    }
+  }
+
+  const [albums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: visibilityFilter,
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+      },
+    }),
+    prisma.album.count({ where: visibilityFilter }),
+  ]);
+  res.status(200).json({ albums, totalAlbums });
+};
+
+export const getAllAlbumsAdmin = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  const { search, isPublic } = req.query;
+
+  const whereClause: any = {};
+  if (search) {
+    whereClause.title = { contains: search as string, mode: "insensitive" };
+  }
+  if (isPublic !== undefined) {
+    whereClause.isPublic = isPublic === "true";
+  }
+
+  const [albums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: whereClause,
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+      },
+    }),
+    prisma.album.count({ where: whereClause }),
+  ]);
+  res.status(200).json({ albums, totalAlbums });
+};
+
+export const getAlbumById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const albumId = req.params.id;
+
+  const existingAlbum = await prisma.album.findUnique({
+    where: { id: albumId },
+    include: {
+      photos: {
+        select: {
+          id: true,
+          photoUrl: true,
+        },
+      },
+    },
+  });
+
+  if (!existingAlbum) {
+    throw new AppError("Album not found", 404);
+  }
+
+  const currentUserId = req.user?.userId;
+  const isAdmin = req.user?.role === "ADMIN";
+  const isOwner = existingAlbum.userId === currentUserId;
+
+  if (!isOwner && !isAdmin) {
+    throw new AppError("Forbidden: This album is private", 403);
+  }
+
+  res.status(200).json(existingAlbum);
+};
+
+export const createAlbum = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError("Unauthorized: No user found", 401);
+  }
+
+  const currentUserId = req.user!.userId;
+  const { title, description, isPublic } = req.body;
+  const files = req.files as Express.Multer.File[];
+
+  const newAlbum = await prisma.album.create({
+    data: {
+      title,
+      description,
+      isPublic: isPublic === "true" || isPublic === true,
+      user: {
+        connect: { id: currentUserId },
+      },
+    },
+  });
+
+  await Promise.all(
+    files.map(async (file) => {
+      const { url, publicId } = await uploadToCloudinary(
+        file.buffer,
+        "fotobook/albums",
+      );
+      return prisma.albumImage.create({
+        data: {
+          photoUrl: url,
+          cloudinaryPublicId: publicId,
+          albumId: newAlbum.id,
+        },
+      });
+    }),
+  );
+
+  res.status(201).json(newAlbum);
+};
+
+export const deleteAlbum = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const albumId = req.params.id;
+  const currentUserId = req.user!.userId;
+
+  const existingAlbum = await prisma.album.findUnique({
+    where: { id: albumId },
+    include: { photos: true },
+  });
+
+  if (!existingAlbum) {
+    throw new AppError("Album not found", 404);
+  }
+
+  if (existingAlbum.userId !== currentUserId && req.user?.role !== "admin") {
+    throw new AppError("You are not authorized to delete this album", 403);
+  }
+
+  await Promise.all(
+    existingAlbum.photos
+      .filter((img) => img.cloudinaryPublicId)
+      .map((img) => cloudinary.uploader.destroy(img.cloudinaryPublicId!)),
+  );
+
+  const deletedAlbum = await prisma.album.delete({
+    where: { id: albumId },
+  });
+
+  res.status(200).json(deletedAlbum);
+};
+
+export const updateAlbum = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const albumId = req.params.id;
+  const currentUserId = req.user!.userId;
+  const { title, description, isPublic } = req.body ?? {};
+  const files = (req.files as Express.Multer.File[]) ?? [];
+  const removedPhotoIdsRaw = req.body?.removedPhotoIds;
+
+  const removedPhotoIds: string[] =
+    typeof removedPhotoIdsRaw === "string"
+      ? JSON.parse(removedPhotoIdsRaw)
+      : Array.isArray(removedPhotoIdsRaw)
+        ? removedPhotoIdsRaw
+        : [];
+
+  const existingAlbum = await prisma.album.findUnique({
+    where: { id: albumId },
+  });
+
+  if (!existingAlbum) {
+    throw new AppError("Album not found", 404);
+  }
+
+  if (existingAlbum.userId !== currentUserId && req.user?.role !== "ADMIN") {
+    throw new AppError("You are not authorized to update this album", 403);
+  }
+
+  if (removedPhotoIds.length > 0) {
+    const photosToRemove = await prisma.albumImage.findMany({
+      where: { id: { in: removedPhotoIds }, albumId },
+    });
+
+    await Promise.all(
+      photosToRemove
+        .filter((p) => p.cloudinaryPublicId)
+        .map((p) => cloudinary.uploader.destroy(p.cloudinaryPublicId!)),
+    );
+
+    await prisma.albumImage.deleteMany({
+      where: { id: { in: removedPhotoIds }, albumId },
+    });
+  }
+
+  if (files && files.length > 0) {
+    await Promise.all(
+      files.map(async (file) => {
+        const { url, publicId } = await uploadToCloudinary(
+          file.buffer,
+          "fotobook/albums",
+        );
+        return prisma.albumImage.create({
+          data: {
+            photoUrl: url,
+            cloudinaryPublicId: publicId,
+            albumId,
+          },
+        });
+      }),
+    );
+  }
+
+  const updatedAlbum = await prisma.album.update({
+    where: { id: albumId },
+    data: {
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(isPublic !== undefined && {
+        isPublic: isPublic === "true" || isPublic === true,
+      }),
+    },
+    include: { photos: true },
+  });
+
+  res.status(200).json(updatedAlbum);
+};
+
+export const getAllAlbumsFeed = async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError("Unauthorized: No user found", 401);
+  }
+
+  const currentUserId = req.user.userId;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  const followings = await prisma.follow.findMany({
+    where: { followerId: currentUserId },
+    select: { followedId: true },
+  });
+
+  const followingIds = followings.map((f) => f.followedId);
+
+  if (followingIds.length === 0) {
+    return res.status(200).json({ feed: [], total: 0 });
+  }
+
+  const [feedAlbums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      where: {
+        userId: { in: followingIds },
+        isPublic: true,
+      },
+      orderBy: { updatedAt: "desc" },
+      skip: offset,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
+        },
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+        _count: {
+          select: { albumLikes: true },
+        },
+        albumLikes: {
+          where: { userId: currentUserId },
+          select: { id: true },
+        },
+      },
+    }),
+
+    prisma.album.count({
+      where: { userId: { in: followingIds }, isPublic: true },
+    }),
+  ]);
+
+  const formattedFeedAlbums = feedAlbums.map((album) => {
+    return formatFeedAlbums(album);
+  });
+
+  res.status(200).json({ items: formattedFeedAlbums, total: totalAlbums });
+};
+
+export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  const currentUserId = req.user?.userId;
+
+  const [discoverAlbums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      where: { isPublic: true },
+      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
+      skip: offset,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
+        },
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+        _count: {
+          select: { albumLikes: true },
+        },
+        ...(currentUserId
+          ? {
+              albumLikes: {
+                where: { userId: currentUserId },
+                select: { id: true },
+              },
+            }
+          : {}),
+      },
+    }),
+    prisma.album.count({
+      where: { isPublic: true },
+    }),
+  ]);
+
+  const formattedDiscoverAlbums = discoverAlbums.map(formatFeedAlbums);
+
+  res.status(200).json({ items: formattedDiscoverAlbums, total: totalAlbums });
+};
