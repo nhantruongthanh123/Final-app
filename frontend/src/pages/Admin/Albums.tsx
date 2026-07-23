@@ -1,5 +1,6 @@
 import AlbumAdmin from "@/components/album/AlbumAdmin";
 import { JumpToPageEllipsis } from "@/components/shared/JumpToPageEllipsis";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -8,6 +9,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { AlbumService } from "@/services/album.service";
 import type { Album } from "@/types/album";
@@ -21,12 +29,25 @@ const Albums = () => {
   const [totalPages, setTotalPages] = useState(1);
   const albumsPerPage = 12;
 
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState("All");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => {
     const loadAlbums = async () => {
       try {
         const { albums, totalAlbums } = await AlbumService.getAllAlbums(
           currentPage,
           albumsPerPage,
+          debouncedSearch,
+          status === "All" ? undefined : status === "Public",
         );
         setAlbums(albums);
         setTotalPages(Math.ceil(totalAlbums / albumsPerPage));
@@ -36,10 +57,46 @@ const Albums = () => {
     };
 
     loadAlbums();
-  }, [currentPage]);
+  }, [currentPage, debouncedSearch, status]);
 
   return (
-    <div className="mx-2 flex flex-col h-full flex-1">
+    <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">Manage Albums</h1>
+        <p className="text-slate-500 text-sm mt-1">
+          View, edit, or suspend album entries.
+        </p>
+      </div>
+
+      {/* FILTER BAR */}
+      <div className="flex gap-4 mb-6">
+        <Input
+          placeholder="Search by title"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <Select
+          defaultValue="All"
+          onValueChange={(value) => {
+            setStatus(value || "All");
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="Private">Private</SelectItem>
+            <SelectItem value="Public">Public</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Albums */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {albums.map((album) => (
           <Link key={album.id} to={`${album.id}`}>

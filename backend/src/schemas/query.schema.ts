@@ -11,8 +11,8 @@ export const userQuerySchema = basePaginationSchema.extend({
     .optional()
     .default("createdAt"),
   role: z.enum(["USER", "ADMIN", "ALL"]).optional().default("ALL"),
-  isActive: z.boolean().optional().default(true),
-  searchEmail: z.string().optional(),
+  isActive: z.enum(["true", "false"]).optional(),
+  search: z.string().optional(),
 });
 
 export type UserQuery = z.infer<typeof userQuerySchema>;
@@ -22,8 +22,9 @@ export const photoQuerySchema = basePaginationSchema.extend({
     .enum(["createdAt", "updatedAt", "likesCount"])
     .optional()
     .default("createdAt"),
-  isPublic: z.coerce.boolean().optional(),
+  isPublic: z.enum(["true", "false"]).optional(),
   userId: z.string().optional(),
+  search: z.string().optional(),
 });
 
 export type PhotoQuery = z.infer<typeof photoQuerySchema>;
@@ -33,8 +34,9 @@ export const albumQuerySchema = basePaginationSchema.extend({
     .enum(["createdAt", "updatedAt", "photosCount"])
     .optional()
     .default("createdAt"),
-  isPublic: z.coerce.boolean().optional(),
+  isPublic: z.enum(["true", "false"]).optional(),
   userId: z.string().optional(),
+  search: z.string().optional(),
 });
 
 export type AlbumQuery = z.infer<typeof albumQuerySchema>;

@@ -3,12 +3,13 @@ import {
   deleteAlbum,
   getAlbumById,
   getAllAlbums,
+  getAllAlbumsAdmin,
   getAllAlbumsDiscover,
   getAllAlbumsFeed,
   updateAlbum,
 } from "#controllers/album.controller.js";
 import { optionalAuth } from "#middlewares/optionalAuth.js";
-import { requireAuth } from "#middlewares/requireAuth.js";
+import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";
 import {
   validateBody,
@@ -33,6 +34,14 @@ albumRouter.get(
   validateQuery(albumQuerySchema),
   getAllAlbums,
 );
+
+albumRouter.get(
+  "/albums/admin",
+  requireAdmin,
+  validateQuery(albumQuerySchema),
+  getAllAlbumsAdmin,
+);
+
 albumRouter.get(
   "/albums/feed",
   requireAuth,

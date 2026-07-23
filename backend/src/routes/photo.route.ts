@@ -2,13 +2,14 @@ import {
   createPhoto,
   deletePhoto,
   getAllPhotos,
+  getAllPhotosAdmin,
   getAllPhotosDiscover,
   getAllPhotosFeed,
   getPhotoById,
   updatePhoto,
 } from "#controllers/photo.controller.js";
 import { optionalAuth } from "#middlewares/optionalAuth.js";
-import { requireAuth } from "#middlewares/requireAuth.js";
+import { requireAdmin, requireAuth } from "#middlewares/requireAuth.js";
 import { upload } from "#middlewares/upload.js";
 import {
   validateBody,
@@ -32,6 +33,13 @@ photoRouter.get(
   optionalAuth,
   validateQuery(photoQuerySchema),
   getAllPhotos,
+);
+
+photoRouter.get(
+  "/photos/admin",
+  requireAdmin,
+  validateQuery(photoQuerySchema),
+  getAllPhotosAdmin,
 );
 
 photoRouter.get(

@@ -75,7 +75,12 @@ userRouter.get(
 );
 
 // User
-userRouter.get("/users", validateQuery(userQuerySchema), getAllUsers);
+userRouter.get(
+  "/users",
+  requireAdmin,
+  validateQuery(userQuerySchema),
+  getAllUsers,
+);
 userRouter.get(
   "/users/:id",
   requireAuth,

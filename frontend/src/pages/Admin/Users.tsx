@@ -19,7 +19,9 @@ import {
 import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
 import { getPaginationItem } from "@/utils/getPaginationItem";
+import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,23 +30,44 @@ const Users = () => {
   const [totalPages, setTotalPages] = useState(1);
   const usersPerPage = 12;
 
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [role, setRole] = useState("All");
+  const [status, setStatus] = useState("All");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => {
     const loadUsers = async () => {
       try {
         const { users, totalUsers } = await UserService.getAllUsers(
           currentPage,
           usersPerPage,
+          debouncedSearch,
+          role,
+          status === "All" ? undefined : status === "Active",
         );
         setUsers(users);
         setTotalUsers(totalUsers);
         setTotalPages(Math.ceil(totalUsers / usersPerPage));
       } catch (error) {
-        console.error("Error fetching users:", error);
+        if (axios.isAxiosError(error)) {
+          toast.error(
+            `Error fetching users: ${error.response?.data?.message || error.message}`,
+          );
+        } else {
+          toast.error(`Error fetching users: ${error}`);
+        }
       }
     };
 
     loadUsers();
-  }, [currentPage, usersPerPage]);
+  }, [currentPage, usersPerPage, debouncedSearch, role, status]);
 
   if (!users) {
     return (
@@ -66,8 +89,20 @@ const Users = () => {
 
       {/* FILTER BAR */}
       <div className="flex gap-4 mb-6">
-        <Input placeholder="Search by name or email" />
-        <Select defaultValue="All">
+        <Input
+          placeholder="Search by name or email"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <Select
+          defaultValue="All"
+          onValueChange={(value) => {
+            setRole(value || "All");
+            setCurrentPage(1);
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -77,7 +112,13 @@ const Users = () => {
             <SelectItem value="User">User</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="All">
+        <Select
+          defaultValue="All"
+          onValueChange={(value) => {
+            setStatus(value || "All");
+            setCurrentPage(1);
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>

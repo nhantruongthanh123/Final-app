@@ -6,13 +6,17 @@ export const AlbumService = {
   getAllAlbums: async (
     currentPage: number = 1,
     limit: number = 12,
+    search?: string,
+    isPublic?: boolean,
   ): Promise<{ albums: Album[]; totalAlbums: number }> => {
     const res = await api.get<{ albums: Album[]; totalAlbums: number }>(
-      "/albums",
+      "/albums/admin",
       {
         params: {
           page: currentPage,
           limit,
+          search,
+          isPublic,
         },
       },
     );

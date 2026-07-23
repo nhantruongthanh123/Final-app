@@ -1,5 +1,6 @@
 import PhotoAdmin from "@/components/photo/PhotoAdmin";
 import { JumpToPageEllipsis } from "@/components/shared/JumpToPageEllipsis";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -8,6 +9,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PhotoService } from "@/services/photo.service";
 import type { Photo } from "@/types/photo";
 import { getPaginationItem } from "@/utils/getPaginationItem";
@@ -20,12 +28,25 @@ const Photos = () => {
   const [totalPages, setTotalPages] = useState(1);
   const photosPerPage = 12;
 
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [status, setStatus] = useState("All");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
         const data = await PhotoService.getAllPhotos(
           currentPage,
           photosPerPage,
+          debouncedSearch,
+          status === "All" ? undefined : status === "Public",
         );
         setPhotos(data.photos);
         setTotalPages(Math.ceil(data.totalPhotos / photosPerPage));
@@ -35,10 +56,46 @@ const Photos = () => {
     };
 
     fetchPhotos();
-  }, [currentPage, photosPerPage]);
+  }, [currentPage, photosPerPage, debouncedSearch, status]);
 
   return (
-    <div className="flex flex-col h-full flex-1">
+    <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">Manage Photos</h1>
+        <p className="text-slate-500 text-sm mt-1">
+          View, edit, or suspend photo entries.
+        </p>
+      </div>
+
+      {/* FILTER BAR */}
+      <div className="flex gap-4 mb-6">
+        <Input
+          placeholder="Search by title"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <Select
+          defaultValue="All"
+          onValueChange={(value) => {
+            setStatus(value || "All");
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="Private">Private</SelectItem>
+            <SelectItem value="Public">Public</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* PHOTOS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
         {photos.map((photo) => (
           <Link key={photo.id} to={`${photo.id}`}>

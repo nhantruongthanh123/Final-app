@@ -41,6 +41,41 @@ export const getAllAlbums = async (req: Request, res: Response) => {
   res.status(200).json({ albums, totalAlbums });
 };
 
+export const getAllAlbumsAdmin = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  const { search, isPublic } = req.query;
+
+  const whereClause: any = {};
+  if (search) {
+    whereClause.title = { contains: search as string, mode: "insensitive" };
+  }
+  if (isPublic !== undefined) {
+    whereClause.isPublic = isPublic === "true";
+  }
+
+  const [albums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: whereClause,
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
+        },
+      },
+    }),
+    prisma.album.count({ where: whereClause }),
+  ]);
+  res.status(200).json({ albums, totalAlbums });
+};
+
 export const getAlbumById = async (
   req: Request<{ id: string }>,
   res: Response,

@@ -8,10 +8,19 @@ export const UserService = {
   getAllUsers: async (
     page: number,
     limit: number,
+    search?: string,
+    role?: string,
+    isActive?: boolean,
   ): Promise<{ users: User[]; totalUsers: number }> => {
-    const res = await api.get<{ users: User[]; totalUsers: number }>(
-      `/users?page=${page}&limit=${limit}`,
-    );
+    const res = await api.get<{ users: User[]; totalUsers: number }>(`/users`, {
+      params: {
+        page,
+        limit,
+        search,
+        role: role?.toUpperCase(),
+        isActive,
+      },
+    });
 
     return res.data;
   },

@@ -7,13 +7,17 @@ export const PhotoService = {
   getAllPhotos: async (
     page: number,
     limit: number,
+    search?: string,
+    isPublic?: boolean,
   ): Promise<{ photos: Photo[]; totalPhotos: number }> => {
     const res = await api.get<{ photos: Photo[]; totalPhotos: number }>(
-      "/photos",
+      "/photos/admin",
       {
         params: {
           page,
           limit,
+          search,
+          isPublic,
         },
       },
     );

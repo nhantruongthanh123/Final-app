@@ -11,13 +11,36 @@ export const getAllUsers = async (req: Request, res: Response) => {
   const { page, limit } = req.query as unknown as UserQuery;
   const offset = (page - 1) * limit;
 
+  const { search, role, isActive } = req.query;
+
+  const whereClause: any = {};
+
+  if (search) {
+    whereClause.OR = [
+      { firstName: { contains: search, mode: "insensitive" } },
+      { lastName: { contains: search, mode: "insensitive" } },
+      { email: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (role && role !== "ALL") {
+    whereClause.role = role;
+  }
+
+  if (isActive === "true") {
+    whereClause.isActive = true;
+  } else if (isActive === "false") {
+    whereClause.isActive = false;
+  }
+
   const [users, totalUsers] = await Promise.all([
     prisma.user.findMany({
+      where: whereClause,
       skip: offset,
       take: limit,
       orderBy: { updatedAt: "desc" },
     }),
-    prisma.user.count(),
+    prisma.user.count({ where: whereClause }),
   ]);
 
   res.status(200).json({ users, totalUsers });

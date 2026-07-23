@@ -35,6 +35,35 @@ export const getAllPhotos = async (req: Request, res: Response) => {
   res.status(200).json({ photos, totalPhotos });
 };
 
+export const getAllPhotosAdmin = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+  const offset = (page - 1) * limit;
+
+  const { search, isPublic } = req.query;
+
+  const whereClause: any = {};
+  if (isPublic !== undefined) {
+    whereClause.isPublic = isPublic === "true";
+  }
+
+  if (search) {
+    whereClause.title = { contains: search as string, mode: "insensitive" };
+  }
+
+  const [photos, totalPhotos] = await Promise.all([
+    prisma.photo.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: whereClause,
+    }),
+    prisma.photo.count({ where: whereClause }),
+  ]);
+
+  res.status(200).json({ photos, totalPhotos });
+};
+
 export const getPhotoById = async (
   req: Request<{ id: string }>,
   res: Response,
