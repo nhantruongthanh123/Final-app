@@ -159,4 +159,8 @@ export const UserService = {
     );
     return res.data;
   },
+
+  deleteUserByAdmin: async (userId: string): Promise<void> => {
+    await api.delete(`/users/${userId}`);
+  },
 };

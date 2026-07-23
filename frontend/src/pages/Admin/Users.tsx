@@ -1,5 +1,15 @@
 import UserTable from "@/components/admin/UserTable";
 import { JumpToPageEllipsis } from "@/components/shared/JumpToPageEllipsis";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -21,9 +31,11 @@ import type { User } from "@/types/user";
 import { getPaginationItem } from "@/utils/getPaginationItem";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Users = () => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -34,6 +46,7 @@ const Users = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [role, setRole] = useState("All");
   const [status, setStatus] = useState("All");
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -68,6 +81,23 @@ const Users = () => {
 
     loadUsers();
   }, [currentPage, usersPerPage, debouncedSearch, role, status]);
+
+  const deleteUser = async (userId: string) => {
+    console.log("Deleting user with ID:", userId);
+    toast.promise(UserService.deleteUserByAdmin(userId), {
+      loading: "Deleting user...",
+      success: () => {
+        setTimeout(() => navigate(0), 500);
+        return "User deleted successfully!";
+      },
+      error: (err) => {
+        if (axios.isAxiosError(err) && err.response?.data?.message) {
+          return err.response.data.message;
+        }
+        return "Failed to delete user.";
+      },
+    });
+  };
 
   if (!users) {
     return (
@@ -132,7 +162,7 @@ const Users = () => {
 
       {/* THE TABLE */}
       <div className="flex-1 overflow-auto bg-white rounded-lg border shadow-sm">
-        <UserTable users={users} />
+        <UserTable users={users} setUserToDelete={setUserToDelete} />
       </div>
 
       {/* PAGINATION FOOTER */}
@@ -210,6 +240,39 @@ const Users = () => {
           </Pagination>
         </div>
       </div>
+
+      <AlertDialog
+        open={!!userToDelete}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setUserToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to delete this photo?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The photo will be deleted
+              permanently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (userToDelete) {
+                  deleteUser(userToDelete);
+                  setUserToDelete(null);
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

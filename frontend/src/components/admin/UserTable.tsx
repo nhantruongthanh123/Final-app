@@ -22,14 +22,20 @@ import { MoreVertical } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const UserTable = ({ users }: { users: User[] }) => {
+const UserTable = ({
+  users,
+  setUserToDelete,
+}: {
+  users: User[];
+  setUserToDelete: (userId: string | null) => void;
+}) => {
   const navigate = useNavigate();
 
   const suspendUser = async (userId: string) => {
     toast.promise(UserService.updateUserIsActiveByAdmin(userId, false), {
       loading: "Suspending user...",
       success: () => {
-        setTimeout(() => navigate(0), 1000);
+        setTimeout(() => navigate(0), 500);
         return "User suspended successfully!";
       },
       error: "Failed to suspend user.",
@@ -40,7 +46,7 @@ const UserTable = ({ users }: { users: User[] }) => {
     toast.promise(UserService.updateUserIsActiveByAdmin(userId, true), {
       loading: "Activating user...",
       success: () => {
-        setTimeout(() => navigate(0), 1000);
+        setTimeout(() => navigate(0), 500);
         return "User activated successfully!";
       },
       error: "Failed to activate user.",
@@ -139,6 +145,14 @@ const UserTable = ({ users }: { users: User[] }) => {
                       Activate User
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuItem>
+                    <button
+                      className="text-red-600"
+                      onClick={() => setUserToDelete(user.id)}
+                    >
+                      Delete User
+                    </button>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
