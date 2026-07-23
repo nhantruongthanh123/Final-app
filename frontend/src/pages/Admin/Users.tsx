@@ -1,4 +1,5 @@
 import UserTable from "@/components/admin/UserTable";
+import { JumpToPageEllipsis } from "@/components/shared/JumpToPageEllipsis";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { UserService } from "@/services/user.service";
 import type { User } from "@/types/user";
+import { getPaginationItem } from "@/utils/getPaginationItem";
 import { useEffect, useState } from "react";
 
 const Users = () => {
@@ -118,8 +120,18 @@ const Users = () => {
               </PaginationItem>
 
               {/* --- PAGE NUMBERS --- */}
-              {Array.from({ length: totalPages }).map((_, index) => {
-                const pageNumber = index + 1;
+              {getPaginationItem(currentPage, totalPages).map((item) => {
+                if (item === "...") {
+                  return (
+                    <PaginationItem key={item}>
+                      <JumpToPageEllipsis
+                        totalPages={totalPages}
+                        setCurrentPage={setCurrentPage}
+                      />
+                    </PaginationItem>
+                  );
+                }
+                const pageNumber = parseInt(item);
                 return (
                   <PaginationItem key={pageNumber}>
                     <PaginationLink

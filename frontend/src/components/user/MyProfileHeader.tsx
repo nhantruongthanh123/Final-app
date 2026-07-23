@@ -36,7 +36,7 @@ const MyProfileHeader = () => {
     };
 
     fetchUserData();
-  }, [user]);
+  }, [user, activeTab]);
 
   const stats: UserStatType[] = [
     { id: "photos", count: numUserPhotos, label: "PHOTOS" },

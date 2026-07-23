@@ -1,4 +1,5 @@
 import AlbumAdmin from "@/components/album/AlbumAdmin";
+import { JumpToPageEllipsis } from "@/components/shared/JumpToPageEllipsis";
 import {
   Pagination,
   PaginationContent,
@@ -10,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AlbumService } from "@/services/album.service";
 import type { Album } from "@/types/album";
+import { getPaginationItem } from "@/utils/getPaginationItem";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -67,8 +69,18 @@ const Albums = () => {
             </PaginationItem>
 
             {/* --- PAGE NUMBERS --- */}
-            {Array.from({ length: totalPages }).map((_, index) => {
-              const pageNumber = index + 1;
+            {getPaginationItem(currentPage, totalPages).map((item) => {
+              if (item === "...") {
+                return (
+                  <PaginationItem key={item}>
+                    <JumpToPageEllipsis
+                      totalPages={totalPages}
+                      setCurrentPage={setCurrentPage}
+                    />
+                  </PaginationItem>
+                );
+              }
+              const pageNumber = parseInt(item);
               return (
                 <PaginationItem key={pageNumber}>
                   <PaginationLink
