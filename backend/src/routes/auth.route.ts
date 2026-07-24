@@ -11,6 +11,7 @@ import {
   verifyEmail,
 } from "#controllers/auth.controller.js";
 import {
+  authenticateFacebookCallback,
   authenticateGoogleCallback,
   authenticateLocal,
 } from "#middlewares/auth.middleware.js";
@@ -46,6 +47,17 @@ authRouter.get(
 authRouter.get(
   "/auth/google/callback",
   authenticateGoogleCallback,
+  googleAuthCallback,
+);
+
+authRouter.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["email"], session: false }),
+);
+
+authRouter.get(
+  "/auth/facebook/callback",
+  authenticateFacebookCallback,
   googleAuthCallback,
 );
 

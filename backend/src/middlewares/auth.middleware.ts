@@ -45,3 +45,24 @@ export const authenticateGoogleCallback = (
     next();
   })(req, res, next);
 };
+
+export const authenticateFacebookCallback = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  passport.authenticate(
+    "facebook",
+    { session: false },
+    (err: AppError | null, user: Express.User | false) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return next(new AppError("Facebook authentication failed", 401));
+      }
+      req.user = user;
+      next();
+    },
+  )(req, res, next);
+};
