@@ -5,7 +5,7 @@ import { sendVerificationEmail } from "#utils/sendVerificationEmail.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import type { Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 export const registerUser = async (req: Request, res: Response) => {
   const { email, password, firstName, lastName } = req.body;
@@ -56,43 +56,29 @@ export const registerUser = async (req: Request, res: Response) => {
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    throw new AppError("Email and password are required", 400);
-  }
+  const userId = req.user!.userId;
+  const role = req.user!.role;
 
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { id: userId },
   });
-
-  if (!user) {
-    throw new AppError("Email is not registered.", 400);
-  }
-
-  if (!user.isEmailVerified) {
-    throw new AppError(
-      "Email is not verified. Please verify your email before logging in.",
-      400,
-    );
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new AppError("Password is not correct.", 400);
-  }
-
   //Handle token generation here (e.g., JWT) and send it back to the client
   const accessToken = jwt.sign(
-    { userId: user.id, role: user.role },
+    { userId, role },
     process.env.ACCESS_TOKEN_SECRET as string,
-    { expiresIn: "540m" },
+    {
+      expiresIn: process.env
+        .ACCESS_TOKEN_EXPIRES_IN as SignOptions["expiresIn"],
+    },
   );
 
   const refreshToken = jwt.sign(
-    { userId: user.id },
+    { userId },
     process.env.REFRESH_TOKEN_SECRET as string,
-    { expiresIn: "7d" },
+    {
+      expiresIn: process.env
+        .REFRESH_TOKEN_EXPIRES_IN as SignOptions["expiresIn"],
+    },
   );
 
   const expiresAt = new Date();
@@ -101,7 +87,7 @@ export const loginUser = async (req: Request, res: Response) => {
   // Create sesson in the database
   await prisma.session.create({
     data: {
-      userId: user.id,
+      userId,
       refreshToken,
       expiresAt,
     },
@@ -118,6 +104,54 @@ export const loginUser = async (req: Request, res: Response) => {
     user,
     accessToken,
   });
+};
+
+export const googleAuthCallback = async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+  const role = req.user!.role;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  const accessToken = jwt.sign(
+    { userId, role },
+    process.env.ACCESS_TOKEN_SECRET as string,
+    {
+      expiresIn: process.env
+        .ACCESS_TOKEN_EXPIRES_IN as SignOptions["expiresIn"],
+    },
+  );
+
+  const refreshToken = jwt.sign(
+    { userId },
+    process.env.REFRESH_TOKEN_SECRET as string,
+    {
+      expiresIn: process.env
+        .REFRESH_TOKEN_EXPIRES_IN as SignOptions["expiresIn"],
+    },
+  );
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7);
+
+  // Create sesson in the database
+  await prisma.session.create({
+    data: {
+      userId,
+      refreshToken,
+      expiresAt,
+    },
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.redirect(`${process.env.FRONTEND_URL}/feed`);
 };
 
 export const logoutUser = async (req: Request, res: Response) => {
