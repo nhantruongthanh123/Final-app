@@ -221,7 +221,7 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
   // followingIds.push(currentUserId);
 
   if (followingIds.length === 0) {
-    return res.status(200).json({ feed: [], total: 0 });
+    return res.status(200).json({ items: [], total: 0 });
   }
 
   const [feedPhotos, totalPhotos] = await Promise.all([

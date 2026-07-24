@@ -277,7 +277,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
   const followingIds = followings.map((f) => f.followedId);
 
   if (followingIds.length === 0) {
-    return res.status(200).json({ feed: [], total: 0 });
+    return res.status(200).json({ items: [], total: 0 });
   }
 
   const [feedAlbums, totalAlbums] = await Promise.all([

@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const LoginForm = () => {
+  const apiUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const [isEmailVerified, setIsEmailVerified] = useState(true);
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -102,11 +103,23 @@ const LoginForm = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Button variant="outline" className="w-full flex flex-row">
+            <Button
+              variant="outline"
+              className="w-full flex flex-row"
+              onClick={() =>
+                (window.location.href = `${apiUrl}/api/auth/google`)
+              }
+            >
               <FaGoogle className="w-4 h-4 text-gray-700 flex justify-start" />
               <span className="ml-2">Continue with google</span>
             </Button>
-            <Button variant="outline" className="w-full flex flex-row">
+            <Button
+              variant="outline"
+              className="w-full flex flex-row"
+              onClick={() =>
+                (window.location.href = `${apiUrl}/api/auth/facebook`)
+              }
+            >
               <FaFacebook className="w-4 h-4 text-blue-600 flex justify-start" />
               <span className="ml-2">Continue with facebook</span>
             </Button>
