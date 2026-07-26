@@ -1,7 +1,8 @@
 import cloudinary from "#config/cloudinary.js";
 import { prisma } from "#config/db.js";
+import * as photoService from "#services/photo.service.js";
+import * as userService from "#services/user.service.js";
 import { AppError } from "#utils/app.error.js";
-import { formatFeedPhotos } from "#utils/photoUtils.js";
 import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 import type { Request, Response } from "express";
 import { fileTypeFromBuffer } from "file-type";
@@ -9,57 +10,24 @@ import { fileTypeFromBuffer } from "file-type";
 export const getAllPhotos = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
 
-  let visibilityFilter: any = { isPublic: true };
-  if (req.user) {
-    if (req.user.role === "ADMIN") {
-      visibilityFilter = {};
-    } else {
-      visibilityFilter = {
-        OR: [{ isPublic: true }, { userId: req.user.userId }],
-      };
-    }
-  }
-
-  const [photos, totalPhotos] = await Promise.all([
-    prisma.photo.findMany({
-      skip: offset,
-      take: limit,
-      orderBy: { updatedAt: "desc" },
-      where: visibilityFilter,
-    }),
-    prisma.photo.count({ where: visibilityFilter }),
-  ]);
+  const { photos, totalPhotos } = await photoService.findAllPhotos(page, limit);
 
   res.status(200).json({ photos, totalPhotos });
 };
 
 export const getAllPhotosAdmin = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
+  const limit = parseInt(req.query.limit as string) || 1;
 
   const { search, isPublic } = req.query;
 
-  const whereClause: any = {};
-  if (isPublic !== undefined) {
-    whereClause.isPublic = isPublic === "true";
-  }
-
-  if (search) {
-    whereClause.title = { contains: search as string, mode: "insensitive" };
-  }
-
-  const [photos, totalPhotos] = await Promise.all([
-    prisma.photo.findMany({
-      skip: offset,
-      take: limit,
-      orderBy: { updatedAt: "desc" },
-      where: whereClause,
-    }),
-    prisma.photo.count({ where: whereClause }),
-  ]);
+  const { photos, totalPhotos } = await photoService.findAllPhotosByAdmin(
+    page,
+    limit,
+    search as string | undefined,
+    isPublic as string | undefined,
+  );
 
   res.status(200).json({ photos, totalPhotos });
 };
@@ -70,9 +38,7 @@ export const getPhotoById = async (
 ) => {
   const photoId = req.params.id;
 
-  const existingPhoto = await prisma.photo.findUnique({
-    where: { id: photoId },
-  });
+  const existingPhoto = await photoService.findPhotoById(photoId);
 
   if (!existingPhoto) {
     throw new AppError("Photo not found", 404);
@@ -108,16 +74,14 @@ export const createPhoto = async (req: Request, res: Response) => {
     "fotobook/photos",
   );
 
-  const newPhoto = await prisma.photo.create({
-    data: {
-      photoUrl: url,
-      title: req.body.title,
-      description: req.body.description,
-      userId: req.user.userId,
-      isPublic: req.body.isPublic === "true",
-      cloudinaryPublicId: publicId,
-    },
-  });
+  const newPhoto = await photoService.createPhoto(
+    req.user.userId,
+    req.body.title,
+    url,
+    req.body.description,
+    req.body.isPublic === "true",
+    publicId,
+  );
 
   res.status(201).json(newPhoto);
 };
@@ -129,9 +93,7 @@ export const deletePhoto = async (
   const photoId = req.params.id;
   const currentUserId = req.user!.userId;
 
-  const existingPhoto = await prisma.photo.findUnique({
-    where: { id: photoId },
-  });
+  const existingPhoto = await photoService.findPhotoById(photoId);
 
   if (!existingPhoto) {
     throw new AppError("Photo not found", 404);
@@ -145,9 +107,7 @@ export const deletePhoto = async (
     await cloudinary.uploader.destroy(existingPhoto.cloudinaryPublicId);
   }
 
-  const deletedPhoto = await prisma.photo.delete({
-    where: { id: photoId },
-  });
+  const deletedPhoto = await photoService.deletePhotoById(photoId);
 
   res.status(200).json(deletedPhoto);
 };
@@ -188,16 +148,15 @@ export const updatePhoto = async (
     }
   }
 
-  const updatedPhoto = await prisma.photo.update({
-    where: { id: existingPhoto.id },
-    data: {
-      photoUrl: newPhotoUrl,
-      cloudinaryPublicId: cloudinaryPublicId,
-      title: req.body.title,
-      description: req.body.description,
-      isPublic: req.body.isPublic === "true",
-    },
-  });
+  const updatedPhoto = await photoService.updatePhotoById(
+    photoId,
+    newPhotoUrl,
+    cloudinaryPublicId,
+    req.body.title,
+    req.body.description,
+    req.body.isPublic === "true",
+  );
+
   res.status(200).json(updatedPhoto);
 };
 
@@ -209,14 +168,8 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
   const currentUserId = req.user.userId;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
 
-  const followings = await prisma.follow.findMany({
-    where: { followerId: currentUserId },
-    select: { followedId: true },
-  });
-
-  const followingIds = followings.map((f) => f.followedId);
+  const followingIds = await userService.getAllFollowingsId(currentUserId);
 
   // followingIds.push(currentUserId);
 
@@ -224,39 +177,13 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
     return res.status(200).json({ items: [], total: 0 });
   }
 
-  const [feedPhotos, totalPhotos] = await Promise.all([
-    prisma.photo.findMany({
-      where: {
-        userId: { in: followingIds },
-        isPublic: true,
-      },
-      orderBy: { updatedAt: "desc" },
-      skip: offset,
-      take: limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: { photoLikes: true },
-        },
-        photoLikes: {
-          where: { userId: currentUserId },
-          select: { id: true },
-        },
-      },
-    }),
-    prisma.photo.count({
-      where: { userId: { in: followingIds }, isPublic: true },
-    }),
-  ]);
-
-  const formattedFeedPhotos = feedPhotos.map(formatFeedPhotos);
+  const { formattedFeedPhotos, totalPhotos } =
+    await photoService.findPhotosFeedByUserId(
+      currentUserId,
+      followingIds,
+      page,
+      limit,
+    );
 
   res.status(200).json({ items: formattedFeedPhotos, total: totalPhotos });
 };
@@ -268,40 +195,8 @@ export const getAllPhotosDiscover = async (req: Request, res: Response) => {
 
   const currentUserId = req.user?.userId;
 
-  const [discoverPhotos, totalPhotos] = await Promise.all([
-    prisma.photo.findMany({
-      where: { isPublic: true },
-      orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
-      skip: offset,
-      take: limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: { photoLikes: true },
-        },
-        ...(currentUserId
-          ? {
-              photoLikes: {
-                where: { userId: currentUserId },
-                select: { id: true },
-              },
-            }
-          : {}),
-      },
-    }),
-    prisma.photo.count({
-      where: { isPublic: true },
-    }),
-  ]);
-
-  const formattedDiscoverPhotos = discoverPhotos.map(formatFeedPhotos);
+  const { formattedDiscoverPhotos, totalPhotos } =
+    await photoService.findPhotosDiscover(currentUserId, page, limit);
 
   res.status(200).json({ items: formattedDiscoverPhotos, total: totalPhotos });
 };

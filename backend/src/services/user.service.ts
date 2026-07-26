@@ -266,3 +266,12 @@ export const isFollowing = async (followerId: string, followedId: string) => {
 
   return !!follow;
 };
+
+export const getAllFollowingsId = async (userId: string) => {
+  const followings = await prisma.follow.findMany({
+    where: { followerId: userId },
+    select: { followedId: true },
+  });
+
+  return followings.map((f) => f.followedId);
+};
