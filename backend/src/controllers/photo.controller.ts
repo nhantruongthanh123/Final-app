@@ -1,5 +1,4 @@
 import cloudinary from "#config/cloudinary.js";
-import { prisma } from "#config/db.js";
 import * as photoService from "#services/photo.service.js";
 import * as userService from "#services/user.service.js";
 import { AppError } from "#utils/app.error.js";
@@ -119,9 +118,7 @@ export const updatePhoto = async (
   const photoId = req.params.id;
   const currentUserId = req.user!.userId;
 
-  const existingPhoto = await prisma.photo.findUnique({
-    where: { id: photoId },
-  });
+  const existingPhoto = await photoService.findPhotoById(photoId);
 
   if (!existingPhoto) {
     throw new AppError("Photo not found", 404);
