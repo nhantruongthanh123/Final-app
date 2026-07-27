@@ -6,6 +6,7 @@ import type { PhotoWithMeta } from "@/types/photo";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type PhotoDiscoverResponse = PaginatedResponse<PhotoWithMeta>;
 
@@ -14,9 +15,11 @@ const PhotosDiscover = () => {
     null,
   );
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePhotoDiscover();
+    usePhotoDiscover(searchQuery);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +27,7 @@ const PhotosDiscover = () => {
 
   const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<PhotoDiscoverResponse>>(
-      ["photos", "discover"],
+      ["photos", "discover", searchQuery],
       (old) => {
         if (!old) return old;
         return {

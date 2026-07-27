@@ -151,7 +151,7 @@ export const updatePhoto = async (
     cloudinaryPublicId,
     req.body.title,
     req.body.description,
-    req.body.isPublic === "true",
+    req.body.isPublic,
   );
 
   res.status(200).json(updatedPhoto);
@@ -165,6 +165,7 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
   const currentUserId = req.user.userId;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
+  const search = req.query.search as string | undefined;
 
   const followingIds = await userService.getAllFollowingsId(currentUserId);
 
@@ -180,6 +181,7 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
       followingIds,
       page,
       limit,
+      search,
     );
 
   res.status(200).json({ items: formattedFeedPhotos, total: totalPhotos });
@@ -188,12 +190,12 @@ export const getAllPhotosFeed = async (req: Request, res: Response) => {
 export const getAllPhotosDiscover = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
+  const search = req.query.search as string | undefined;
 
   const currentUserId = req.user?.userId;
 
   const { formattedDiscoverPhotos, totalPhotos } =
-    await photoService.findPhotosDiscover(currentUserId, page, limit);
+    await photoService.findPhotosDiscover(currentUserId, page, limit, search);
 
   res.status(200).json({ items: formattedDiscoverPhotos, total: totalPhotos });
 };

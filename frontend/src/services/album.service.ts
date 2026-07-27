@@ -29,26 +29,28 @@ export const AlbumService = {
     return res.data;
   },
 
-  getFeedAlbums: async (page?: number, limit?: number) => {
+  getFeedAlbums: async (page?: number, limit?: number, search?: string) => {
     const res = await api.get<{ items: AlbumWithMeta[]; total: number }>(
       "/albums/feed",
       {
         params: {
           page,
           limit,
+          search,
         },
       },
     );
     return res.data;
   },
 
-  getDiscoverAlbums: async (page?: number, limit?: number) => {
+  getDiscoverAlbums: async (page?: number, limit?: number, search?: string) => {
     const res = await api.get<{ items: AlbumWithMeta[]; total: number }>(
       "/albums/discover",
       {
         params: {
           page,
           limit,
+          search,
         },
       },
     );

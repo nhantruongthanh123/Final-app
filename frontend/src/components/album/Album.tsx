@@ -1,6 +1,6 @@
 import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
-import type { AlbumFeed } from "@/types/album";
+import type { AlbumWithMeta } from "@/types/album";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
 import { memo } from "react";
@@ -12,7 +12,7 @@ const Album = ({
   handleClickAlbum,
   handleLikeAlbum,
 }: {
-  album: AlbumFeed;
+  album: AlbumWithMeta;
   handleClickAlbum: () => void;
   handleLikeAlbum: (albumId: string, newIsLiked: boolean) => void;
 }) => {

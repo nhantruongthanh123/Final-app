@@ -6,11 +6,15 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 const LIMIT = 20;
 type PhotoDiscoverResponse = PaginatedResponse<PhotoWithMeta>;
 
-export function usePhotoDiscover() {
+export function usePhotoDiscover(searchParam?: string) {
   return useInfiniteQuery<PhotoDiscoverResponse, Error>({
-    queryKey: ["photos", "discover"],
+    queryKey: ["photos", "discover", searchParam],
     queryFn: async ({ pageParam }) => {
-      return await PhotoService.getDiscoverPhotos(pageParam as number, LIMIT);
+      return await PhotoService.getDiscoverPhotos(
+        pageParam as number,
+        LIMIT,
+        searchParam as string | undefined,
+      );
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

@@ -16,12 +16,36 @@ import {
   ShieldAlert,
   Sun,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const [searchInput, setSearchInput] = useState("");
   const { toggleTheme } = useTheme();
   const user = useAuthStore.getState().user;
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const params = new URLSearchParams(location.search);
+
+      if (searchInput.trim()) {
+        params.set("search", searchInput.trim());
+      } else {
+        params.delete("search");
+      }
+
+      const allowedPaths = ["/feed", "/discover"];
+      const currentPath = location.pathname;
+
+      const targetPath = allowedPaths.includes(currentPath)
+        ? currentPath
+        : "/feed";
+
+      navigate(`${targetPath}?${params.toString()}`);
+    }
+  };
 
   const handleLogout = async () => {
     await AuthService.logout();
@@ -42,9 +66,11 @@ const Header = () => {
         <input
           className="bg-white text-gray-700 placeholder:text-gray-400 rounded-sm px-2 md:px-4 py-1 w-[90%] md:w-[80%] text-xs md:text-base dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500"
           placeholder="Search photo/album..."
-          type="search"
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           autoComplete="nope"
-          readOnly={true}
         />
       </div>
 

@@ -125,6 +125,7 @@ export const findPhotosFeedByUserId = async (
   followingIds: string[],
   page: number,
   limit: number,
+  search?: string,
 ) => {
   const offset = (page - 1) * limit;
 
@@ -133,6 +134,19 @@ export const findPhotosFeedByUserId = async (
       where: {
         userId: { in: followingIds },
         isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
       },
       orderBy: { updatedAt: "desc" },
       skip: offset,
@@ -156,7 +170,23 @@ export const findPhotosFeedByUserId = async (
       },
     }),
     prisma.photo.count({
-      where: { userId: { in: followingIds }, isPublic: true },
+      where: {
+        userId: { in: followingIds },
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
     }),
   ]);
 
@@ -169,12 +199,28 @@ export const findPhotosDiscover = async (
   currentUserId: string | undefined,
   page: number,
   limit: number,
+  search?: string,
 ) => {
   const offset = (page - 1) * limit;
 
   const [discoverPhotos, totalPhotos] = await Promise.all([
     prisma.photo.findMany({
-      where: { isPublic: true },
+      where: {
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
       orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
       skip: offset,
       take: limit,
@@ -201,7 +247,22 @@ export const findPhotosDiscover = async (
       },
     }),
     prisma.photo.count({
-      where: { isPublic: true },
+      where: {
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
     }),
   ]);
 

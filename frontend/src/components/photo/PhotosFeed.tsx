@@ -6,7 +6,7 @@ import type { PhotoWithMeta } from "@/types/photo";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import EmptyState from "../shared/EmptyState";
 
 type PhotoFeedResponse = PaginatedResponse<PhotoWithMeta>;
@@ -15,11 +15,14 @@ const PhotosFeed = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoWithMeta | null>(
     null,
   );
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const searchQuery = searchParams.get("search") || "";
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePhotoFeed();
+    usePhotoFeed(searchQuery);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +30,7 @@ const PhotosFeed = () => {
 
   const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<PhotoFeedResponse>>(
-      ["photos", "feed"],
+      ["photos", "feed", searchQuery],
       (old) => {
         if (!old) return old;
         return {
@@ -98,6 +101,18 @@ const PhotosFeed = () => {
       <div ref={sentinelRef} style={{ height: 1 }} />
       {isFetchingNextPage && (
         <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
+
+      {!isFetchingNextPage && !hasNextPage && (
+        <div className="flex justify-center items-center md:col-span-2">
+          <EmptyState
+            icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+            title="You've reached the end of the feed"
+            description="There are no photos or you have reached the end of the feed. Follow more users to see their photos here."
+            actionLabel="Move to discover"
+            onAction={() => navigate("/discover")}
+          />
+        </div>
       )}
 
       <PhotoModal

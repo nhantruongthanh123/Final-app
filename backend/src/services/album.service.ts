@@ -199,6 +199,7 @@ export const findAlbumsFeedByUserId = async (
   followingIds: string[],
   page: number,
   limit: number,
+  search?: string,
 ) => {
   const offset = (page - 1) * limit;
 
@@ -207,6 +208,19 @@ export const findAlbumsFeedByUserId = async (
       where: {
         userId: { in: followingIds },
         isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
       },
       orderBy: { updatedAt: "desc" },
       skip: offset,
@@ -237,7 +251,23 @@ export const findAlbumsFeedByUserId = async (
     }),
 
     prisma.album.count({
-      where: { userId: { in: followingIds }, isPublic: true },
+      where: {
+        userId: { in: followingIds },
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
     }),
   ]);
 
@@ -252,11 +282,27 @@ export const findAlbumsDiscover = async (
   currentUserId: string | undefined,
   page: number,
   limit: number,
+  search?: string,
 ) => {
   const offset = (page - 1) * limit;
   const [discoverAlbums, totalAlbums] = await Promise.all([
     prisma.album.findMany({
-      where: { isPublic: true },
+      where: {
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
       orderBy: [{ updatedAt: "desc" }, { id: "asc" }],
       skip: offset,
       take: limit,
@@ -289,7 +335,22 @@ export const findAlbumsDiscover = async (
       },
     }),
     prisma.album.count({
-      where: { isPublic: true },
+      where: {
+        isPublic: true,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search as string, mode: "insensitive" } },
+                {
+                  description: {
+                    contains: search as string,
+                    mode: "insensitive",
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
     }),
   ]);
 

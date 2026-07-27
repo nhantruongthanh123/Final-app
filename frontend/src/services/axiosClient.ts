@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
+import { AuthService } from "./auth.service";
 
 export const api = axios.create({
   baseURL: "http://localhost:5000/api",
@@ -33,13 +34,9 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       // Attempt to refresh the access token
       try {
-        const refreshResponse = await axios.post(
-          "http://localhost:5000/api/auth/refresh",
-          {},
-          { withCredentials: true },
-        );
+        const refreshResponse = await AuthService.refreshToken();
 
-        const newAccessToken = refreshResponse.data.accessToken;
+        const newAccessToken = refreshResponse.accessToken;
         useAuthStore
           .getState()
           .setAuth(newAccessToken, useAuthStore.getState().user!);

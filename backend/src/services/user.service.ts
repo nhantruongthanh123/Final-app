@@ -47,7 +47,7 @@ export const createUser = async (
   password: string,
   isEmailVerified: boolean = false,
   emailVerificationToken: string | null = null,
-  emailVerificationTokenExpiry: Date | null = null,
+  emailVerificationExpires: Date | null = null,
 ) => {
   const newUser = await prisma.user.create({
     data: {
@@ -57,7 +57,7 @@ export const createUser = async (
       password,
       isEmailVerified,
       emailVerificationToken,
-      emailVerificationTokenExpiry,
+      emailVerificationExpires,
     },
   });
 

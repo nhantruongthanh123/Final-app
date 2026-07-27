@@ -4,7 +4,7 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import type { PhotoFeed } from "../../types/photo";
+import type { PhotoWithMeta } from "../../types/photo";
 import PublicUserInfo from "../shared/PublicUserInfo";
 
 const Photo = ({
@@ -12,7 +12,7 @@ const Photo = ({
   handleClickPhoto,
   handleLikePhoto,
 }: {
-  photo: PhotoFeed;
+  photo: PhotoWithMeta;
   handleClickPhoto: () => void;
   handleLikePhoto: (photoId: string, newIsLiked: boolean) => void;
 }) => {

@@ -4,7 +4,7 @@ import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import EmptyState from "../shared/EmptyState";
 import Album from "./Album";
 import AlbumModal from "./AlbumModal";
@@ -17,9 +17,12 @@ const AlbumsFeed = () => {
   );
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+
+  const searchQuery = searchParams.get("search") || "";
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useAlbumFeed();
+    useAlbumFeed(searchQuery);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +30,7 @@ const AlbumsFeed = () => {
 
   const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<AlbumFeedResponse>>(
-      ["albums", "feed"],
+      ["albums", "feed", searchQuery],
       (old) => {
         if (!old) return old;
         return {

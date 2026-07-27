@@ -7,11 +7,15 @@ type AlbumFeedResponse = PaginatedResponse<AlbumWithMeta>;
 
 const LIMIT = 12;
 
-export function useAlbumFeed() {
+export function useAlbumFeed(searchQuery?: string) {
   return useInfiniteQuery<AlbumFeedResponse, Error>({
-    queryKey: ["albums", "feed"],
+    queryKey: ["albums", "feed", searchQuery],
     queryFn: async ({ pageParam }) => {
-      return AlbumService.getFeedAlbums(pageParam as number, LIMIT);
+      return AlbumService.getFeedAlbums(
+        pageParam as number,
+        LIMIT,
+        searchQuery as string | undefined,
+      );
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
