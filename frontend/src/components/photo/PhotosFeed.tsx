@@ -1,5 +1,6 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
+import { useFollowUser } from "@/hooks/useFollowUser";
 import { usePhotoFeed } from "@/hooks/usePhotoFeed";
 import type { PaginatedResponse } from "@/types/api";
 import type { PhotoWithMeta } from "@/types/photo";
@@ -20,6 +21,7 @@ const PhotosFeed = () => {
   const queryClient = useQueryClient();
 
   const searchQuery = searchParams.get("search") || "";
+  const followMutation = useFollowUser();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePhotoFeed(searchQuery);
@@ -45,6 +47,36 @@ const PhotosFeed = () => {
                     numLikes: newIsLiked
                       ? photo.numLikes + 1
                       : photo.numLikes - 1,
+                  }
+                : photo,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  const handlePhotoFollow = (userId: string, isCurrentlyFollowing: boolean) => {
+    followMutation.mutate({
+      userId,
+      isCurrentlyFollowing,
+    });
+    queryClient.setQueryData<InfiniteData<PhotoFeedResponse>>(
+      ["photos", "feed", searchQuery],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((photo) =>
+              photo.user.id === userId
+                ? {
+                    ...photo,
+                    user: {
+                      ...photo.user,
+                      isFollowing: !isCurrentlyFollowing,
+                    },
                   }
                 : photo,
             ),
@@ -94,6 +126,7 @@ const PhotosFeed = () => {
             photo={photo}
             handleClickPhoto={() => setSelectedPhoto(photo)}
             handleLikePhoto={handlePhotoLike}
+            handleFollowUser={handlePhotoFollow}
           />
         </div>
       ))}

@@ -1,5 +1,6 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
+import { useFollowUser } from "@/hooks/useFollowUser";
 import { usePhotoDiscover } from "@/hooks/usePhotoDiscover";
 import type { PaginatedResponse } from "@/types/api";
 import type { PhotoWithMeta } from "@/types/photo";
@@ -17,6 +18,8 @@ const PhotosDiscover = () => {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
+
+  const followMutation = useFollowUser();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePhotoDiscover(searchQuery);
@@ -42,6 +45,36 @@ const PhotosDiscover = () => {
                     numLikes: newIsLiked
                       ? photo.numLikes + 1
                       : photo.numLikes - 1,
+                  }
+                : photo,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  const handlePhotoFollow = (userId: string, isCurrentlyFollowing: boolean) => {
+    followMutation.mutate({
+      userId,
+      isCurrentlyFollowing,
+    });
+    queryClient.setQueryData<InfiniteData<PhotoDiscoverResponse>>(
+      ["photos", "discover", searchQuery],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((photo) =>
+              photo.user.id === userId
+                ? {
+                    ...photo,
+                    user: {
+                      ...photo.user,
+                      isFollowing: !isCurrentlyFollowing,
+                    },
                   }
                 : photo,
             ),
@@ -79,6 +112,7 @@ const PhotosDiscover = () => {
             photo={photo}
             handleClickPhoto={() => setSelectedPhoto(photo)}
             handleLikePhoto={handlePhotoLike}
+            handleFollowUser={handlePhotoFollow}
           />
         </div>
       ))}

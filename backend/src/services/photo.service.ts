@@ -158,6 +158,15 @@ export const findPhotosFeedByUserId = async (
             firstName: true,
             lastName: true,
             avatarUrl: true,
+            ...(currentUserId
+              ? {
+                  followers: {
+                    where: { followerId: currentUserId },
+                    select: { followerId: true },
+                    take: 1,
+                  },
+                }
+              : {}),
           },
         },
         _count: {
@@ -231,6 +240,15 @@ export const findPhotosDiscover = async (
             firstName: true,
             lastName: true,
             avatarUrl: true,
+            ...(currentUserId
+              ? {
+                  followers: {
+                    where: { followerId: currentUserId },
+                    select: { followerId: true },
+                    take: 1,
+                  },
+                }
+              : {}),
           },
         },
         _count: {
