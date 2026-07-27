@@ -1,3 +1,4 @@
+import * as authService from "#services/auth.service.js";
 import * as userService from "#services/user.service.js";
 import { AppError } from "#utils/app.error.js";
 import { sendResetPasswordEmail } from "#utils/sendResetPasswordEmail.js";
@@ -81,7 +82,7 @@ export const loginUser = async (req: Request, res: Response) => {
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   // Create sesson in the database
-  await userService.createSession(userId, refreshToken, expiresAt);
+  await authService.createSession(userId, refreshToken, expiresAt);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -124,7 +125,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   // Create sesson in the database
-  await userService.createSession(userId, refreshToken, expiresAt);
+  await authService.createSession(userId, refreshToken, expiresAt);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -142,7 +143,7 @@ export const logoutUser = async (req: Request, res: Response) => {
     throw new AppError("No refresh token provided", 400);
   }
 
-  await userService.deleteSessionByRefreshToken(refreshToken);
+  await authService.deleteSessionByRefreshToken(refreshToken);
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
@@ -161,7 +162,7 @@ export const refreshUserToken = async (req: Request, res: Response) => {
 
   jwt.verify(oldRefreshToken, process.env.REFRESH_TOKEN_SECRET as string);
 
-  const session = await userService.findSessionByRefreshToken(oldRefreshToken);
+  const session = await authService.findSessionByRefreshToken(oldRefreshToken);
 
   if (!session) {
     throw new AppError("Session not found. Please log in again.", 403);
@@ -189,13 +190,13 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   const existingSession =
-    await userService.findSessionByRefreshToken(oldRefreshToken);
+    await authService.findSessionByRefreshToken(oldRefreshToken);
 
   if (!existingSession) {
     throw new AppError("Session not found. Please log in again.", 403);
   }
 
-  await userService.updateSessionByRefreshToken(
+  await authService.updateSessionByRefreshToken(
     oldRefreshToken,
     newRefreshToken,
     expiresAt,
@@ -238,7 +239,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  await userService.updateUserResetTokenByUserId(
+  await authService.updateUserResetTokenByUserId(
     user.id,
     hashedToken,
     expiresAt,
@@ -260,7 +261,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await userService.findUserByResetPasswordToken(hashedToken);
+  const user = await authService.findUserByResetPasswordToken(hashedToken);
 
   if (!user) {
     throw new AppError(
@@ -271,7 +272,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await userService.updateUserResetTokenByUserId(
+  await authService.updateUserResetTokenByUserId(
     user.id,
     null,
     null,
@@ -290,7 +291,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await userService.findUserByVerificationEmailToken(hashedToken);
+  const user = await authService.findUserByVerificationEmailToken(hashedToken);
 
   if (!user) {
     throw new AppError(
@@ -299,7 +300,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     );
   }
 
-  await userService.updateUserVerificationEmailTokenByUserId(
+  await authService.updateUserVerificationEmailTokenByUserId(
     user.id,
     null,
     null,
@@ -333,7 +334,7 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     .digest("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  await userService.updateUserVerificationEmailTokenByUserId(
+  await authService.updateUserVerificationEmailTokenByUserId(
     user.id,
     hashedToken,
     expiresAt,
