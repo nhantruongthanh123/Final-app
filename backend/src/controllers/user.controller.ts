@@ -1,47 +1,25 @@
 import cloudinary from "#config/cloudinary.js";
-import { prisma } from "#config/db.js";
 import { UserQuery } from "#schemas/query.schema.js";
+import * as albumService from "#services/album.service.js";
+import * as photoService from "#services/photo.service.js";
+import * as userService from "#services/user.service.js";
 import { AppError } from "#utils/app.error.js";
 import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
-import { attachFollowStatus } from "#utils/userUtils.js";
 import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const { page, limit } = req.query as unknown as UserQuery;
-  const offset = (page - 1) * limit;
 
   const { search, role, isActive } = req.query;
 
-  const whereClause: any = {};
-
-  if (search) {
-    whereClause.OR = [
-      { firstName: { contains: search, mode: "insensitive" } },
-      { lastName: { contains: search, mode: "insensitive" } },
-      { email: { contains: search, mode: "insensitive" } },
-    ];
-  }
-
-  if (role && role !== "ALL") {
-    whereClause.role = role;
-  }
-
-  if (isActive === "true") {
-    whereClause.isActive = true;
-  } else if (isActive === "false") {
-    whereClause.isActive = false;
-  }
-
-  const [users, totalUsers] = await Promise.all([
-    prisma.user.findMany({
-      where: whereClause,
-      skip: offset,
-      take: limit,
-      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.user.count({ where: whereClause }),
-  ]);
+  const { users, totalUsers } = await userService.getusersByAdmin(
+    page,
+    limit,
+    search as string | undefined,
+    role as string | undefined,
+    isActive as string | undefined,
+  );
 
   res.status(200).json({ users, totalUsers });
 };
@@ -61,46 +39,26 @@ export const getUserById = async (
     throw new AppError("User ID is required", 400);
   }
 
-  const isFollowing = await prisma.follow.findFirst({
-    where: {
-      followerId: currentUserId,
-      followedId: userId,
-    },
-  });
+  const isFollowing = await userService.isFollowing(currentUserId, userId);
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      email: true,
-      lastName: true,
-      firstName: true,
-      avatarUrl: true,
-      isActive: true,
-      role: true,
-      updatedAt: true,
-      createdAt: true,
-    },
-  });
+  const user = await userService.findUserById(userId);
 
   if (!user) {
     throw new AppError("User not found", 404);
   }
 
-  res.status(200).json({ ...user, isFollowing: !!isFollowing });
+  res.status(200).json({ ...user, isFollowing: isFollowing });
 };
 
 export const createUser = async (req: Request, res: Response) => {
   const { email, firstName, lastName, password } = req.body;
 
-  const newUser = await prisma.user.create({
-    data: {
-      email,
-      firstName,
-      lastName,
-      password,
-    },
-  });
+  const newUser = await userService.createUser(
+    email,
+    firstName,
+    lastName,
+    password,
+  );
 
   res.status(201).json(newUser);
 };
@@ -111,9 +69,7 @@ export const deleteUser = async (
 ) => {
   const userId = req.params.id;
 
-  const deletedUser = await prisma.user.delete({
-    where: { id: userId },
-  });
+  const deletedUser = await userService.deleteUserById(userId);
   res.status(200).json(deletedUser);
 };
 
@@ -126,21 +82,16 @@ export const updateUser = async (req: Request, res: Response) => {
 
   const { email, firstName, lastName } = req.body;
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
+  const existingUser = await userService.findUserByEmail(email);
 
   if (existingUser && existingUser.id !== userId) {
     throw new AppError("Email already exists", 409);
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      ...(email && { email }),
-      ...(firstName && { firstName }),
-      ...(lastName && { lastName }),
-    },
+  const updatedUser = await userService.updateUserById(userId, {
+    email,
+    firstName,
+    lastName,
   });
 
   res.status(200).json(updatedUser);
@@ -154,19 +105,16 @@ export const updateUserPassword = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const { password, newPassword } = req.body;
 
-  const oldPassword = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { password: true },
-  });
+  const oldPassword = await userService.findUserPasswordById(userId);
 
   if (!bcrypt.compareSync(password, oldPassword?.password || "")) {
     throw new AppError("Incorrect current password", 400);
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: { password: bcrypt.hashSync(newPassword, 10) },
-  });
+  const updatedUser = await userService.updateUserPasswordById(
+    userId,
+    bcrypt.hashSync(newPassword, 10),
+  );
 
   res.status(200).json(updatedUser);
 };
@@ -188,10 +136,7 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
     "fotobook/avatars",
   );
 
-  const existingUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { avatarCloudinaryId: true },
-  });
+  const existingUser = await userService.findUserById(userId);
 
   if (!existingUser) {
     throw new AppError("User not found", 404);
@@ -206,13 +151,11 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
     }
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      avatarUrl: url,
-      avatarCloudinaryId: publicId,
-    },
-  });
+  const updatedUser = await userService.updateUserAvatarById(
+    userId,
+    url,
+    publicId,
+  );
 
   res.status(200).json(updatedUser);
 };
@@ -231,13 +174,10 @@ export const updateUserAdmin = async (
 
   console.log(email);
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      ...(email && { email }),
-      ...(firstName && { firstName }),
-      ...(lastName && { lastName }),
-    },
+  const updatedUser = await userService.updateUserById(userId, {
+    email,
+    firstName,
+    lastName,
   });
 
   res.status(200).json(updatedUser);
@@ -256,10 +196,7 @@ export const updateUserAvatarAdmin = async (req: Request, res: Response) => {
     throw new AppError("No file uploaded", 400);
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { avatarCloudinaryId: true },
-  });
+  const existingUser = await userService.findUserById(userId);
 
   if (!existingUser) {
     throw new AppError("User not found", 404);
@@ -280,13 +217,11 @@ export const updateUserAvatarAdmin = async (req: Request, res: Response) => {
     }
   }
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      avatarUrl: url,
-      avatarCloudinaryId: publicId,
-    },
-  });
+  const updatedUser = await userService.updateUserAvatarById(
+    userId,
+    url,
+    publicId,
+  );
 
   res.status(200).json(updatedUser);
 };
@@ -302,12 +237,7 @@ export const updateUserIsActiveAdmin = async (req: Request, res: Response) => {
 
   const { isActive } = req.body;
 
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      isActive,
-    },
-  });
+  const updatedUser = await userService.updateUserStatusById(userId, isActive);
 
   res.status(200).json(updatedUser);
 };
@@ -328,13 +258,10 @@ export const getUserPhotos = async (
   const isAdmin = currentUserRole === "ADMIN";
   const canViewPrivate = isOwner || isAdmin;
 
-  const userPhotos = await prisma.photo.findMany({
-    where: {
-      userId: targetUserId,
-      ...(canViewPrivate ? {} : { isPublic: true }),
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const userPhotos = await photoService.findPhotosByUserId(
+    targetUserId,
+    canViewPrivate,
+  );
 
   res.status(200).json(userPhotos);
 };
@@ -357,21 +284,10 @@ export const getUserAlbums = async (
   const isAdmin = currentUserRole === "ADMIN";
   const canViewPrivate = isOwner || isAdmin;
 
-  const userAlbums = await prisma.album.findMany({
-    where: {
-      userId: targetUserId,
-      ...(canViewPrivate ? {} : { isPublic: true }),
-    },
-    include: {
-      photos: {
-        select: {
-          id: true,
-          photoUrl: true,
-        },
-      },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const userAlbums = await albumService.findAlbumsByUserId(
+    userId,
+    canViewPrivate,
+  );
   res.status(200).json(userAlbums);
 };
 
@@ -382,24 +298,9 @@ export const getUserFollowings = async (req: Request, res: Response) => {
 
   const userId = req.user?.userId;
 
-  const followings = await prisma.follow.findMany({
-    where: { followerId: userId },
-    select: {
-      following: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-  });
+  const followings = await userService.findUsersFollowing(userId);
 
-  res
-    .status(200)
-    .json(followings.map((f) => ({ ...f.following, isFollowing: true })));
+  res.status(200).json(followings);
 };
 
 export const getUserFollowers = async (req: Request, res: Response) => {
@@ -409,26 +310,9 @@ export const getUserFollowers = async (req: Request, res: Response) => {
 
   const userId = req.user?.userId;
 
-  const followers = await prisma.follow.findMany({
-    where: { followedId: userId },
-    select: {
-      follower: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-  });
+  const followers = await userService.findUsersFollowers(userId);
 
-  const rawFollowers = followers.map((f) => f.follower);
-
-  const formattedFollowers = await attachFollowStatus(rawFollowers, userId);
-
-  res.status(200).json(formattedFollowers);
+  res.status(200).json(followers);
 };
 
 export const getTargetUserFollowings = async (
@@ -442,25 +326,12 @@ export const getTargetUserFollowings = async (
   const userId = req.user?.userId;
   const targetUserId = req.params.id;
 
-  const followingsData = await prisma.follow.findMany({
-    where: { followerId: targetUserId },
-    select: {
-      following: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-  });
-  const rawFollowings = followingsData.map((f) => f.following);
+  const followingsData = await userService.findUsersFollowingByTargetUserId(
+    targetUserId,
+    userId,
+  );
 
-  const formattedFollowings = await attachFollowStatus(rawFollowings, userId);
-
-  res.status(200).json(formattedFollowings);
+  res.status(200).json(followingsData);
 };
 
 export const getTargetUserFollowers = async (
@@ -474,27 +345,10 @@ export const getTargetUserFollowers = async (
   const currentUserId = req.user?.userId;
   const targetUserId = req.params.id;
 
-  const followersData = await prisma.follow.findMany({
-    where: { followedId: targetUserId },
-    select: {
-      follower: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
-        },
-      },
-    },
-  });
-
-  const rawFollowers = followersData.map((f) => f.follower);
-
-  const formattedFollowers = await attachFollowStatus(
-    rawFollowers,
+  const followersData = await userService.findUsersFollowersByTargetUserId(
+    targetUserId,
     currentUserId,
   );
 
-  res.status(200).json(formattedFollowers);
+  res.status(200).json(followersData);
 };

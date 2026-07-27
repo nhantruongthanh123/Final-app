@@ -1,4 +1,5 @@
-import { prisma } from "#config/db.js";
+import * as authService from "#services/auth.service.js";
+import * as userService from "#services/user.service.js";
 import { AppError } from "#utils/app.error.js";
 import { sendResetPasswordEmail } from "#utils/sendResetPasswordEmail.js";
 import { sendVerificationEmail } from "#utils/sendVerificationEmail.js";
@@ -14,9 +15,8 @@ export const registerUser = async (req: Request, res: Response) => {
     throw new AppError("Email and password are required", 400);
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
+  const existingUser = await userService.findUserByEmail(email);
+
   if (existingUser) {
     throw new AppError("Email is already registered", 409);
   }
@@ -30,17 +30,15 @@ export const registerUser = async (req: Request, res: Response) => {
     .digest("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  const newUser = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      isEmailVerified: false,
-      emailVerificationToken: hashedToken,
-      emailVerificationExpires: expiresAt,
-    },
-  });
+  const newUser = await userService.createUser(
+    email,
+    firstName,
+    lastName,
+    hashedPassword,
+    false,
+    emailVerificationToken,
+    expiresAt,
+  );
 
   const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
 
@@ -59,9 +57,8 @@ export const loginUser = async (req: Request, res: Response) => {
   const userId = req.user!.userId;
   const role = req.user!.role;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  const user = await userService.findUserById(userId);
+
   //Handle token generation here (e.g., JWT) and send it back to the client
   const accessToken = jwt.sign(
     { userId, role },
@@ -85,13 +82,7 @@ export const loginUser = async (req: Request, res: Response) => {
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   // Create sesson in the database
-  await prisma.session.create({
-    data: {
-      userId,
-      refreshToken,
-      expiresAt,
-    },
-  });
+  await authService.createSession(userId, refreshToken, expiresAt);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -110,9 +101,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
   const userId = req.user!.userId;
   const role = req.user!.role;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  const user = await userService.findUserById(userId);
 
   const accessToken = jwt.sign(
     { userId, role },
@@ -136,13 +125,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   // Create sesson in the database
-  await prisma.session.create({
-    data: {
-      userId,
-      refreshToken,
-      expiresAt,
-    },
-  });
+  await authService.createSession(userId, refreshToken, expiresAt);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
@@ -160,9 +143,7 @@ export const logoutUser = async (req: Request, res: Response) => {
     throw new AppError("No refresh token provided", 400);
   }
 
-  await prisma.session.deleteMany({
-    where: { refreshToken },
-  });
+  await authService.deleteSessionByRefreshToken(refreshToken);
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
@@ -181,17 +162,14 @@ export const refreshUserToken = async (req: Request, res: Response) => {
 
   jwt.verify(oldRefreshToken, process.env.REFRESH_TOKEN_SECRET as string);
 
-  const session = await prisma.session.findUnique({
-    where: { refreshToken: oldRefreshToken },
-  });
+  const session = await authService.findSessionByRefreshToken(oldRefreshToken);
 
   if (!session) {
     throw new AppError("Session not found. Please log in again.", 403);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-  });
+  const user = await userService.findUserById(session.userId);
+
   if (!user || !user.isActive) {
     throw new AppError("User not found or inactive. Please log in again.", 403);
   }
@@ -211,21 +189,18 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
 
-  const existingSession = await prisma.session.findUnique({
-    where: { refreshToken: oldRefreshToken },
-  });
+  const existingSession =
+    await authService.findSessionByRefreshToken(oldRefreshToken);
 
   if (!existingSession) {
     throw new AppError("Session not found. Please log in again.", 403);
   }
 
-  await prisma.session.update({
-    where: { id: existingSession.id },
-    data: {
-      refreshToken: newRefreshToken,
-      expiresAt: expiresAt,
-    },
-  });
+  await authService.updateSessionByRefreshToken(
+    oldRefreshToken,
+    newRefreshToken,
+    expiresAt,
+  );
 
   res.cookie("refreshToken", newRefreshToken, {
     httpOnly: true,
@@ -247,9 +222,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     throw new AppError("Email is required", 400);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await userService.findUserByEmail(email);
 
   if (!user) {
     return res
@@ -266,13 +239,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      resetPasswordToken: hashedToken,
-      resetPasswordExpires: expiresAt,
-    },
-  });
+  await authService.updateUserResetTokenByUserId(
+    user.id,
+    hashedToken,
+    expiresAt,
+  );
 
   const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
@@ -290,12 +261,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await prisma.user.findFirst({
-    where: {
-      resetPasswordToken: hashedToken,
-      resetPasswordExpires: { gt: new Date() },
-    },
-  });
+  const user = await authService.findUserByResetPasswordToken(hashedToken);
 
   if (!user) {
     throw new AppError(
@@ -306,14 +272,12 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      resetPasswordToken: null,
-      resetPasswordExpires: null,
-    },
-  });
+  await authService.updateUserResetTokenByUserId(
+    user.id,
+    null,
+    null,
+    hashedPassword,
+  );
 
   res.status(200).json({ message: "Reset password successfully." });
 };
@@ -327,12 +291,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await prisma.user.findFirst({
-    where: {
-      emailVerificationToken: hashedToken,
-      emailVerificationExpires: { gt: new Date() },
-    },
-  });
+  const user = await authService.findUserByVerificationEmailToken(hashedToken);
 
   if (!user) {
     throw new AppError(
@@ -341,14 +300,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
     );
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      isEmailVerified: true,
-      emailVerificationToken: null,
-      emailVerificationExpires: null,
-    },
-  });
+  await authService.updateUserVerificationEmailTokenByUserId(
+    user.id,
+    null,
+    null,
+    true,
+  );
 
   res.status(200).json({ message: "Email verified successfully." });
 };
@@ -360,9 +317,7 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     throw new AppError("Email is required", 400);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+  const user = await userService.findUserByEmail(email);
 
   if (!user) {
     throw new AppError("Email is not registered.", 400);
@@ -379,13 +334,11 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     .digest("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      emailVerificationToken: hashedToken,
-      emailVerificationExpires: expiresAt,
-    },
-  });
+  await authService.updateUserVerificationEmailTokenByUserId(
+    user.id,
+    hashedToken,
+    expiresAt,
+  );
 
   const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
