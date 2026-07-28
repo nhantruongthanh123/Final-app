@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { photoSchema, type PhotoPayload } from "@/schemas/photo.schema";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 
-import { PhotoService } from "@/services/photo.service";
+import { useChangePhoto } from "@/hooks/useChangePhoto";
 import axios from "axios";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -26,6 +26,7 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const photoMutation = useChangePhoto();
 
   const {
     register,
@@ -63,7 +64,7 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
   };
 
   const onSubmit = async (data: PhotoPayload) => {
-    await toast.promise(PhotoService.createPhoto(data), {
+    await toast.promise(photoMutation.mutateAsync({ action: "create", data }), {
       loading: "Saving photo...",
       success: () => {
         navigate("/photos");

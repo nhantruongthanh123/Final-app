@@ -33,8 +33,24 @@ export const UserService = {
     return res.data;
   },
 
-  getAllUserPhotos: async (userID: string): Promise<Photo[]> => {
-    const res = await api.get<Photo[]>(`/users/${userID}/photos`);
+  getAllUserPhotos: async (
+    userID: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+    isPublic?: boolean,
+  ): Promise<{ photos: Photo[]; totalPhotos: number }> => {
+    const res = await api.get<{ photos: Photo[]; totalPhotos: number }>(
+      `/users/${userID}/photos`,
+      {
+        params: {
+          page,
+          limit,
+          search,
+          isPublic,
+        },
+      },
+    );
     return res.data;
   },
 

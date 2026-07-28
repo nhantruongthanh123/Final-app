@@ -30,9 +30,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/api/auth/refresh")
+    ) {
       originalRequest._retry = true;
-      // Attempt to refresh the access token
       try {
         const refreshResponse = await AuthService.refreshToken();
 

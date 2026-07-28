@@ -250,6 +250,11 @@ export const getUserPhotos = async (
     throw new AppError("Unauthorized: No user found", 401);
   }
 
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+
+  const { search, isPublic } = req.query;
+
   const currentUserId = req.user?.userId;
   const currentUserRole = req.user?.role;
   const targetUserId = req.params.id;
@@ -261,6 +266,10 @@ export const getUserPhotos = async (
   const userPhotos = await photoService.findPhotosByUserId(
     targetUserId,
     canViewPrivate,
+    page,
+    limit,
+    search as string | undefined,
+    isPublic as string | undefined,
   );
 
   res.status(200).json(userPhotos);

@@ -20,8 +20,6 @@ export const useFollowUser = () => {
     },
 
     onSuccess: () => {
-      // This will invalidate ANY query that starts with these keys
-      // so you don't have to worry about the exact search query strings
       queryClient.invalidateQueries({ queryKey: ["photos", "discover"] });
       queryClient.invalidateQueries({ queryKey: ["photos", "feed"] });
     },

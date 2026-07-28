@@ -20,7 +20,7 @@ const MyProfileHeader = () => {
     const fetchUserData = async () => {
       try {
         const photos = await UserService.getAllUserPhotos(user.id);
-        setNumUserPhotos(photos.length);
+        setNumUserPhotos(photos.photos.length);
 
         const albums = await UserService.getAllUserAlbums(user.id);
         setNumUserAlbums(albums.length);

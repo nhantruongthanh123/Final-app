@@ -10,12 +10,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useChangePhoto } from "@/hooks/useChangePhoto";
 import {
   updatePhotoSchema,
   type UpdatePhotoPayload,
 } from "@/schemas/photo.schema";
 import { PhotoService } from "@/services/photo.service";
-import type { Photo } from "@/types/photo";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 import axios from "axios";
 import { X } from "lucide-react";
@@ -37,8 +37,9 @@ import {
 
 const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const navigate = useNavigate();
-  const [photo, setPhoto] = useState<Photo | null>(null);
+  // const [photo, setPhoto] = useState<Photo | null>(null);
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
+  const photoMutation = useChangePhoto();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -69,30 +70,33 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
   };
 
   const onSubmit = async (data: UpdatePhotoPayload) => {
-    const changedData: Partial<UpdatePhotoPayload> = {};
+    const changedData: UpdatePhotoPayload = {};
 
     if (dirtyFields.title) changedData.title = data.title;
     if (dirtyFields.description) changedData.description = data.description;
     if (dirtyFields.isPublic) changedData.isPublic = data.isPublic;
     if (dirtyFields.file) changedData.file = data.file;
 
-    await toast.promise(PhotoService.updatePhoto(id, changedData), {
-      loading: "Updating photo...",
-      success: () => {
-        return "Photo saved successfully!";
+    await toast.promise(
+      photoMutation.mutateAsync({ action: "update", id, data: changedData }),
+      {
+        loading: "Updating photo...",
+        success: () => {
+          return "Photo saved successfully!";
+        },
+        error: (err) => {
+          if (axios.isAxiosError(err) && err.response?.data?.message) {
+            return err.response.data.message;
+          }
+          return "An unexpected error occurred. Please try again.";
+        },
       },
-      error: (err) => {
-        if (axios.isAxiosError(err) && err.response?.data?.message) {
-          return err.response.data.message;
-        }
-        return "An unexpected error occurred. Please try again.";
-      },
-    });
+    );
   };
 
   const handleDeletePhoto = async () => {
     try {
-      toast.promise(PhotoService.deletePhoto(photo!.id), {
+      toast.promise(photoMutation.mutateAsync({ action: "delete", id }), {
         loading: "Deleting photo...",
         success: () => {
           navigate(backlink);
@@ -111,7 +115,6 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
       try {
         const data = await PhotoService.getPhotoById(id);
         setPreviewPhotoUrl(data.photoUrl);
-        setPhoto(data);
         setValue("title", data.title);
         setValue("description", data.description);
         setValue("isPublic", data.isPublic);

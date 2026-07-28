@@ -78,7 +78,7 @@ export const createPhoto = async (req: Request, res: Response) => {
     req.body.title,
     url,
     req.body.description,
-    req.body.isPublic === "true",
+    req.body.isPublic,
     publicId,
   );
 

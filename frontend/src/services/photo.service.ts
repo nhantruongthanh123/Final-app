@@ -48,7 +48,8 @@ export const PhotoService = {
   },
 
   deletePhoto: async (id: string) => {
-    await api.delete(`/photos/${id}`);
+    const res = await api.delete(`/photos/${id}`);
+    return res.data;
   },
 
   updatePhoto: async (id: string, data: UpdatePhotoPayload) => {

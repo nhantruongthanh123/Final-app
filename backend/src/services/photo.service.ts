@@ -4,16 +4,37 @@ import { formatFeedPhotos } from "#utils/photoUtils.js";
 export const findPhotosByUserId = async (
   userId: string,
   canViewPrivate: boolean,
+  page: number,
+  limit: number,
+  search?: string,
+  isPublic?: string,
 ) => {
-  const userPhotos = await prisma.photo.findMany({
-    where: {
-      userId: userId,
-      ...(canViewPrivate ? {} : { isPublic: true }),
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const offset = (page - 1) * limit;
 
-  return userPhotos;
+  const whereClause: any = {
+    userId: userId,
+    ...(canViewPrivate ? {} : { isPublic: true }),
+  };
+
+  if (isPublic !== undefined) {
+    whereClause.isPublic = isPublic === "true";
+  }
+
+  if (search) {
+    whereClause.title = { contains: search as string, mode: "insensitive" };
+  }
+
+  const [photos, totalPhotos] = await Promise.all([
+    prisma.photo.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: whereClause,
+    }),
+    prisma.photo.count({ where: whereClause }),
+  ]);
+
+  return { photos, totalPhotos };
 };
 
 export const findAllPhotos = async (page: number, limit: number) => {
