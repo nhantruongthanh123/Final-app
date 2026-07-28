@@ -54,12 +54,10 @@ const TargetUserProfileHeader = ({
         setNumUserPhotos(photos.photos.length);
         const albums = await UserService.getAllUserAlbums(publicUserId);
         setNumUserAlbums(albums.albums.length);
-        const followings =
-          await UserService.getTargetUserFollowings(publicUserId);
-        setNumUserFollowings(followings.length);
-        const followers =
-          await UserService.getTargetUserFollowers(publicUserId);
-        setNumUserFollowers(followers.length);
+        const followings = await UserService.getAllUserFollowings(publicUserId);
+        setNumUserFollowings(followings.totalFollowings);
+        const followers = await UserService.getAllUserFollowers(publicUserId);
+        setNumUserFollowers(followers.totalFollowers);
         const userData = await UserService.getUserById(publicUserId);
         setTargetUser(userData);
         setIsFollowing(userData.isFollowing);

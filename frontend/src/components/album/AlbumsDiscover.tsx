@@ -1,4 +1,4 @@
-import { useAlbumDiscover } from "@/hooks/useAlbumDiscover";
+import { useAlbumDiscover } from "@/hooks/album/useAlbumDiscover";
 import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";

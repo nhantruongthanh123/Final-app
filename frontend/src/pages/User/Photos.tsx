@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePhotoUser } from "@/hooks/usePhotoUser";
+import { usePhotoUser } from "@/hooks/photo/usePhotoUser";
 import { useAuthStore } from "@/store/authStore";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

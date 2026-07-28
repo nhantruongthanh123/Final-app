@@ -279,8 +279,6 @@ export const getUserAlbums = async (
   req: Request<{ id: string }>,
   res: Response,
 ) => {
-  const userId = req.params.id;
-
   if (!req.user) {
     throw new AppError("Unauthorized: No user found", 401);
   }
@@ -299,7 +297,7 @@ export const getUserAlbums = async (
   const canViewPrivate = isOwner || isAdmin;
 
   const userAlbums = await albumService.findAlbumsByUserId(
-    userId,
+    targetUserId,
     canViewPrivate,
     page,
     limit,
@@ -309,31 +307,7 @@ export const getUserAlbums = async (
   res.status(200).json(userAlbums);
 };
 
-export const getUserFollowings = async (req: Request, res: Response) => {
-  if (!req.user) {
-    throw new AppError("Unauthorized: No user found", 401);
-  }
-
-  const userId = req.user?.userId;
-
-  const followings = await userService.findUsersFollowing(userId);
-
-  res.status(200).json(followings);
-};
-
-export const getUserFollowers = async (req: Request, res: Response) => {
-  if (!req.user) {
-    throw new AppError("Unauthorized: No user found", 401);
-  }
-
-  const userId = req.user?.userId;
-
-  const followers = await userService.findUsersFollowers(userId);
-
-  res.status(200).json(followers);
-};
-
-export const getTargetUserFollowings = async (
+export const getUserFollowings = async (
   req: Request<{ id: string }>,
   res: Response,
 ) => {
@@ -341,32 +315,50 @@ export const getTargetUserFollowings = async (
     throw new AppError("Unauthorized: No user found", 401);
   }
 
-  const userId = req.user?.userId;
-  const targetUserId = req.params.id;
-
-  const followingsData = await userService.findUsersFollowingByTargetUserId(
-    targetUserId,
-    userId,
-  );
-
-  res.status(200).json(followingsData);
-};
-
-export const getTargetUserFollowers = async (
-  req: Request<{ id: string }>,
-  res: Response,
-) => {
-  if (!req.user) {
-    throw new AppError("Unauthorized: No user found", 401);
-  }
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
 
   const currentUserId = req.user?.userId;
   const targetUserId = req.params.id;
 
-  const followersData = await userService.findUsersFollowersByTargetUserId(
-    targetUserId,
-    currentUserId,
-  );
+  const { search } = req.query;
 
-  res.status(200).json(followersData);
+  const { formattedFollowings, totalFollowings } =
+    await userService.findUsersFollowingByTargetUserId(
+      targetUserId,
+      currentUserId,
+      page,
+      limit,
+      search as string | undefined,
+    );
+
+  res.status(200).json({ followings: formattedFollowings, totalFollowings });
+};
+
+export const getUserFollowers = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  if (!req.user) {
+    throw new AppError("Unauthorized: No user found", 401);
+  }
+
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 12;
+
+  const { search } = req.query;
+
+  const currentUserId = req.user?.userId;
+  const targetUserId = req.params.id;
+
+  const { formattedFollowers, totalFollowers } =
+    await userService.findUsersFollowersByTargetUserId(
+      targetUserId,
+      currentUserId,
+      page,
+      limit,
+      search as string | undefined,
+    );
+
+  res.status(200).json({ followers: formattedFollowers, totalFollowers });
 };

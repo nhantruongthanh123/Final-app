@@ -2,7 +2,7 @@ import AlbumModal from "@/components/album/AlbumModal";
 import TargetAlbumUser from "@/components/album/TargetAlbumUser";
 import EmptyState from "@/components/shared/EmptyState";
 import { Input } from "@/components/ui/input";
-import { useAlbumUser } from "@/hooks/useAlbumUser";
+import { useAlbumUser } from "@/hooks/album/useAlbumUser";
 import type { Album } from "@/types/album";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

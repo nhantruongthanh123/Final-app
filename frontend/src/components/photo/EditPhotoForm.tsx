@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useChangePhoto } from "@/hooks/useChangePhoto";
+import { useChangePhoto } from "@/hooks/photo/useChangePhoto";
 import {
   updatePhotoSchema,
   type UpdatePhotoPayload,

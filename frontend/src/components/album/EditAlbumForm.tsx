@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useChangeAlbum } from "@/hooks/useChangeAlbum";
+import { useChangeAlbum } from "@/hooks/album/useChangeAlbum";
 import { editAlbumSchema, type EditAlbumPayload } from "@/schemas/album.schema";
 import { AlbumService } from "@/services/album.service";
 import type { AlbumImage, newPhotoPreview } from "@/types/album";

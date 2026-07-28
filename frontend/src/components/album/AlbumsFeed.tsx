@@ -1,4 +1,4 @@
-import { useAlbumFeed } from "@/hooks/useAlbumFeed";
+import { useAlbumFeed } from "@/hooks/album/useAlbumFeed";
 import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";

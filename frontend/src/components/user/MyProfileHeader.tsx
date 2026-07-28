@@ -25,11 +25,11 @@ const MyProfileHeader = () => {
         const albums = await UserService.getAllUserAlbums(user.id);
         setNumUserAlbums(albums.totalAlbums);
 
-        const followings = await UserService.getAllUserFollowings();
-        setNumUserFollowings(followings.length);
+        const followings = await UserService.getAllUserFollowings(user.id);
+        setNumUserFollowings(followings.totalFollowings);
 
-        const followers = await UserService.getAllUserFollowers();
-        setNumUserFollowers(followers.length);
+        const followers = await UserService.getAllUserFollowers(user.id);
+        setNumUserFollowers(followers.totalFollowers);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }

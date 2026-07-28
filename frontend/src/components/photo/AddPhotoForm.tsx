@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { photoSchema, type PhotoPayload } from "@/schemas/photo.schema";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 
-import { useChangePhoto } from "@/hooks/useChangePhoto";
+import { useChangePhoto } from "@/hooks/photo/useChangePhoto";
 import axios from "axios";
 import { X } from "lucide-react";
 import { useRef, useState } from "react";

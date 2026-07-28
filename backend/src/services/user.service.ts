@@ -166,63 +166,110 @@ export const findUsersFollowers = async (userId: string) => {
 export const findUsersFollowingByTargetUserId = async (
   targetUserId: string,
   currentUserId: string,
+  page: number = 1,
+  limit: number = 12,
+  search?: string,
 ) => {
-  const followingsData = await prisma.follow.findMany({
-    where: { followerId: targetUserId },
-    select: {
-      following: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
+  const offset = (page - 1) * limit;
+
+  const whereClause: any = {
+    followerId: targetUserId,
+  };
+
+  if (search) {
+    whereClause.following = {
+      OR: [
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+      ],
+    };
+  }
+
+  const [followings, totalFollowings] = await Promise.all([
+    prisma.follow.findMany({
+      skip: offset,
+      take: limit,
+      where: whereClause,
+      select: {
+        following: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
         },
       },
-    },
-  });
-  const rawFollowings = followingsData.map((f) => f.following);
+    }),
+    prisma.follow.count({ where: whereClause }),
+  ]);
+
+  const rawFollowings = followings.map((f) => f.following);
 
   const formattedFollowings = await attachFollowStatus(
     rawFollowings,
     currentUserId,
   );
 
-  return formattedFollowings;
+  return { formattedFollowings, totalFollowings };
 };
 
 export const findUsersFollowersByTargetUserId = async (
   targetUserId: string,
   currentUserId: string,
+  page: number = 1,
+  limit: number = 12,
+  search?: string,
 ) => {
-  const followersData = await prisma.follow.findMany({
-    where: { followedId: targetUserId },
-    select: {
-      follower: {
-        select: {
-          id: true,
-          email: true,
-          avatarUrl: true,
-          firstName: true,
-          lastName: true,
+  const offset = (page - 1) * limit;
+
+  const whereClause: any = {
+    followedId: targetUserId,
+  };
+
+  if (search) {
+    whereClause.follower = {
+      OR: [
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+      ],
+    };
+  }
+
+  const [followers, totalFollowers] = await Promise.all([
+    prisma.follow.findMany({
+      skip: offset,
+      take: limit,
+      where: whereClause,
+      select: {
+        follower: {
+          select: {
+            id: true,
+            email: true,
+            avatarUrl: true,
+            firstName: true,
+            lastName: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.follow.count({ where: whereClause }),
+  ]);
 
-  const rawFollowers = followersData.map((f) => f.follower);
+  const rawFollowers = followers.map((f) => f.follower);
 
   const formattedFollowers = await attachFollowStatus(
     rawFollowers,
     currentUserId,
   );
 
-  return formattedFollowers;
+  return { formattedFollowers, totalFollowers };
 };
 
 export const getusersByAdmin = async (
-  page: number,
-  limit: number,
+  page: number = 1,
+  limit: number = 12,
   search?: string,
   role?: string,
   isActive?: string,

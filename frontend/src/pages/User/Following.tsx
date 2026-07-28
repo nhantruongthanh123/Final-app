@@ -1,52 +1,98 @@
 import EmptyState from "@/components/shared/EmptyState";
+import { Input } from "@/components/ui/input";
 import UserCard from "@/components/user/UserCard";
-import { UserService } from "@/services/user.service";
+import { useFollowingUser } from "@/hooks/user/useFollowingUser";
 import { useAuthStore } from "@/store/authStore";
-import type { UserWithFollowStatus } from "@/types/user";
-import { UserX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { LoaderCircle, UserX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Following = () => {
-  const [followings, setFollowings] = useState<UserWithFollowStatus[]>([]);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useFollowingUser(user?.id, debouncedSearch);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const followings = data?.pages.flatMap((page) => page.followings) ?? [];
 
   useEffect(() => {
-    if (!user) return;
-    const fetchFollowings = async () => {
-      try {
-        const res = await UserService.getAllUserFollowings();
-        setFollowings(res);
-      } catch (error) {
-        console.error("Error fetching following:", error);
-      }
-    };
+    const el = sentinelRef.current;
+    if (!el) return;
 
-    fetchFollowings();
-  }, [user]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [data?.pages, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   if (!followings || followings.length === 0) {
     return (
-      <EmptyState
-        icon={<UserX className="w-10 h-10 text-orange-400" />}
-        title={"You haven't followed anyone yet."}
-        description={
-          "Discover and start following other users to see their photos and updates here."
-        }
-        actionLabel={"Discover"}
-        onAction={() => {
-          navigate("/discover");
-        }}
-      />
+      <div className="flex flex-col p-4 w-full">
+        {/* FILTER BAR */}
+        <div className="flex gap-4 mb-6">
+          <Input
+            placeholder="Search by title"
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+            }}
+          />
+        </div>
+
+        <EmptyState
+          icon={<UserX className="w-10 h-10 text-orange-400" />}
+          title={"You haven't followed anyone yet or no results found."}
+          description={
+            "Discover and start following other users to see their photos and updates here."
+          }
+          actionLabel={"Discover"}
+          onAction={() => {
+            navigate("/discover");
+          }}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4 p-2 m-2">
-      {followings.map((user) => (
-        <UserCard key={user.id} user={user} />
-      ))}
+    <div className="flex flex-col p-4 w-full">
+      {/* FILTER BAR */}
+      <div className="flex gap-4 mb-6">
+        <Input
+          placeholder="Search by title"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+          }}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
+        {followings.map((user) => (
+          <UserCard key={user.id} user={user} />
+        ))}
+      </div>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
     </div>
   );
 };

@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAlbumUser } from "@/hooks/useAlbumUser";
+import { useAlbumUser } from "@/hooks/album/useAlbumUser";
 import { useAuthStore } from "@/store/authStore";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

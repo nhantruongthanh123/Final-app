@@ -2,7 +2,7 @@ import PhotoModal from "@/components/photo/PhotoModal";
 import TargetPhotoUser from "@/components/photo/TargetPhotoUser";
 import EmptyState from "@/components/shared/EmptyState";
 import { Input } from "@/components/ui/input";
-import { usePhotoUser } from "@/hooks/usePhotoUser";
+import { usePhotoUser } from "@/hooks/photo/usePhotoUser";
 import type { Photo } from "@/types/photo";
 import { ImageOff, LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

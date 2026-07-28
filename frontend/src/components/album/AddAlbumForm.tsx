@@ -1,5 +1,5 @@
 import RemoveablePhoto from "@/components/photo/RemovablePhoto";
-import { useChangeAlbum } from "@/hooks/useChangeAlbum";
+import { useChangeAlbum } from "@/hooks/album/useChangeAlbum";
 import { albumSchema, type AlbumPayload } from "@/schemas/album.schema";
 import type { newPhotoPreview } from "@/types/album";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";

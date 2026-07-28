@@ -75,13 +75,47 @@ export const UserService = {
     return res.data;
   },
 
-  getAllUserFollowings: async (): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(`/users/followings`);
+  getAllUserFollowings: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+  ): Promise<{
+    followings: UserWithFollowStatus[];
+    totalFollowings: number;
+  }> => {
+    const res = await api.get<{
+      followings: UserWithFollowStatus[];
+      totalFollowings: number;
+    }>(`/users/${userId}/followings`, {
+      params: {
+        page,
+        limit,
+        search,
+      },
+    });
     return res.data;
   },
 
-  getAllUserFollowers: async (): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(`/users/followers`);
+  getAllUserFollowers: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+  ): Promise<{
+    followers: UserWithFollowStatus[];
+    totalFollowers: number;
+  }> => {
+    const res = await api.get<{
+      followers: UserWithFollowStatus[];
+      totalFollowers: number;
+    }>(`/users/${userId}/followers`, {
+      params: {
+        page,
+        limit,
+        search,
+      },
+    });
     return res.data;
   },
 
@@ -158,24 +192,6 @@ export const UserService = {
 
   unlikeAlbum: async (albumId: string): Promise<void> => {
     await api.delete(`/users/${albumId}/likeAlbum`);
-  },
-
-  getTargetUserFollowings: async (
-    userId: string | undefined,
-  ): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(
-      `/users/${userId}/followings`,
-    );
-    return res.data;
-  },
-
-  getTargetUserFollowers: async (
-    userId: string | undefined,
-  ): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(
-      `/users/${userId}/followers`,
-    );
-    return res.data;
   },
 
   deleteUserByAdmin: async (userId: string): Promise<void> => {

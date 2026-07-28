@@ -1,7 +1,7 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
-import { useFollowUser } from "@/hooks/useFollowUser";
-import { usePhotoFeed } from "@/hooks/usePhotoFeed";
+import { usePhotoFeed } from "@/hooks/photo/usePhotoFeed";
+import { useFollowUser } from "@/hooks/user/useFollowUser";
 import type { PaginatedResponse } from "@/types/api";
 import type { PhotoWithMeta } from "@/types/photo";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";

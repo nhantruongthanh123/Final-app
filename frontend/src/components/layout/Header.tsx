@@ -8,14 +8,7 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
-import {
-  LogOut,
-  Moon,
-  PersonStanding,
-  Settings,
-  ShieldAlert,
-  Sun,
-} from "lucide-react";
+import { LogOut, Moon, Settings, ShieldAlert, Sun, User } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -102,7 +95,7 @@ const Header = () => {
                 className="cursor-pointer"
                 onClick={() => navigate("/photos")}
               >
-                <PersonStanding className="mr-2 h-4 w-4" />
+                <User className="mr-2 h-4 w-4" />
                 <span>My Profile</span>
               </DropdownMenuItem>
 

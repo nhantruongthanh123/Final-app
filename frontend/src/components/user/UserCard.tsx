@@ -18,8 +18,8 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
       try {
         const photos = await UserService.getAllUserPhotos(user.id);
         const albums = await UserService.getAllUserAlbums(user.id);
-        setNumOfPhotos(photos.length);
-        setNumOfAlbums(albums.length);
+        setNumOfPhotos(photos.totalPhotos);
+        setNumOfAlbums(albums.totalAlbums);
       } catch (error) {
         console.error("Error fetching user stats:", error);
       }

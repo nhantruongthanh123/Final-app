@@ -106,15 +106,15 @@ function App() {
             <Route element={<UserProfileLayout />}>
               <Route path="/photos" element={<Photos />} />
               <Route path="/albums" element={<Albums />} />
-              <Route path="/followers" element={<Follower />} />
               <Route path="/followings" element={<Following />} />
+              <Route path="/followers" element={<Follower />} />
             </Route>
 
             <Route path="users/:id" element={<TargetUserProfileLayout />}>
               <Route path="photos" element={<TargetUserPhotos />} />
               <Route path="albums" element={<TargetUserAlbums />} />
-              <Route path="followers" element={<TargetUserFollower />} />
               <Route path="followings" element={<TargetUserFollowing />} />
+              <Route path="followers" element={<TargetUserFollower />} />
             </Route>
           </Route>
 

@@ -9,8 +9,6 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
-  getTargetUserFollowers,
-  getTargetUserFollowings,
   getUserAlbums,
   getUserById,
   getUserFollowers,
@@ -61,21 +59,18 @@ userRouter.delete(
   unfollowUser,
 );
 
-userRouter.get("/users/followings", requireAuth, getUserFollowings);
-userRouter.get("/users/followers", requireAuth, getUserFollowers);
-
 userRouter.get(
   "/users/:id/followings",
   requireAuth,
   validateParams(idParamSchema),
-  getTargetUserFollowings,
+  getUserFollowings,
 );
 
 userRouter.get(
   "/users/:id/followers",
   requireAuth,
   validateParams(idParamSchema),
-  getTargetUserFollowers,
+  getUserFollowers,
 );
 
 // User
