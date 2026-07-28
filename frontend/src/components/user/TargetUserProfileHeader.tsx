@@ -10,7 +10,7 @@ import TargetUserStat from "./TargetUserStat";
 const TargetUserProfileHeader = ({
   publicUserId,
 }: {
-  publicUserId?: string;
+  publicUserId: string;
 }) => {
   const location = useLocation();
   const activeTab = location.pathname.split("/")[3] || "photos";
@@ -50,10 +50,10 @@ const TargetUserProfileHeader = ({
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const photos = await UserService.getTargetUserUserPhotos(publicUserId);
-        setNumUserPhotos(photos.length);
+        const photos = await UserService.getAllUserPhotos(publicUserId);
+        setNumUserPhotos(photos.photos.length);
         const albums = await UserService.getAllUserAlbums(publicUserId);
-        setNumUserAlbums(albums.length);
+        setNumUserAlbums(albums.albums.length);
         const followings =
           await UserService.getTargetUserFollowings(publicUserId);
         setNumUserFollowings(followings.length);

@@ -160,20 +160,6 @@ export const UserService = {
     await api.delete(`/users/${albumId}/likeAlbum`);
   },
 
-  getTargetUserUserPhotos: async (
-    userId: string | undefined,
-  ): Promise<Photo[]> => {
-    const res = await api.get<Photo[]>(`/users/${userId}/photos`);
-    return res.data;
-  },
-
-  getTargetUserUserAlbums: async (
-    userId: string | undefined,
-  ): Promise<Album[]> => {
-    const res = await api.get<Album[]>(`/users/${userId}/albums`);
-    return res.data;
-  },
-
   getTargetUserFollowings: async (
     userId: string | undefined,
   ): Promise<UserWithFollowStatus[]> => {

@@ -15,7 +15,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Photos = () => {
-  // const [photos, setPhotos] = useState<Photo[]>([]);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
@@ -57,17 +56,43 @@ const Photos = () => {
 
   if (photos.length === 0) {
     return (
-      <EmptyState
-        icon={<ImageOff className="w-10 h-10 text-orange-400" />}
-        title={"You haven't uploaded any photos yet."}
-        description={
-          "Start sharing your memories by uploading your first photo. Click the button below to get started!"
-        }
-        actionLabel={"Upload Photo"}
-        onAction={() => {
-          navigate("/photos/add");
-        }}
-      />
+      <div className="flex flex-col p-4 w-full">
+        {/* FILTER BAR */}
+        <div className="flex gap-4 mb-6">
+          <Input
+            placeholder="Search by title"
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+            }}
+          />
+          <Select
+            defaultValue="All"
+            onValueChange={(value) => {
+              setStatus(value || "All");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="Private">Private</SelectItem>
+              <SelectItem value="Public">Public</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <EmptyState
+          icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+          title={"You haven't uploaded any photos yet."}
+          description={
+            "Start sharing your memories by uploading your first photo. Click the button below to get started!"
+          }
+          actionLabel={"Upload Photo"}
+          onAction={() => {
+            navigate("/photos/add");
+          }}
+        />
+      </div>
     );
   }
 

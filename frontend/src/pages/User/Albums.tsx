@@ -56,17 +56,44 @@ const Albums = () => {
 
   if (albums.length === 0) {
     return (
-      <EmptyState
-        icon={<ImageOff className="w-10 h-10 text-orange-400" />}
-        title={"You haven't created any albums yet."}
-        description={
-          "Create your first album by uploading your photos. Click the button below to get started!"
-        }
-        actionLabel={"Create Album"}
-        onAction={() => {
-          navigate("/albums/add");
-        }}
-      />
+      <div className="flex flex-col w-full p-4">
+        {/* FILTER BAR */}
+        <div className="flex gap-4 mb-6">
+          <Input
+            placeholder="Search by title"
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+            }}
+          />
+          <Select
+            defaultValue="All"
+            onValueChange={(value) => {
+              setStatus(value || "All");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="Private">Private</SelectItem>
+              <SelectItem value="Public">Public</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <EmptyState
+          icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+          title={"You haven't created any albums yet."}
+          description={
+            "Create your first album by uploading your photos. Click the button below to get started!"
+          }
+          actionLabel={"Create Album"}
+          onAction={() => {
+            navigate("/albums/add");
+          }}
+        />
+      </div>
     );
   }
 
