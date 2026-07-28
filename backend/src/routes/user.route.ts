@@ -31,7 +31,11 @@ import {
   validateQuery,
 } from "#middlewares/validate.middleware.js";
 import { idParamSchema } from "#schemas/param.schema.js";
-import { photoQuerySchema, userQuerySchema } from "#schemas/query.schema.js";
+import {
+  albumQuerySchema,
+  photoQuerySchema,
+  userQuerySchema,
+} from "#schemas/query.schema.js";
 import {
   isActiveSchema,
   updateUserPasswordSchema,
@@ -99,6 +103,7 @@ userRouter.get(
   "/users/:id/albums",
   requireAuth,
   validateParams(idParamSchema),
+  validateQuery(albumQuerySchema),
   getUserAlbums,
 );
 

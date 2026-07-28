@@ -54,8 +54,24 @@ export const UserService = {
     return res.data;
   },
 
-  getAllUserAlbums: async (userId: string | undefined): Promise<Album[]> => {
-    const res = await api.get<Album[]>(`/users/${userId}/albums`);
+  getAllUserAlbums: async (
+    userId: string | undefined,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+    isPublic?: boolean,
+  ): Promise<{ albums: Album[]; totalAlbums: number }> => {
+    const res = await api.get<{ albums: Album[]; totalAlbums: number }>(
+      `/users/${userId}/albums`,
+      {
+        params: {
+          page,
+          limit,
+          search,
+          isPublic,
+        },
+      },
+    );
     return res.data;
   },
 

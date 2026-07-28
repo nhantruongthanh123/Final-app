@@ -20,10 +20,10 @@ const MyProfileHeader = () => {
     const fetchUserData = async () => {
       try {
         const photos = await UserService.getAllUserPhotos(user.id);
-        setNumUserPhotos(photos.photos.length);
+        setNumUserPhotos(photos.totalPhotos);
 
         const albums = await UserService.getAllUserAlbums(user.id);
-        setNumUserAlbums(albums.length);
+        setNumUserAlbums(albums.totalAlbums);
 
         const followings = await UserService.getAllUserFollowings();
         setNumUserFollowings(followings.length);

@@ -6,24 +6,45 @@ import { uploadToCloudinary } from "#utils/uploadToCloudinary.js";
 export const findAlbumsByUserId = async (
   userId: string,
   canViewPrivate: boolean,
+  page: number,
+  limit: number,
+  search?: string,
+  isPublic?: string,
 ) => {
-  const userAlbums = await prisma.album.findMany({
-    where: {
-      userId: userId,
-      ...(canViewPrivate ? {} : { isPublic: true }),
-    },
-    include: {
-      photos: {
-        select: {
-          id: true,
-          photoUrl: true,
+  const offset = (page - 1) * limit;
+
+  const whereClause: any = {
+    userId: userId,
+    ...(canViewPrivate ? {} : { isPublic: true }),
+  };
+
+  if (isPublic !== undefined) {
+    whereClause.isPublic = isPublic === "true";
+  }
+
+  if (search) {
+    whereClause.title = { contains: search as string, mode: "insensitive" };
+  }
+
+  const [albums, totalAlbums] = await Promise.all([
+    prisma.album.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { updatedAt: "desc" },
+      where: whereClause,
+      include: {
+        photos: {
+          select: {
+            id: true,
+            photoUrl: true,
+          },
         },
       },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+    }),
+    prisma.album.count({ where: whereClause }),
+  ]);
 
-  return userAlbums;
+  return { albums, totalAlbums };
 };
 
 export const findAllAlbums = async (page: number, limit: number) => {

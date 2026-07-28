@@ -102,12 +102,12 @@ const Photos = () => {
         {photos.map((photo) => (
           <PhotoUser key={photo.id} photo={photo} />
         ))}
-
-        <div ref={sentinelRef} style={{ height: 1 }} />
-        {isFetchingNextPage && (
-          <LoaderCircle className="animate-spin h-15 w-15" />
-        )}
       </div>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
     </div>
   );
 };
