@@ -253,6 +253,15 @@ export const findAlbumsFeedByUserId = async (
             firstName: true,
             lastName: true,
             avatarUrl: true,
+            ...(currentUserId
+              ? {
+                  followers: {
+                    where: { followerId: currentUserId },
+                    select: { followerId: true },
+                    take: 1,
+                  },
+                }
+              : {}),
           },
         },
         photos: {
@@ -292,9 +301,7 @@ export const findAlbumsFeedByUserId = async (
     }),
   ]);
 
-  const formattedFeedAlbums = feedAlbums.map((album) => {
-    return formatFeedAlbums(album);
-  });
+  const formattedFeedAlbums = feedAlbums.map(formatFeedAlbums);
 
   return { formattedFeedAlbums, totalAlbums };
 };
@@ -334,6 +341,15 @@ export const findAlbumsDiscover = async (
             firstName: true,
             lastName: true,
             avatarUrl: true,
+            ...(currentUserId
+              ? {
+                  followers: {
+                    where: { followerId: currentUserId },
+                    select: { followerId: true },
+                    take: 1,
+                  },
+                }
+              : {}),
           },
         },
         photos: {

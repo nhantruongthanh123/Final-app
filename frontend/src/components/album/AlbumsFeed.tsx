@@ -1,4 +1,5 @@
 import { useAlbumFeed } from "@/hooks/album/useAlbumFeed";
+import { useFollowUser } from "@/hooks/user/useFollowUser";
 import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ const AlbumsFeed = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
+  const followMutation = useFollowUser();
 
   const searchQuery = searchParams.get("search") || "";
 
@@ -45,6 +47,36 @@ const AlbumsFeed = () => {
                     numLikes: newIsLiked
                       ? album.numLikes + 1
                       : album.numLikes - 1,
+                  }
+                : album,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  const handleAlbumFollow = (userId: string, isCurrentlyFollowing: boolean) => {
+    followMutation.mutate({
+      userId,
+      isCurrentlyFollowing,
+    });
+    queryClient.setQueryData<InfiniteData<AlbumFeedResponse>>(
+      ["albums", "feed", searchQuery],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((album) =>
+              album.user.id === userId
+                ? {
+                    ...album,
+                    user: {
+                      ...album.user,
+                      isFollowing: !isCurrentlyFollowing,
+                    },
                   }
                 : album,
             ),
@@ -94,6 +126,7 @@ const AlbumsFeed = () => {
             album={album}
             handleClickAlbum={() => setSelectedAlbum(album)}
             handleLikeAlbum={handleAlbumLike}
+            handleFollowUser={handleAlbumFollow}
           />
         </div>
       ))}

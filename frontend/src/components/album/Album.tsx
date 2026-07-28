@@ -11,10 +11,12 @@ const Album = ({
   album,
   handleClickAlbum,
   handleLikeAlbum,
+  handleFollowUser,
 }: {
   album: AlbumWithMeta;
   handleClickAlbum: () => void;
   handleLikeAlbum: (albumId: string, newIsLiked: boolean) => void;
+  handleFollowUser: (userId: string, newIsFollowing: boolean) => void;
 }) => {
   const user = useAuthStore.getState().user;
   const navigate = useNavigate();
@@ -32,6 +34,12 @@ const Album = ({
     } catch (error) {
       console.error("Error liking/unliking album:", error);
     }
+  };
+
+  const handleFollow = async () => {
+    if (!user) return;
+
+    handleFollowUser(album.user.id, album.user.isFollowing);
   };
 
   const handleClickUser = () => {
@@ -61,14 +69,15 @@ const Album = ({
       </div>
 
       <div className="flex flex-col p-2">
-        <div
-          className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between"
-          onClick={handleClickUser}
-        >
+        <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
           <PublicUserInfo
             firstName={album.user.firstName}
             lastName={album.user.lastName}
             avatarUrl={album.user.avatarUrl}
+            isFollowing={album.user.isFollowing}
+            isCurrentUser={user?.id === album.user.id}
+            handleFollowToggle={handleFollow}
+            handleClickUser={handleClickUser}
           />
         </div>
 
