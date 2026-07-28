@@ -160,7 +160,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
   const currentUserId = req.user.userId;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
+  const search = req.query.search as string | undefined;
 
   const followingIds = await userService.getAllFollowingsId(currentUserId);
 
@@ -174,6 +174,7 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
       followingIds,
       page,
       limit,
+      search,
     );
 
   res.status(200).json({ items: formattedFeedAlbums, total: totalAlbums });
@@ -182,12 +183,12 @@ export const getAllAlbumsFeed = async (req: Request, res: Response) => {
 export const getAllAlbumsDiscover = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 12;
-  const offset = (page - 1) * limit;
+  const search = req.query.search as string | undefined;
 
   const currentUserId = req.user?.userId;
 
   const { formattedDiscoverAlbums, totalAlbums } =
-    await albumService.findAlbumsDiscover(currentUserId, page, limit);
+    await albumService.findAlbumsDiscover(currentUserId, page, limit, search);
 
   res.status(200).json({ items: formattedDiscoverAlbums, total: totalAlbums });
 };

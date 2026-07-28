@@ -7,11 +7,15 @@ type AlbumDiscoverResponse = PaginatedResponse<AlbumWithMeta>;
 
 const LIMIT = 12;
 
-export function useAlbumDiscover() {
+export function useAlbumDiscover(searchParam?: string) {
   return useInfiniteQuery<AlbumDiscoverResponse, Error>({
-    queryKey: ["albums", "discover"],
+    queryKey: ["albums", "discover", searchParam],
     queryFn: async ({ pageParam }) => {
-      return AlbumService.getDiscoverAlbums(pageParam as number, LIMIT);
+      return AlbumService.getDiscoverAlbums(
+        pageParam as number,
+        LIMIT,
+        searchParam as string | undefined,
+      );
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {

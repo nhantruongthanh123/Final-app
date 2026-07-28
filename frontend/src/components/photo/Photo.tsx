@@ -4,17 +4,19 @@ import { formatDateTime } from "@/utils/formatDateTime";
 import { Heart } from "lucide-react";
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import type { PhotoFeed } from "../../types/photo";
+import type { PhotoWithMeta } from "../../types/photo";
 import PublicUserInfo from "../shared/PublicUserInfo";
 
 const Photo = ({
   photo,
   handleClickPhoto,
   handleLikePhoto,
+  handleFollowUser,
 }: {
-  photo: PhotoFeed;
+  photo: PhotoWithMeta;
   handleClickPhoto: () => void;
   handleLikePhoto: (photoId: string, newIsLiked: boolean) => void;
+  handleFollowUser: (userId: string, newIsFollowing: boolean) => void;
 }) => {
   const user = useAuthStore.getState().user;
   const navigate = useNavigate();
@@ -34,6 +36,12 @@ const Photo = ({
     }
   };
 
+  const handleFollow = async () => {
+    if (!user) return;
+
+    handleFollowUser(photo.user.id, photo.user.isFollowing);
+  };
+
   const handleClickUser = () => {
     navigate(`/users/${photo.user.id}/photos`);
   };
@@ -50,14 +58,15 @@ const Photo = ({
       </div>
 
       <div className="flex flex-col p-2 ">
-        <div
-          className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between"
-          onClick={handleClickUser}
-        >
+        <div className="pt-4 pb-2 pl-2 font-bold flex flex-row gap-2 items-center justify-between">
           <PublicUserInfo
             firstName={photo.user.firstName}
             lastName={photo.user.lastName}
             avatarUrl={photo.user.avatarUrl}
+            isFollowing={photo.user.isFollowing}
+            isCurrentUser={user?.id === photo.user.id}
+            handleFollowToggle={handleFollow}
+            handleClickUser={handleClickUser}
           />
         </div>
 

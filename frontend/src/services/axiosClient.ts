@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
+import { AuthService } from "./auth.service";
 
 export const api = axios.create({
   baseURL: "http://localhost:5000/api",
@@ -22,6 +23,18 @@ api.interceptors.request.use(
   },
 );
 
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+function subscribeTokenRefresh(callback: (token: string) => void) {
+  refreshSubscribers.push(callback);
+}
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+}
+
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -29,25 +42,39 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      // Attempt to refresh the access token
-      try {
-        const refreshResponse = await axios.post(
-          "http://localhost:5000/api/auth/refresh",
-          {},
-          { withCredentials: true },
-        );
+    if (!originalRequest._retry && error.response?.status === 401) {
+      if (originalRequest.url?.includes("auth/refresh")) {
+        useAuthStore.getState().clearAuth();
+        return Promise.reject(error);
+      }
 
-        const newAccessToken = refreshResponse.data.accessToken;
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((newToken: string) => {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
+
+      isRefreshing = true;
+      try {
+        const refreshResponse = await AuthService.refreshToken();
+        const newAccessToken = refreshResponse.accessToken;
         useAuthStore
           .getState()
           .setAuth(newAccessToken, useAuthStore.getState().user!);
+        onRefreshed(newAccessToken);
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().clearAuth();
+        refreshSubscribers = [];
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

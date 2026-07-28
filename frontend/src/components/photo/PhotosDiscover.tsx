@@ -1,11 +1,13 @@
 import Photo from "@/components/photo/Photo";
 import PhotoModal from "@/components/photo/PhotoModal";
-import { usePhotoDiscover } from "@/hooks/usePhotoDiscover";
+import { usePhotoDiscover } from "@/hooks/photo/usePhotoDiscover";
+import { useFollowUser } from "@/hooks/user/useFollowUser";
 import type { PaginatedResponse } from "@/types/api";
 import type { PhotoWithMeta } from "@/types/photo";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type PhotoDiscoverResponse = PaginatedResponse<PhotoWithMeta>;
 
@@ -14,9 +16,13 @@ const PhotosDiscover = () => {
     null,
   );
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
+
+  const followMutation = useFollowUser();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePhotoDiscover();
+    usePhotoDiscover(searchQuery);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +30,7 @@ const PhotosDiscover = () => {
 
   const handlePhotoLike = (photoId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<PhotoDiscoverResponse>>(
-      ["photos", "discover"],
+      ["photos", "discover", searchQuery],
       (old) => {
         if (!old) return old;
         return {
@@ -39,6 +45,36 @@ const PhotosDiscover = () => {
                     numLikes: newIsLiked
                       ? photo.numLikes + 1
                       : photo.numLikes - 1,
+                  }
+                : photo,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  const handlePhotoFollow = (userId: string, isCurrentlyFollowing: boolean) => {
+    followMutation.mutate({
+      userId,
+      isCurrentlyFollowing,
+    });
+    queryClient.setQueryData<InfiniteData<PhotoDiscoverResponse>>(
+      ["photos", "discover", searchQuery],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((photo) =>
+              photo.user.id === userId
+                ? {
+                    ...photo,
+                    user: {
+                      ...photo.user,
+                      isFollowing: !isCurrentlyFollowing,
+                    },
                   }
                 : photo,
             ),
@@ -76,6 +112,7 @@ const PhotosDiscover = () => {
             photo={photo}
             handleClickPhoto={() => setSelectedPhoto(photo)}
             handleLikePhoto={handlePhotoLike}
+            handleFollowUser={handlePhotoFollow}
           />
         </div>
       ))}

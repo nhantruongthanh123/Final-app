@@ -1,9 +1,10 @@
-import { useAlbumDiscover } from "@/hooks/useAlbumDiscover";
+import { useAlbumDiscover } from "@/hooks/album/useAlbumDiscover";
 import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Album from "./Album";
 import AlbumModal from "./AlbumModal";
 
@@ -14,9 +15,12 @@ const AlbumsDiscover = () => {
     null,
   );
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+
+  const searchQuery = searchParams.get("search") || "";
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useAlbumDiscover();
+    useAlbumDiscover(searchQuery);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +28,7 @@ const AlbumsDiscover = () => {
 
   const handleAlbumLike = (albumId: string, newIsLiked: boolean) => {
     queryClient.setQueryData<InfiniteData<AlbumDiscoverResponse>>(
-      ["albums", "discover"],
+      ["albums", "discover", searchQuery],
       (old) => {
         if (!old) return old;
         return {

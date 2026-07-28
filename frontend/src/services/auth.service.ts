@@ -20,7 +20,11 @@ export const AuthService = {
     await api.post("/auth/logout");
   },
   refreshToken: async (): Promise<{ accessToken: string; user: User }> => {
-    const response = await api.post("/auth/refresh");
+    const response = await api.post(
+      "/auth/refresh",
+      {},
+      { withCredentials: true },
+    );
     return response.data;
   },
 

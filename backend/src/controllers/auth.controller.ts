@@ -36,9 +36,11 @@ export const registerUser = async (req: Request, res: Response) => {
     lastName,
     hashedPassword,
     false,
-    emailVerificationToken,
+    hashedToken,
     expiresAt,
   );
+
+  res.status(201).json({ message: "User registered successfully" });
 
   const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
 
@@ -58,6 +60,10 @@ export const loginUser = async (req: Request, res: Response) => {
   const role = req.user!.role;
 
   const user = await userService.findUserById(userId);
+
+  if (!user || !user.isActive) {
+    throw new AppError("User not found or inactive. Please log in again.", 403);
+  }
 
   //Handle token generation here (e.g., JWT) and send it back to the client
   const accessToken = jwt.sign(
@@ -171,13 +177,14 @@ export const refreshUserToken = async (req: Request, res: Response) => {
   const user = await userService.findUserById(session.userId);
 
   if (!user || !user.isActive) {
+    console.log(session);
     throw new AppError("User not found or inactive. Please log in again.", 403);
   }
 
   const newAccessToken = jwt.sign(
     { userId: user.id, role: user.role },
     process.env.ACCESS_TOKEN_SECRET as string,
-    { expiresIn: "540m" },
+    { expiresIn: "600m" },
   );
 
   const newRefreshToken = jwt.sign(

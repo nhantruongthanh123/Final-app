@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FollowButton from "../shared/FollowButton";
 
 const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
   const [numOfPhotos, setNumOfPhotos] = useState<number>(0);
@@ -19,8 +18,8 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
       try {
         const photos = await UserService.getAllUserPhotos(user.id);
         const albums = await UserService.getAllUserAlbums(user.id);
-        setNumOfPhotos(photos.length);
-        setNumOfAlbums(albums.length);
+        setNumOfPhotos(photos.totalPhotos);
+        setNumOfAlbums(albums.totalAlbums);
       } catch (error) {
         console.error("Error fetching user stats:", error);
       }
@@ -68,7 +67,6 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
           {user.firstName} {user.lastName}
         </h3>
       </div>
-
       <div className="flex flex-row gap-4 p-2">
         <div className="text-brand font-bold flex flex-col items-center">
           <div>{numOfPhotos}</div>
@@ -81,42 +79,11 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
         </div>
       </div>
 
-      {isCurrentUser ? (
-        <div className="inline-flex rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
-          <Button
-            variant="ghost"
-            className="h-8 px-6 rounded-full w-full bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90 transition-colors"
-            onClick={() => navigate("/photos")}
-          >
-            <span className="text-white font-bold text-sm tracking-wide">
-              You
-            </span>
-          </Button>
-        </div>
-      ) : (
-        <div className="inline-flex rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
-          <Button
-            variant="ghost"
-            className={cn(
-              "h-8 px-6 rounded-full w-full transition-colors",
-              isFollowing
-                ? "bg-white hover:bg-slate-50"
-                : "bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90",
-            )}
-            onClick={handleFollowToggle}
-          >
-            {isFollowing ? (
-              <span className="bg-linear-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent font-bold text-sm tracking-wide">
-                Unfollow
-              </span>
-            ) : (
-              <span className="text-white font-bold text-sm tracking-wide">
-                Follow
-              </span>
-            )}
-          </Button>
-        </div>
-      )}
+      <FollowButton
+        isCurrentUser={isCurrentUser}
+        isFollowing={isFollowing}
+        handleFollowToggle={handleFollowToggle}
+      />
     </div>
   );
 };

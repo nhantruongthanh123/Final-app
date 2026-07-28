@@ -34,7 +34,7 @@ export const updateSessionByRefreshToken = async (
   expiresAt: Date,
 ) => {
   await prisma.session.update({
-    where: { id: oldRefreshToken },
+    where: { refreshToken: oldRefreshToken },
     data: {
       refreshToken: newRefreshToken,
       expiresAt: expiresAt,

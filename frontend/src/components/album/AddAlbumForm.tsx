@@ -1,6 +1,6 @@
 import RemoveablePhoto from "@/components/photo/RemovablePhoto";
+import { useChangeAlbum } from "@/hooks/album/useChangeAlbum";
 import { albumSchema, type AlbumPayload } from "@/schemas/album.schema";
-import { AlbumService } from "@/services/album.service";
 import type { newPhotoPreview } from "@/types/album";
 import { zodResolver } from "@hookform/resolvers/zod/dist/zod.js";
 import axios from "axios";
@@ -26,6 +26,7 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [newPhotos, setNewPhotos] = useState<newPhotoPreview[]>([]);
+  const albumMutation = useChangeAlbum();
 
   const {
     register,
@@ -86,11 +87,14 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
 
   const onSubmit = async (data: AlbumPayload) => {
     await toast.promise(
-      AlbumService.createAlbum({
-        title: data.title,
-        description: data.description,
-        isPublic: data.isPublic,
-        files: data.files,
+      albumMutation.mutateAsync({
+        action: "create",
+        data: {
+          title: data.title,
+          description: data.description,
+          isPublic: data.isPublic,
+          files: data.files,
+        },
       }),
       {
         loading: "Creating album...",

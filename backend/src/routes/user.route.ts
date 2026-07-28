@@ -9,8 +9,6 @@ import {
   createUser,
   deleteUser,
   getAllUsers,
-  getTargetUserFollowers,
-  getTargetUserFollowings,
   getUserAlbums,
   getUserById,
   getUserFollowers,
@@ -31,7 +29,11 @@ import {
   validateQuery,
 } from "#middlewares/validate.middleware.js";
 import { idParamSchema } from "#schemas/param.schema.js";
-import { userQuerySchema } from "#schemas/query.schema.js";
+import {
+  albumQuerySchema,
+  photoQuerySchema,
+  userQuerySchema,
+} from "#schemas/query.schema.js";
 import {
   isActiveSchema,
   updateUserPasswordSchema,
@@ -57,21 +59,18 @@ userRouter.delete(
   unfollowUser,
 );
 
-userRouter.get("/users/followings", requireAuth, getUserFollowings);
-userRouter.get("/users/followers", requireAuth, getUserFollowers);
-
 userRouter.get(
   "/users/:id/followings",
   requireAuth,
   validateParams(idParamSchema),
-  getTargetUserFollowings,
+  getUserFollowings,
 );
 
 userRouter.get(
   "/users/:id/followers",
   requireAuth,
   validateParams(idParamSchema),
-  getTargetUserFollowers,
+  getUserFollowers,
 );
 
 // User
@@ -91,12 +90,15 @@ userRouter.get(
   "/users/:id/photos",
   requireAuth,
   validateParams(idParamSchema),
+  validateQuery(photoQuerySchema),
   getUserPhotos,
 );
+
 userRouter.get(
   "/users/:id/albums",
   requireAuth,
   validateParams(idParamSchema),
+  validateQuery(albumQuerySchema),
   getUserAlbums,
 );
 

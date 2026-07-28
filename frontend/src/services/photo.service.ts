@@ -48,7 +48,8 @@ export const PhotoService = {
   },
 
   deletePhoto: async (id: string) => {
-    await api.delete(`/photos/${id}`);
+    const res = await api.delete(`/photos/${id}`);
+    return res.data;
   },
 
   updatePhoto: async (id: string, data: UpdatePhotoPayload) => {
@@ -76,6 +77,7 @@ export const PhotoService = {
   getFeedPhotos: async (
     page?: number,
     limit?: number,
+    search?: string,
   ): Promise<PaginatedResponse<PhotoWithMeta>> => {
     const res = await api.get<{ items: PhotoWithMeta[]; total: number }>(
       "/photos/feed",
@@ -83,6 +85,7 @@ export const PhotoService = {
         params: {
           page,
           limit,
+          search,
         },
       },
     );
@@ -92,6 +95,7 @@ export const PhotoService = {
   getDiscoverPhotos: async (
     page?: number,
     limit?: number,
+    search?: string,
   ): Promise<PaginatedResponse<PhotoWithMeta>> => {
     const res = await api.get<{ items: PhotoWithMeta[]; total: number }>(
       "/photos/discover",
@@ -99,6 +103,7 @@ export const PhotoService = {
         params: {
           page,
           limit,
+          search,
         },
       },
     );

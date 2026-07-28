@@ -7,7 +7,8 @@ export const photoSchema = z.object({
     .max(100, { message: "Title must be less than 100 characters" }),
   description: z
     .string()
-    .max(500, { message: "Description must be less than 500 characters" }),
+    .max(500, { message: "Description must be less than 500 characters" })
+    .optional(),
   isPublic: z
     .preprocess((val) => {
       if (typeof val === "string") {

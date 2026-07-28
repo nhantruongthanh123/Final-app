@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useChangeAlbum } from "@/hooks/album/useChangeAlbum";
 import { editAlbumSchema, type EditAlbumPayload } from "@/schemas/album.schema";
 import { AlbumService } from "@/services/album.service";
 import type { AlbumImage, newPhotoPreview } from "@/types/album";
@@ -43,6 +44,7 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const [sharingMode, setSharingMode] = useState<"Public" | "Private">(
     "Public",
   );
+  const albumMutation = useChangeAlbum();
 
   const {
     register,
@@ -131,12 +133,16 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
     clearErrors("files");
 
     await toast.promise(
-      AlbumService.updateAlbum(id, {
-        title: data.title,
-        description: data.description,
-        isPublic: data.isPublic,
-        files: data.files ?? [],
-        removedPhotoIds,
+      albumMutation.mutateAsync({
+        action: "update",
+        id,
+        data: {
+          title: data.title,
+          description: data.description,
+          isPublic: data.isPublic,
+          files: data.files ?? [],
+          removedPhotoIds,
+        },
       }),
       {
         loading: "Saving changes...",
@@ -158,7 +164,7 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
 
   const handleDeleteAlbum = async () => {
     try {
-      await toast.promise(AlbumService.deleteAlbum(id), {
+      await toast.promise(albumMutation.mutateAsync({ action: "delete", id }), {
         loading: "Deleting album...",
         success: () => {
           navigate(backlink);

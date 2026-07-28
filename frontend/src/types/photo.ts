@@ -15,6 +15,7 @@ export interface PhotoWithMeta extends Photo {
     firstName: string;
     lastName: string;
     avatarUrl: string;
+    isFollowing: boolean;
   };
   numLikes: number;
   isLiked: boolean;

@@ -10,7 +10,7 @@ import TargetUserStat from "./TargetUserStat";
 const TargetUserProfileHeader = ({
   publicUserId,
 }: {
-  publicUserId?: string;
+  publicUserId: string;
 }) => {
   const location = useLocation();
   const activeTab = location.pathname.split("/")[3] || "photos";
@@ -50,16 +50,14 @@ const TargetUserProfileHeader = ({
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const photos = await UserService.getTargetUserUserPhotos(publicUserId);
-        setNumUserPhotos(photos.length);
+        const photos = await UserService.getAllUserPhotos(publicUserId);
+        setNumUserPhotos(photos.photos.length);
         const albums = await UserService.getAllUserAlbums(publicUserId);
-        setNumUserAlbums(albums.length);
-        const followings =
-          await UserService.getTargetUserFollowings(publicUserId);
-        setNumUserFollowings(followings.length);
-        const followers =
-          await UserService.getTargetUserFollowers(publicUserId);
-        setNumUserFollowers(followers.length);
+        setNumUserAlbums(albums.albums.length);
+        const followings = await UserService.getAllUserFollowings(publicUserId);
+        setNumUserFollowings(followings.totalFollowings);
+        const followers = await UserService.getAllUserFollowers(publicUserId);
+        setNumUserFollowers(followers.totalFollowers);
         const userData = await UserService.getUserById(publicUserId);
         setTargetUser(userData);
         setIsFollowing(userData.isFollowing);

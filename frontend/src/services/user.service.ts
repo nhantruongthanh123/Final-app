@@ -33,23 +33,89 @@ export const UserService = {
     return res.data;
   },
 
-  getAllUserPhotos: async (userID: string): Promise<Photo[]> => {
-    const res = await api.get<Photo[]>(`/users/${userID}/photos`);
+  getAllUserPhotos: async (
+    userID: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+    isPublic?: boolean,
+  ): Promise<{ photos: Photo[]; totalPhotos: number }> => {
+    const res = await api.get<{ photos: Photo[]; totalPhotos: number }>(
+      `/users/${userID}/photos`,
+      {
+        params: {
+          page,
+          limit,
+          search,
+          isPublic,
+        },
+      },
+    );
     return res.data;
   },
 
-  getAllUserAlbums: async (userId: string | undefined): Promise<Album[]> => {
-    const res = await api.get<Album[]>(`/users/${userId}/albums`);
+  getAllUserAlbums: async (
+    userId: string | undefined,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+    isPublic?: boolean,
+  ): Promise<{ albums: Album[]; totalAlbums: number }> => {
+    const res = await api.get<{ albums: Album[]; totalAlbums: number }>(
+      `/users/${userId}/albums`,
+      {
+        params: {
+          page,
+          limit,
+          search,
+          isPublic,
+        },
+      },
+    );
     return res.data;
   },
 
-  getAllUserFollowings: async (): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(`/users/followings`);
+  getAllUserFollowings: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+  ): Promise<{
+    followings: UserWithFollowStatus[];
+    totalFollowings: number;
+  }> => {
+    const res = await api.get<{
+      followings: UserWithFollowStatus[];
+      totalFollowings: number;
+    }>(`/users/${userId}/followings`, {
+      params: {
+        page,
+        limit,
+        search,
+      },
+    });
     return res.data;
   },
 
-  getAllUserFollowers: async (): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(`/users/followers`);
+  getAllUserFollowers: async (
+    userId: string,
+    page: number = 1,
+    limit: number = 12,
+    search?: string,
+  ): Promise<{
+    followers: UserWithFollowStatus[];
+    totalFollowers: number;
+  }> => {
+    const res = await api.get<{
+      followers: UserWithFollowStatus[];
+      totalFollowers: number;
+    }>(`/users/${userId}/followers`, {
+      params: {
+        page,
+        limit,
+        search,
+      },
+    });
     return res.data;
   },
 
@@ -126,38 +192,6 @@ export const UserService = {
 
   unlikeAlbum: async (albumId: string): Promise<void> => {
     await api.delete(`/users/${albumId}/likeAlbum`);
-  },
-
-  getTargetUserUserPhotos: async (
-    userId: string | undefined,
-  ): Promise<Photo[]> => {
-    const res = await api.get<Photo[]>(`/users/${userId}/photos`);
-    return res.data;
-  },
-
-  getTargetUserUserAlbums: async (
-    userId: string | undefined,
-  ): Promise<Album[]> => {
-    const res = await api.get<Album[]>(`/users/${userId}/albums`);
-    return res.data;
-  },
-
-  getTargetUserFollowings: async (
-    userId: string | undefined,
-  ): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(
-      `/users/${userId}/followings`,
-    );
-    return res.data;
-  },
-
-  getTargetUserFollowers: async (
-    userId: string | undefined,
-  ): Promise<UserWithFollowStatus[]> => {
-    const res = await api.get<UserWithFollowStatus[]>(
-      `/users/${userId}/followers`,
-    );
-    return res.data;
   },
 
   deleteUserByAdmin: async (userId: string): Promise<void> => {

@@ -1,45 +1,100 @@
 import PhotoModal from "@/components/photo/PhotoModal";
 import TargetPhotoUser from "@/components/photo/TargetPhotoUser";
-import { UserService } from "@/services/user.service";
-import { useAuthStore } from "@/store/authStore";
+import EmptyState from "@/components/shared/EmptyState";
+import { Input } from "@/components/ui/input";
+import { usePhotoUser } from "@/hooks/photo/usePhotoUser";
 import type { Photo } from "@/types/photo";
-import { useEffect, useState } from "react";
+import { ImageOff, LoaderCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const TargetUserPhotos = () => {
-  const [photos, setPhotos] = useState<Photo[]>([]);
   const { id: publicUserId } = useParams<{ id: string }>();
-  const user = useAuthStore((state) => state.user);
+  // const user = useAuthStore((state) => state.user);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = usePhotoUser(
+    publicUserId,
+    debouncedSearch,
+  );
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const photos = data?.pages.flatMap((page) => page.photos) ?? [];
 
   useEffect(() => {
-    if (!user) return;
-    const fetchPhotos = async () => {
-      try {
-        const fetchedPhotos =
-          await UserService.getTargetUserUserPhotos(publicUserId);
-        setPhotos(fetchedPhotos);
-      } catch (error) {
-        console.error("Error fetching photos:", error);
-      }
-    };
+    const el = sentinelRef.current;
+    if (!el) return;
 
-    fetchPhotos();
-  }, [user, publicUserId]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [data?.pages, fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   if (photos.length === 0) {
-    return <div>No photos available.</div>;
+    return (
+      <div className="flex flex-col p-4 w-full">
+        {/* FILTER BAR */}
+        <div className="flex gap-4 mb-6">
+          <Input
+            placeholder="Search by title"
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+            }}
+          />
+        </div>
+
+        <EmptyState
+          icon={<ImageOff className="w-10 h-10 text-orange-400" />}
+          title={"No photos found."}
+          description={"Sorry, no photos match your search criteria."}
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-      {photos.map((photo) => (
-        <TargetPhotoUser
-          key={photo.id}
-          photo={photo}
-          handleClickPhoto={() => setSelectedPhoto(photo)}
+    <div className="flex flex-col p-4 w-full">
+      {/* FILTER BAR */}
+      <div className="flex gap-4 mb-6">
+        <Input
+          placeholder="Search by title"
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+          }}
         />
-      ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
+        {photos.map((photo) => (
+          <TargetPhotoUser
+            key={photo.id}
+            photo={photo}
+            handleClickPhoto={() => setSelectedPhoto(photo)}
+          />
+        ))}
+      </div>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <LoaderCircle className="animate-spin h-15 w-15" />
+      )}
 
       <PhotoModal
         isOpen={selectedPhoto !== null}
