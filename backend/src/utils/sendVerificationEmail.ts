@@ -1,5 +1,6 @@
-import { getTransporter } from "#/config/mailer.js";
+import { getTransporter } from "#config/mailer.js";
 import nodemailer from "nodemailer";
+import { AppError } from "./app.error.js";
 
 export async function sendVerificationEmail(
   email: string,
@@ -19,6 +20,6 @@ export async function sendVerificationEmail(
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) console.log("📬 View test email at:", previewUrl);
   } catch (error) {
-    throw new Error("Failed to send verification email");
+    throw new AppError("Failed to send reset password email", 500);
   }
 }

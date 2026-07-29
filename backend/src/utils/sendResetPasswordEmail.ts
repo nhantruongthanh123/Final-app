@@ -22,6 +22,7 @@ export async function sendResetPasswordEmail(
       console.log("📬 Xem email test tại:", previewUrl);
     }
   } catch (error) {
+    console.error("Nodemailer Real Error:", error);
     throw new AppError("Failed to send reset password email", 500);
   }
 }
