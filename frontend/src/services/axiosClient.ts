@@ -3,7 +3,7 @@ import axios from "axios";
 import { AuthService } from "./auth.service";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
   timeout: 5000,
 });
