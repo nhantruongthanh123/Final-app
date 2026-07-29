@@ -13,7 +13,7 @@ export function useFollowingUser(
   searchParam?: string,
 ) {
   return useInfiniteQuery<UserFollowingResponse, Error>({
-    queryKey: ["following", userId, searchParam],
+    queryKey: ["followings", userId, searchParam],
     queryFn: async ({ pageParam }) => {
       if (!userId) throw new Error("User ID is required");
       return UserService.getAllUserFollowings(

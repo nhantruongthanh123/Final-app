@@ -1,3 +1,4 @@
+import { useFollowUser } from "@/hooks/user/useFollowUser";
 import { UserService } from "@/services/user.service";
 import { useAuthStore } from "@/store/authStore";
 import type { UserWithFollowStatus } from "@/types/user";
@@ -12,6 +13,7 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
   const navigate = useNavigate();
   const currentUser = useAuthStore.getState().user;
   const isCurrentUser = currentUser?.id === user.id;
+  const followMutation = useFollowUser();
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -29,19 +31,13 @@ const UserCard = ({ user }: { user: UserWithFollowStatus }) => {
   }, [user.id]);
 
   const handleFollowToggle = async () => {
+    followMutation.mutate({
+      userId: user.id,
+      isCurrentlyFollowing: isFollowing,
+    });
+
     const previousState = isFollowing;
     setIsFollowing(!previousState);
-
-    try {
-      if (previousState) {
-        await UserService.unfollowUser(user.id);
-      } else {
-        await UserService.followUser(user.id);
-      }
-    } catch (error) {
-      console.error("Error toggling follow status:", error);
-      setIsFollowing(previousState);
-    }
   };
 
   return (

@@ -42,7 +42,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (!originalRequest._retry && error.response?.status === 401) {
+    if (
+      !originalRequest._retry &&
+      error.response?.status === 401 &&
+      !originalRequest.url.includes("/login")
+    ) {
       if (originalRequest.url?.includes("auth/refresh")) {
         useAuthStore.getState().clearAuth();
         return Promise.reject(error);
