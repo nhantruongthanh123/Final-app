@@ -48,6 +48,10 @@ export const requireAdmin = (
 
     req.user = decoded as { userId: string; role: string };
 
+    if (!req.user) {
+      throw new AppError("Unauthorized: User not found", 401);
+    }
+
     if (req.user.role !== "ADMIN") {
       throw new AppError("Forbidden: Admin access required", 403);
     }
