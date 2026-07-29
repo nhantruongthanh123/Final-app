@@ -2,16 +2,19 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "type": "module",
   "imports": {
-    "#*": "./src/*"
+    "#*": {
+      "development": "./src/*",
+      "default": "./dist/src/*"
+    }
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
-    "start": "tsx dist/index.js"
+    "start": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
