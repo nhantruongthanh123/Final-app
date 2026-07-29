@@ -37,7 +37,6 @@ import {
 
 const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
   const navigate = useNavigate();
-  // const [photo, setPhoto] = useState<Photo | null>(null);
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
   const photoMutation = useChangePhoto();
 
@@ -82,10 +81,12 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
       {
         loading: "Updating photo...",
         success: () => {
+          console.log("Photo updated successfully");
           return "Photo saved successfully!";
         },
         error: (err) => {
           if (axios.isAxiosError(err) && err.response?.data?.message) {
+            navigate(backlink);
             return err.response.data.message;
           }
           return "An unexpected error occurred. Please try again.";
@@ -119,13 +120,15 @@ const EditPhotoForm = ({ id, backlink }: { id: string; backlink: string }) => {
         setValue("description", data.description);
         setValue("isPublic", data.isPublic);
       } catch (error) {
-        console.error("Error fetching photo:", error);
-        toast.error("Failed to fetch photo");
+        navigate(backlink);
+        if (axios.isAxiosError(error) && error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        }
       }
     };
 
     fetchPhoto();
-  }, [id, setValue]);
+  }, [backlink, id, navigate, setValue]);
 
   return (
     <form

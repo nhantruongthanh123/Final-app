@@ -15,6 +15,7 @@ export interface AlbumWithMeta extends Album {
     firstName: string;
     lastName: string;
     avatarUrl: string;
+    isFollowing: boolean;
   };
   numLikes: number;
   isLiked: boolean;

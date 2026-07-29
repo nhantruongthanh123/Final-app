@@ -20,8 +20,11 @@ export const useFollowUser = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["photos", "discover"] });
       queryClient.invalidateQueries({ queryKey: ["photos", "feed"] });
+      queryClient.invalidateQueries({ queryKey: ["photos", "discover"] });
+
+      queryClient.invalidateQueries({ queryKey: ["albums", "feed"] });
+      queryClient.invalidateQueries({ queryKey: ["albums", "discover"] });
     },
 
     onError: (error) => {

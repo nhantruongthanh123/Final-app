@@ -1,4 +1,5 @@
 import { useAlbumDiscover } from "@/hooks/album/useAlbumDiscover";
+import { useFollowUser } from "@/hooks/user/useFollowUser";
 import type { AlbumWithMeta } from "@/types/album";
 import type { PaginatedResponse } from "@/types/api";
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
@@ -16,8 +17,8 @@ const AlbumsDiscover = () => {
   );
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-
   const searchQuery = searchParams.get("search") || "";
+  const followMutation = useFollowUser();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useAlbumDiscover(searchQuery);
@@ -43,6 +44,36 @@ const AlbumsDiscover = () => {
                     numLikes: newIsLiked
                       ? album.numLikes + 1
                       : album.numLikes - 1,
+                  }
+                : album,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  const handleAlbumFollow = (userId: string, isCurrentlyFollowing: boolean) => {
+    followMutation.mutate({
+      userId,
+      isCurrentlyFollowing,
+    });
+    queryClient.setQueryData<InfiniteData<AlbumDiscoverResponse>>(
+      ["albums", "discover", searchQuery],
+      (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.map((album) =>
+              album.user.id === userId
+                ? {
+                    ...album,
+                    user: {
+                      ...album.user,
+                      isFollowing: !isCurrentlyFollowing,
+                    },
                   }
                 : album,
             ),
@@ -80,6 +111,7 @@ const AlbumsDiscover = () => {
             album={album}
             handleClickAlbum={() => setSelectedAlbum(album)}
             handleLikeAlbum={handleAlbumLike}
+            handleFollowUser={handleAlbumFollow}
           />
         </div>
       ))}

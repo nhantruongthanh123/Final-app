@@ -71,6 +71,7 @@ const AddPhotoForm = ({ backlink }: { backlink: string }) => {
         return "Photo saved successfully!";
       },
       error: (err) => {
+        navigate(backlink);
         if (axios.isAxiosError(err) && err.response?.data?.message) {
           return err.response.data.message;
         }

@@ -103,6 +103,7 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
           return "Album created successfully!";
         },
         error: (error) => {
+          navigate(backlink);
           if (axios.isAxiosError(error)) {
             console.log(error);
             return error.response?.data?.message;

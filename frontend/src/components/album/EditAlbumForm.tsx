@@ -151,11 +151,11 @@ const EditAlbumForm = ({ id, backlink }: { id: string; backlink: string }) => {
           return "Changes saved successfully!";
         },
         error: (error) => {
+          navigate(backlink);
           if (axios.isAxiosError(error)) {
             console.log(error);
             return error.response?.data?.message;
           }
-
           return "Failed to save changes.";
         },
       },
