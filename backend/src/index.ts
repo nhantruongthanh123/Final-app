@@ -7,7 +7,6 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-
 const allowedOrigins = ["http://localhost:5173", process.env.FRONTEND_URL];
 
 dotenv.config();

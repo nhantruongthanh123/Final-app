@@ -25,6 +25,9 @@ export const useFollowUser = () => {
 
       queryClient.invalidateQueries({ queryKey: ["albums", "feed"] });
       queryClient.invalidateQueries({ queryKey: ["albums", "discover"] });
+
+      queryClient.invalidateQueries({ queryKey: ["followings"] });
+      queryClient.invalidateQueries({ queryKey: ["followers"] });
     },
 
     onError: (error) => {
