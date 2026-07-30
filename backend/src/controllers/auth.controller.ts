@@ -232,9 +232,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
   const user = await userService.findUserByEmail(email);
 
   if (!user) {
-    return res
-      .status(200)
-      .json({ message: "Recovery will send to your email." });
+    return res.status(200).json({
+      message: "Recovery will send to admin email. Please contact support.",
+    });
   }
 
   const resetToken = crypto.randomBytes(32).toString("hex");
@@ -256,7 +256,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
   await sendResetPasswordEmail(user.email, user.firstName ?? "", resetLink);
 
-  return res.status(200).json({ message: "Recovery will send to your email." });
+  return res.status(200).json({
+    message: "Recovery will send to admin email. Please contact support.",
+  });
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
@@ -314,7 +316,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     true,
   );
 
-  res.status(200).json({ message: "Email verified successfully." });
+  res.status(200).json({ message: "Please wait admin verify your email." });
 };
 
 export const resendVerificationEmail = async (req: Request, res: Response) => {
@@ -352,7 +354,6 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
   sendVerificationEmail(user.email, user.firstName ?? "", verifyLink);
 
   res.status(200).json({
-    message:
-      "If the email is registered and not verified, a new verification link has been sent",
+    message: "Please wait admin verify your email.",
   });
 };
