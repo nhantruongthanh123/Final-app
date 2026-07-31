@@ -16,19 +16,22 @@ export const albumSchema = z.object({
   isPublic: z.boolean(),
   files: z
     .array(
-      z
-        .custom<File>((val) => val instanceof File, {
-          message: "Must be a valid file.",
-        })
-        .refine((file) => file.size <= MAX_FILE_SIZE, {
-          message: "Each file must be less than 5MB.",
-        })
-        .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-          message: "Only .jpg, .jpeg, .png, and .webp formats are supported.",
-        }),
+      z.custom<File>((val) => val instanceof File, {
+        message: "Must be a valid file.",
+      }),
     )
     .min(1, { message: "At least one photo is required to create an album." })
-    .max(25, { message: "You can only upload up to 25 photos." }),
+    .max(25, { message: "You can only upload up to 25 photos." })
+    .refine(
+      (files) =>
+        files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
+      {
+        message: "Only .jpg, .jpeg, .png formats are supported.",
+      },
+    )
+    .refine((files) => files.every((file) => file.size <= MAX_FILE_SIZE), {
+      message: "Each file must be less than 5MB.",
+    }),
 });
 
 export type AlbumPayload = z.infer<typeof albumSchema>;
@@ -36,22 +39,21 @@ export type AlbumPayload = z.infer<typeof albumSchema>;
 export const editAlbumSchema = albumSchema.omit({ files: true }).extend({
   files: z
     .array(
-      z
-        .custom<File>((val) => val instanceof File, {
-          message: "Must be a valid file.",
-        })
-        .refine((file) => file.size <= 5 * 1024 * 1024, {
-          message: "Each file must be less than 5MB.",
-        })
-        .refine(
-          (file) =>
-            ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
-          {
-            message: "Only .jpg, .jpeg, .png, and .webp formats are supported.",
-          },
-        ),
+      z.custom<File>((val) => val instanceof File, {
+        message: "Must be a valid file.",
+      }),
     )
-    .max(25, { message: "You can only upload up to 25 photos." }),
+    .max(25, { message: "You can only upload up to 25 photos." })
+    .refine(
+      (files) =>
+        files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
+      {
+        message: "Only .jpg, .jpeg, .png formats are supported.",
+      },
+    )
+    .refine((files) => files.every((file) => file.size <= MAX_FILE_SIZE), {
+      message: "Each file must be less than 5MB.",
+    }),
 });
 
 export type EditAlbumPayload = z.infer<typeof editAlbumSchema>;

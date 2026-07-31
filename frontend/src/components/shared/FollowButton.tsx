@@ -14,21 +14,21 @@ const FollowButton = ({
   const navigate = useNavigate();
 
   return isCurrentUser ? (
-    <div className="inline-flex rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
+    <div className="ml-auto flex justify-end rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
       <Button
         variant="ghost"
-        className="h-8 px-6 rounded-full w-full bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90 transition-colors"
+        className="h-8 px-6 rounded-full bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90 transition-colors"
         onClick={() => navigate("/photos")}
       >
         <span className="text-white font-bold text-sm tracking-wide">You</span>
       </Button>
     </div>
   ) : (
-    <div className="inline-flex rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
+    <div className="ml-auto flex justify-end rounded-full bg-linear-to-r from-rose-400 to-orange-400 p-0.5 mt-2 transition-transform hover:scale-105 shadow-sm">
       <Button
         variant="ghost"
         className={cn(
-          "h-8 px-6 rounded-full w-full transition-colors",
+          "h-8 px-6 rounded-full transition-colors",
           isFollowing
             ? "bg-white hover:bg-slate-50"
             : "bg-linear-to-r from-rose-400 to-orange-400 hover:opacity-90",

@@ -224,6 +224,7 @@ const EditProfile = () => {
               type="password"
               {...registerPassword("password")}
               error={passwordErrors.password?.message}
+              className="w-full"
             />
             <FormField
               label="New Password"
@@ -231,6 +232,7 @@ const EditProfile = () => {
               type="password"
               {...registerPassword("newPassword")}
               error={passwordErrors.newPassword?.message}
+              className="w-full"
             />
             <FormField
               label="Password Confirmation"
@@ -238,6 +240,7 @@ const EditProfile = () => {
               type="password"
               {...registerPassword("passwordConfirmation")}
               error={passwordErrors.passwordConfirmation?.message}
+              className="w-full"
             />
           </div>
           <Button
