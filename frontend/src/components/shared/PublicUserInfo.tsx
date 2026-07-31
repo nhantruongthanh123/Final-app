@@ -21,34 +21,36 @@ const PublicUserInfo = ({
   const user = useAuthStore((state) => state.user);
 
   return (
-    <div className="flex flex-row gap-4 w-full">
-      {avatarUrl ? (
+    <div className="flex flex-wrap gap-4 w-full">
+      <div className="flex items-center gap-4 shrink-0 max-w-full">
+        {avatarUrl ? (
+          <div
+            className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white"
+            onClick={handleClickUser}
+          >
+            <img
+              src={avatarUrl}
+              alt={firstName}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          </div>
+        ) : (
+          <div
+            className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white"
+            onClick={handleClickUser}
+          >
+            {firstName.charAt(0) + lastName.charAt(0)}{" "}
+          </div>
+        )}
         <div
-          className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white"
+          className="text-brand flex items-center justify-center cursor-pointer"
           onClick={handleClickUser}
         >
-          <img
-            src={avatarUrl}
-            alt={firstName}
-            className="h-8 w-8 rounded-full object-cover"
-          />
+          {firstName} {lastName}
         </div>
-      ) : (
-        <div
-          className="h-8 w-8 rounded-full bg-brand flex items-center justify-center text-white"
-          onClick={handleClickUser}
-        >
-          {firstName.charAt(0) + lastName.charAt(0)}{" "}
-        </div>
-      )}
-      <div
-        className="text-brand flex items-center justify-center cursor-pointer"
-        onClick={handleClickUser}
-      >
-        {firstName} {lastName}
       </div>
       {user && (
-        <div className="ml-auto flex items-center">
+        <div className="flex flex-1 items-center min-w-30">
           <FollowButton
             isCurrentUser={isCurrentUser}
             isFollowing={isFollowing}

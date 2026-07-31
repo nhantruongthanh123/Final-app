@@ -59,7 +59,7 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
       setValue(
         "files",
         nextPhotos.map((photo) => photo.file),
-        { shouldValidate: true },
+        { shouldValidate: true, shouldDirty: true },
       );
       return nextPhotos;
     });
@@ -78,7 +78,7 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
       setValue(
         "files",
         nextPhotos.map((photo) => photo.file),
-        { shouldValidate: true },
+        { shouldValidate: true, shouldDirty: true },
       );
 
       return nextPhotos;
@@ -105,7 +105,6 @@ const AddAlbumForm = ({ backlink }: { backlink: string }) => {
         error: (error) => {
           navigate(backlink);
           if (axios.isAxiosError(error)) {
-            console.log(error);
             return error.response?.data?.message;
           }
         },

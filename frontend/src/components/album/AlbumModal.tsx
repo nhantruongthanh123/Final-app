@@ -43,7 +43,7 @@ const AlbumModal = ({
             </button>
           </div>
 
-          <div className="w-full bg-gray-100 flex justify-center max-h-[60vh] items-center px-8 select-none">
+          <div className="w-full bg-gray-100 flex justify-center max-h-[60vh] items-center px-4 select-none">
             <div
               className="cursor-pointer shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
               onClick={handlePrevImage}
@@ -51,11 +51,28 @@ const AlbumModal = ({
               <ChevronLeft className="w-6 h-6" />
             </div>
 
-            <img
-              src={photos[currentImageIndex].photoUrl}
-              alt={title}
-              className="w-full h-auto object-contain max-h-[60vh]"
-            />
+            <div className="relative flex-1 flex justify-center items-center h-full mx-4">
+              <img
+                src={photos[currentImageIndex].photoUrl}
+                alt={title}
+                className="max-w-full object-contain max-h-[60vh]"
+              />
+
+              <div className="absolute bottom-4 flex items-center gap-2">
+                {photos.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      currentImageIndex === index
+                        ? "w-6 bg-indigo-600/80"
+                        : "w-2 bg-slate-500/50 hover:bg-slate-500/80"
+                    }`}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
 
             <div
               className="cursor-pointer shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition-all hover:bg-black/60 hover:scale-110 active:scale-95"
